@@ -60,7 +60,7 @@ button{font-family:inherit;cursor:pointer}
 .login-err{color:var(--bad);font-size:12.5px;text-align:center;margin-top:12px;min-height:16px}
 
 /* ---------- SHELL ---------- */
-#app{display:none;height:100%}
+#app{display:none;position:fixed;inset:0}
 .shell{display:grid;grid-template-columns:240px 1fr;height:100%}
 .side{background:linear-gradient(180deg,var(--panel),#06090F);border-right:1px solid var(--line);
   display:flex;flex-direction:column;padding:18px 14px;gap:6px;min-height:0}
@@ -381,6 +381,7 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
 .whocard{display:flex;flex-direction:column;align-items:center;gap:12px;padding:22px 12px;background:var(--panel2);
   border:1px solid var(--line);border-radius:14px;color:var(--ink);font-size:15px;font-weight:600;transition:.15s}
 .whocard:hover{border-color:var(--blue);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.whocard.on{border-color:var(--blue);background:rgba(59,130,246,.14);box-shadow:0 0 0 1px var(--blue) inset}
 .wav{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;color:#fff;font-weight:700;
   font-family:"Space Grotesk";font-size:18px}
 
@@ -409,9 +410,6 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
 .mtabs{display:none}
 @media(max-width:860px){
   .shell{grid-template-columns:1fr}
-  /* fill the true screen height so there's no dead space above the tab bar */
-  #app,.shell,.main{height:100dvh}
-  .main{height:auto;flex:1;min-height:0}
   .side{display:none}
   .grid-stats{grid-template-columns:repeat(2,1fr)}
   .funnel{grid-template-columns:repeat(2,1fr)}
@@ -459,14 +457,17 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
   <div class="login-card" id="login-pane">
     <img class="login-logo" src="https://icshqgpsehddcqwydjxc.supabase.co/functions/v1/logo" alt="LeadaLine">
     <span class="eyebrow">Internal · LeadaLine HQ</span>
-    <h2>Sign in to work the pipeline</h2>
-    <div class="field"><label>Email</label>
-      <input class="input" id="l-email" type="email" value="hello@leadaline.com" autocomplete="username"></div>
+    <h2>Who's signing in?</h2>
+    <div class="who-pick" id="login-who">
+      <button type="button" class="whocard" data-user="finn"><span class="wav" style="background:linear-gradient(135deg,#00B4FF,#3B82F6)">F</span>Finn</button>
+      <button type="button" class="whocard" data-user="cam"><span class="wav" style="background:linear-gradient(135deg,#7C3AED,#a855f7)">C</span>Cam</button>
+    </div>
+    <input id="l-email" type="email" autocomplete="username" tabindex="-1" aria-hidden="true" style="position:absolute;left:-9999px;height:1px;width:1px">
     <div class="field"><label>Passcode</label>
       <input class="input" id="l-pass" type="password" placeholder="••••••••" autocomplete="current-password"></div>
     <button class="btn-primary" id="l-go">Sign in</button>
     <div class="login-err" id="l-err"></div>
-    <div class="login-hint">hello@leadaline.com &nbsp;·&nbsp; or your own leadaline.com address</div>
+    <div class="login-hint">Tap your name, enter your passcode</div>
   </div>
   <div class="login-card" id="who-pane" style="display:none">
     <span class="eyebrow" style="text-align:center;display:block;margin-bottom:6px">You're in</span>
@@ -733,11 +734,11 @@ function ownerBadge(owner){
 }
 
 /* ============ AUTH ============ */
-const DESK_EMAILS = { "finn@leadaline.com":"finn", "cam@leadaline.com":"cam" };
+let LOGIN_USER=null;   // picked on the login screen: finn | cam
 async function doLogin(){
-  const email=($("#l-email").value||"").trim().toLowerCase(), pass=$("#l-pass").value||"";
-  const desk = DESK_EMAILS[email];
-  if(!desk){ $("#l-err").textContent="Use your cam@leadaline.com or finn@leadaline.com address."; return; }
+  if(!LOGIN_USER){ $("#l-err").textContent="Tap your name first."; return; }
+  const desk=LOGIN_USER;
+  const email=desk+"@leadaline.com", pass=$("#l-pass").value||"";
   const btn=$("#l-go"); if(btn){ btn.disabled=true; btn.textContent="Signing in…"; }
   try{
     const r=await fetch(CFG.SUPABASE_URL+"/auth/v1/token?grant_type=password",{
@@ -1607,8 +1608,17 @@ function wireValChips(box, input){
 }
 $("#l-go").onclick=doLogin;
 $("#l-pass").addEventListener("keydown",e=>{if(e.key==="Enter")doLogin();});
-$("#l-email").addEventListener("keydown",e=>{if(e.key==="Enter")$("#l-pass").focus();});
-document.querySelectorAll(".whocard").forEach(b=>b.onclick=()=>pickDesk(b.dataset.me));
+/* login user picker: tap your name, type your passcode */
+function pickLoginUser(u, focusPass){
+  LOGIN_USER=u;
+  document.querySelectorAll("#login-who .whocard").forEach(x=>x.classList.toggle("on", x.dataset.user===u));
+  const he=$("#l-email"); if(he) he.value=u+"@leadaline.com";   // lets iPhone/browser keychains save per-person
+  $("#l-err").textContent="";
+  if(focusPass) $("#l-pass").focus();
+}
+document.querySelectorAll("#login-who .whocard").forEach(b=> b.onclick=()=>pickLoginUser(b.dataset.user, true));
+(function(){ const last=SS.getItem("ll_me"); if(last==="finn"||last==="cam") pickLoginUser(last, false); })();
+document.querySelectorAll("#who-pane .whocard").forEach(b=>b.onclick=()=>pickDesk(b.dataset.me));
 document.querySelectorAll("#nav button,#mtabs button").forEach(b=>b.onclick=()=>{TAB=b.dataset.tab;FILTER="all";render();});
 document.querySelectorAll("#segbar button").forEach(b=>b.onclick=()=>{ VIEW=b.dataset.view; render(); });
 $("#btn-refresh").onclick=boot;
