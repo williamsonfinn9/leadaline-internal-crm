@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>LeadaLine Pipeline</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="favicon-64.png">
@@ -25,7 +25,10 @@
   --radius:14px; --shadow:0 10px 40px rgba(0,0,0,.5);
 }
 *{box-sizing:border-box}
+html{background:var(--bg)}
 html,body{margin:0;height:100%}
+@supports (height:100dvh){ html,body{height:100dvh} }
+body{overscroll-behavior:none}
 body{background:var(--bg);color:var(--ink);font-family:"Manrope",system-ui,-apple-system,sans-serif;
   font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased;overflow:hidden}
 h1,h2,h3{font-family:"Space Grotesk",system-ui,sans-serif;margin:0;letter-spacing:-.01em}
@@ -104,12 +107,13 @@ button{font-family:inherit;cursor:pointer}
 .ovp-h{margin-bottom:16px}
 .ovp-h h3{font-size:15px;font-weight:700;margin:0}
 .ovp-sub{font-size:12px;color:var(--faint)}
-.funnel{display:flex;flex-direction:column;gap:11px}
+.fnl{display:flex;flex-direction:column;gap:11px}
 .fn-row{display:grid;grid-template-columns:130px 1fr 42px;align-items:center;gap:12px}
 .fn-label{font-size:13px;color:var(--ink);font-weight:600;display:flex;justify-content:space-between;padding-right:6px}
 .fn-label .fn-n{color:var(--muted);font-weight:700}
-.fn-bar{height:22px;background:var(--panel2);border-radius:6px;overflow:hidden}
-.fn-fill{height:100%;border-radius:6px;transition:width .6s cubic-bezier(.2,.7,.3,1);min-width:6px}
+.fn-bar{height:24px;background:var(--panel2);border-radius:7px;overflow:hidden}
+.fn-fill{height:100%;border-radius:7px;transition:width .6s cubic-bezier(.2,.7,.3,1);min-width:6px;
+  background-image:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,0) 55%)}
 .fn-pct{font-size:11px;color:var(--faint);text-align:right;font-family:"JetBrains Mono",monospace}
 .nowlist{display:flex;flex-direction:column}
 .now-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);font-size:13.5px;color:var(--muted)}
@@ -132,10 +136,30 @@ button{font-family:inherit;cursor:pointer}
 .mcol{flex:1;min-width:38px;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%}
 .mbars{flex:1;display:flex;align-items:flex-end;gap:2px;width:100%;justify-content:center}
 .mbar{width:6px;border-radius:2px 2px 0 0;min-height:2px;transition:height .5s cubic-bezier(.2,.7,.3,1)}
+.mcol{cursor:default;border-radius:8px;transition:background .12s}
+.mcol:hover{background:rgba(255,255,255,.04)}
 .mlabel{font-size:10.5px;color:var(--faint);font-family:"JetBrains Mono",monospace}
+.mtip{position:fixed;z-index:95;background:var(--panel2);border:1px solid var(--line2);border-radius:10px;
+  padding:10px 12px;font-size:12px;box-shadow:var(--shadow);pointer-events:none;opacity:0;
+  transition:opacity .12s;min-width:132px}
+.mtip.on{opacity:1}
+.mtip b.mt-h{font-family:"Space Grotesk",sans-serif;font-size:13px;display:block;margin-bottom:7px;color:var(--ink)}
+.mtip .mt-r{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:2.5px 0}
+.mtip .mt-r span{color:var(--muted);display:flex;align-items:center;gap:7px}
+.mtip .mt-r i{width:8px;height:8px;border-radius:2px;display:inline-block}
+.mtip .mt-r b{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--ink)}
 .ov-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
 .ov-legend span{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--muted)}
 .ov-legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+/* line chart */
+.lchart{width:100%;height:auto;display:block}
+.lchart .hov{cursor:crosshair}
+/* value preset chips */
+.vchips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.vchip{border:1px solid var(--line2);background:var(--panel2);color:var(--muted);border-radius:20px;
+  padding:5px 12px;font-size:11.5px;font-weight:700;transition:.14s}
+.vchip:hover{color:var(--ink);border-color:var(--blue)}
+.vchip.on{background:rgba(59,130,246,.16);border-color:var(--blue);color:#fff}
 /* cam vs finn */
 .vs{display:flex;align-items:center;gap:16px}
 .vs-side{flex:none;min-width:70px}
@@ -197,6 +221,7 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
 .badge .d{width:6px;height:6px;border-radius:50%}
 .badge.b-new{background:rgba(0,180,255,.12);color:#7cd4ff}
 .badge.b-contacted{background:rgba(124,58,237,.14);color:#c4a6ff}
+.badge.b-voicemail{background:rgba(251,146,60,.14);color:#fdba74}
 .badge.b-demo_sent{background:rgba(59,130,246,.14);color:#9ec2ff}
 .badge.b-meeting{background:rgba(0,212,200,.13);color:#6ee7dc}
 .badge.b-won{background:rgba(34,197,94,.14);color:#7ee6a6}
@@ -232,15 +257,24 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
 .hook{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;
   font-size:12.5px;color:var(--ink);line-height:1.5}
 .hook .eyebrow{margin-bottom:5px}
-.outcomes{display:flex;flex-wrap:wrap;gap:7px;margin-top:2px}
-.oc{border:1px solid var(--line2);background:var(--panel2);color:var(--ink);border-radius:8px;
-  padding:7px 11px;font-size:12px;font-weight:600;transition:.14s;flex:1;min-width:calc(50% - 4px);text-align:center}
+.outcomes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+.outcomes .oc:first-child{grid-column:1/-1}
+.oc{border:1px solid var(--line2);background:var(--panel2);color:var(--ink);border-radius:9px;
+  padding:11px 12px;font-size:12.5px;font-weight:600;transition:.14s;text-align:center}
 .oc:hover{border-color:var(--blue);background:rgba(59,130,246,.1)}
 .oc.win:hover{border-color:var(--good);background:rgba(34,197,94,.12);color:#8ff0b3}
 .oc.kill:hover{border-color:var(--bad);background:rgba(240,77,106,.12);color:#ffa6b6}
 .qn{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:8px;color:var(--ink);
-  padding:8px 10px;font-size:12.5px;font-family:inherit;resize:vertical;min-height:34px}
+  padding:9px 11px;font-size:12.5px;font-family:inherit;resize:vertical;min-height:38px}
 .qn:focus{border-color:var(--blue);outline:none}
+/* confidence chips */
+.conf{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.conf-chip{border:1px solid var(--line2);background:var(--panel2);color:var(--muted);border-radius:20px;
+  padding:5px 13px;font-size:11.5px;font-weight:700;transition:.14s;display:inline-flex;align-items:center;gap:6px}
+.conf-chip::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--cc);opacity:.55}
+.conf-chip:hover{color:var(--ink);border-color:var(--cc)}
+.conf-chip.on{background:color-mix(in srgb,var(--cc) 16%,transparent);border-color:var(--cc);color:var(--ink)}
+.conf-chip.on::before{opacity:1}
 
 /* ---------- DRAWER ---------- */
 .drawer-scrim{position:fixed;inset:0;background:rgba(2,4,10,.6);backdrop-filter:blur(2px);z-index:60;
@@ -267,7 +301,7 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
   padding:10px 12px;font-size:13px;font-family:inherit}
 .sel:focus,.dinput:focus,.darea:focus{border-color:var(--blue);outline:none}
 /* Touch screens: 16px inputs stop iOS Safari from zoom-jumping on focus */
-@media (max-width:768px){ .sel,.dinput,.darea{font-size:16px} }
+@media (max-width:768px){ .sel,.dinput,.darea,.input,.qn{font-size:16px} }
 .darea{resize:vertical;min-height:90px;line-height:1.5}
 .dfoot{padding:16px 22px;border-top:1px solid var(--line);display:flex;gap:10px;align-items:center}
 .dfoot .btn-grad{flex:1;justify-content:center;padding:11px}
@@ -276,6 +310,36 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
 .contact-line a{color:var(--sky);text-decoration:none}
 .contact-line a:hover{text-decoration:underline}
 .contact-line .k{color:var(--faint);font-size:11px;display:block;margin-bottom:2px}
+
+/* drawer send-action block */
+.dact{border:1px solid var(--line2);border-radius:12px;padding:14px;margin-bottom:16px;background:var(--panel2)}
+.dact .eyebrow{margin-bottom:9px;display:block}
+.dact .send-btn{width:100%;border:none;border-radius:10px;background:var(--grad);color:#fff;font-weight:700;
+  font-size:13.5px;padding:12px;letter-spacing:.01em;transition:filter .15s;display:flex;align-items:center;justify-content:center;gap:8px}
+.dact .send-btn:hover{filter:brightness(1.08)}
+.dact .send-btn:disabled{background:var(--panel);color:var(--faint);cursor:not-allowed;filter:none;border:1px solid var(--line)}
+.dact .send-hint{font-size:11.5px;color:var(--faint);margin-top:8px;text-align:center}
+.dact .sent-ok{display:flex;align-items:center;gap:8px;font-size:13px;color:#8ff0b3;font-weight:600}
+.dact .sent-ok .tick{width:20px;height:20px;border-radius:50%;background:rgba(34,197,94,.18);display:grid;place-items:center;font-size:12px}
+.dact .resend{background:none;border:none;color:var(--sky);font-size:12px;text-decoration:underline;padding:4px 0;margin-top:6px}
+
+/* confirm-send modal */
+.confirm-scrim{position:fixed;inset:0;background:rgba(2,4,10,.72);backdrop-filter:blur(3px);z-index:80;
+  display:none;align-items:center;justify-content:center}
+.confirm-scrim.open{display:flex}
+.confirm{width:min(440px,94vw);background:var(--panel);border:1px solid var(--line2);border-radius:18px;
+  padding:24px;box-shadow:var(--shadow)}
+.confirm h2{font-size:18px;font-weight:600;margin-bottom:6px}
+.confirm .c-sub{font-size:13px;color:var(--muted);line-height:1.55;margin-bottom:16px}
+.confirm .c-preview{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:16px;font-size:12.5px;line-height:1.6}
+.confirm .c-preview .k{color:var(--faint);font-size:11px;letter-spacing:.04em;text-transform:uppercase;display:block;margin-bottom:3px}
+.confirm .c-preview .v{color:var(--ink);word-break:break-word}
+.confirm .c-preview .v.link{color:var(--sky);font-family:"JetBrains Mono",monospace;font-size:11.5px}
+.confirm .c-edit label{display:block;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:6px;margin-top:12px}
+.confirm-foot{display:flex;gap:10px;margin-top:6px}
+.confirm-foot .btn{flex:1;justify-content:center}
+.confirm-foot .send-go{border:none;background:var(--grad);color:#fff;font-weight:700}
+.confirm-foot .send-go:hover{filter:brightness(1.08)}
 
 /* ---------- MODAL (add lead) ---------- */
 .modal-scrim{position:fixed;inset:0;background:rgba(2,4,10,.66);backdrop-filter:blur(3px);z-index:70;
@@ -298,6 +362,9 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
 .toast .d{width:8px;height:8px;border-radius:50%}
 .toast.ok .d{background:var(--good)} .toast.err .d{background:var(--bad)} .toast.info .d{background:var(--sky)}
 .toast.err{border-color:rgba(240,77,106,.4)}
+.toast-act{margin-left:6px;background:rgba(255,255,255,.1);border:1px solid var(--line2);color:var(--ink);
+  font-size:12px;font-weight:700;padding:4px 12px;border-radius:7px;transition:.14s}
+.toast-act:hover{background:var(--sky);border-color:var(--sky);color:#04121f}
 @keyframes tin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
 /* desk picker */
@@ -336,16 +403,40 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
   .side{display:none}
   .grid-stats{grid-template-columns:repeat(2,1fr)}
   .funnel{grid-template-columns:repeat(2,1fr)}
-  .scroll{padding:16px 14px 90px}
-  .topbar{padding:14px 16px}
+  /* room for the bottom tab bar + iPhone home indicator */
+  .scroll{padding:16px 14px calc(96px + env(safe-area-inset-bottom))}
+  /* clear the notch / Dynamic Island */
+  .topbar{padding:calc(12px + env(safe-area-inset-top)) 14px 12px;gap:10px}
+  .topbar h1{font-size:17px}
+  .top-actions{gap:6px}
+  .top-actions .btn{padding:8px 10px;font-size:12px}
+  .segbar{order:3;width:100%;justify-content:center}
+  .callbar{flex-wrap:wrap;gap:10px 14px}
+  .callgrid{grid-template-columns:1fr}
+  /* thumb-sized tap targets */
+  .oc{padding:13px 10px;font-size:13px}
+  .conf-chip{padding:8px 15px}
+  /* tables scroll sideways instead of crushing columns */
+  .tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .tablewrap table{min-width:620px}
+  /* lead record goes full screen */
+  .drawer{width:100vw;border-left:none}
+  .dhead{padding-top:calc(20px + env(safe-area-inset-top))}
+  .dfoot{padding-bottom:calc(16px + env(safe-area-inset-bottom))}
+  /* popups never taller than the screen; scroll inside (keyboard-safe) */
+  .modal,.confirm{max-height:calc(100dvh - 28px);overflow:auto;-webkit-overflow-scrolling:touch}
+  /* toasts sit above the tab bar, never under the home indicator */
+  #toasts{bottom:calc(86px + env(safe-area-inset-bottom));width:calc(100vw - 24px)}
+  .toast{max-width:100%}
   .mtabs{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:40;background:var(--panel);
-    border-top:1px solid var(--line2);padding:8px}
-  .mtabs button{flex:1;background:none;border:none;color:var(--muted);font-size:10.5px;font-weight:600;
-    display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px}
+    border-top:1px solid var(--line2);padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+  .mtabs button{flex:1;background:none;border:none;color:var(--muted);font-size:9.5px;font-weight:600;
+    display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;min-width:0}
   .mtabs button.active{color:var(--sky)}
-  .mtabs .ic{width:20px;height:20px}
+  .mtabs .ic{width:19px;height:19px}
 }
-@media(max-width:520px){.grid-stats,.funnel{grid-template-columns:1fr 1fr}.frow{grid-template-columns:1fr}}
+@media(max-width:520px){.grid-stats,.funnel{grid-template-columns:1fr 1fr}.frow{grid-template-columns:1fr}
+  .ovc-v{font-size:26px}.callbar .big{font-size:24px}}
 </style>
 </head>
 <body>
@@ -386,6 +477,7 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
         <button data-tab="pipeline"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>Pipeline</button>
         <button data-tab="leads"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="10" width="18" height="4" rx="1"/><rect x="3" y="16" width="18" height="4" rx="1"/></svg>All leads<span class="pill" id="pill-leads">0</span></button>
         <button data-tab="callsheet"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.4-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Call sheet<span class="pill" id="pill-call">0</span></button>
+        <button data-tab="callbacks"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 2v6h6"/><path d="M3.5 8a9 9 0 1 1-1 4"/></svg>Callbacks<span class="pill" id="pill-callback">0</span></button>
         <button data-tab="lost"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Lost &amp; parked<span class="pill" id="pill-lost">0</span></button>
       </nav>
       <div class="side-foot">
@@ -412,6 +504,7 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
           <button data-view="cam"><span class="sd cam"></span>Cam</button>
         </div>
         <div class="top-actions">
+          <button class="btn ghost" id="btn-undo" style="display:none"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v6h6"/><path d="M3.5 13a9 9 0 1 0 2.6-6.4L3 9"/></svg>Undo</button>
           <button class="btn ghost" id="btn-refresh"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>Refresh</button>
           <button class="btn" id="btn-export"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>Export CSV</button>
           <button class="btn-grad btn" id="btn-add"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Add lead</button>
@@ -426,6 +519,7 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
     <button data-tab="pipeline"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>Pipeline</button>
     <button data-tab="leads"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="10" width="18" height="4" rx="1"/><rect x="3" y="16" width="18" height="4" rx="1"/></svg>Leads</button>
     <button data-tab="callsheet"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.4-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Calls</button>
+    <button data-tab="callbacks"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 2v6h6"/><path d="M3.5 8a9 9 0 1 1-1 4"/></svg>Callback</button>
     <button data-tab="lost"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>Lost</button>
   </nav>
 </div>
@@ -444,7 +538,13 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
     <div class="frow"><div class="fitem"><label>Phone</label><input class="dinput" id="m-phone" placeholder="07…"></div>
       <div class="fitem"><label>Email</label><input class="dinput" id="m-email" placeholder="optional"></div></div>
     <div class="frow"><div class="fitem"><label>Location</label><input class="dinput" id="m-loc" placeholder="Town / area"></div>
-      <div class="fitem"><label>Est. value £</label><input class="dinput" id="m-val" type="number" placeholder="0"></div></div>
+      <div class="fitem"><label>Est. value £ / mo</label><input class="dinput" id="m-val" type="number" placeholder="0"></div></div>
+    <div class="fitem" style="margin-bottom:12px"><div class="vchips" id="m-valchips">
+      <button type="button" class="vchip" data-v="249">Pilot £249</button>
+      <button type="button" class="vchip" data-v="349">Starter £349</button>
+      <button type="button" class="vchip" data-v="549">Connected £549</button>
+      <button type="button" class="vchip" data-v="749">Full Office £749</button>
+    </div></div>
     <div class="frow"><div class="fitem"><label>Owner</label><select class="sel" id="m-owner">
         <option value="finn">Finn</option><option value="cam">Cam</option></select></div>
       <div class="fitem"><label>Hook / note</label><input class="dinput" id="m-note" placeholder="Why they're a fit"></div></div>
@@ -466,6 +566,21 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
     <div class="modal-foot">
       <button class="btn ghost" id="fu-cancel">Cancel</button>
       <button class="btn-grad btn" id="fu-send">Send follow-up</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM SEND -->
+<div class="confirm-scrim" id="confirmmodal">
+  <div class="confirm">
+    <h2 id="c-title">Send this?</h2>
+    <div class="c-sub" id="c-sub"></div>
+    <div class="c-preview" id="c-preview"></div>
+    <div class="c-edit" id="c-edit"></div>
+    <div class="confirm-foot">
+      <button class="btn ghost" id="c-cancel">Cancel</button>
+      <button class="btn" id="c-editbtn">Edit</button>
+      <button class="btn send-go" id="c-send">Send</button>
     </div>
   </div>
 </div>
@@ -498,18 +613,20 @@ let TAB = "overview";
 let FILTER = "all";
 let ME = "finn";      // who is at this desk (finn | cam) — set at login
 let VIEW = "finn";    // whose leads are shown across the app (team | finn | cam)
+let LAST_ACTION = null; // {id, prev:{status,follow_up_count}, label} — powers Undo
 const SS = window.localStorage;   // persistent sign-in across visits
 const PNAME = { finn:"Finn", cam:"Cam" };
 
 /* ============ STATUS META ============ */
 const ST = {
   new:{label:"New",cls:"b-new"}, contacted:{label:"Contacted",cls:"b-contacted"},
+  voicemail:{label:"Voicemail",cls:"b-voicemail"},
   demo_sent:{label:"Demo sent",cls:"b-demo_sent"}, meeting:{label:"Meeting",cls:"b-meeting"},
   won:{label:"Won",cls:"b-won"}, lost:{label:"Lost",cls:"b-lost"},
   not_interested:{label:"Not interested",cls:"b-not_interested"}, parked:{label:"Parked",cls:"b-parked"}
 };
-const ACTIVE_ST = ["new","contacted","demo_sent","meeting","won"];
-const DOTC = {new:"#3B82F6",contacted:"#6366F1",demo_sent:"#8B5CF6",meeting:"#A855F7",won:"#22C55E",lost:"#F04D6A",not_interested:"#F04D6A",parked:"#8A97B4"};
+const ACTIVE_ST = ["new","contacted","voicemail","demo_sent","meeting","won"];
+const DOTC = {new:"#3B82F6",contacted:"#6366F1",voicemail:"#FB923C",demo_sent:"#8B5CF6",meeting:"#A855F7",won:"#22C55E",lost:"#F04D6A",not_interested:"#F04D6A",parked:"#8A97B4"};
 const DEAD_ST = ["lost","not_interested","parked"];
 function stOf(l){ return (l.status && ST[l.status]) ? l.status : "new"; }
 
@@ -537,6 +654,10 @@ async function apiInsert(row){
   const rows = await r.json();
   return rows[0];
 }
+async function apiDelete(id){
+  const r = await fetch(REST+"?id=eq."+id, {method:"DELETE", headers:headers()});
+  if(!r.ok){ const t=await r.text(); throw new Error("Delete failed ("+r.status+") "+t.slice(0,120)); }
+}
 
 /* update one lead, verify, sync local state */
 async function saveLead(id, patch){
@@ -550,16 +671,46 @@ async function saveLead(id, patch){
 const $ = s=>document.querySelector(s);
 const esc = s=> (s==null?"":String(s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const gbp = n=> "£"+(Number(n||0)).toLocaleString("en-GB");
-function toast(msg,type){ const t=document.createElement("div"); t.className="toast "+(type||"info");
-  t.innerHTML='<span class="d"></span>'+esc(msg); $("#toasts").appendChild(t);
-  setTimeout(()=>{t.style.opacity="0";t.style.transition="opacity .3s";setTimeout(()=>t.remove(),300);}, type==="err"?4200:2200); }
+function toast(msg,type,action){ const t=document.createElement("div"); t.className="toast "+(type||"info");
+  t.innerHTML='<span class="d"></span>'+esc(msg);
+  if(action && action.label){
+    const ab=document.createElement("button"); ab.className="toast-act"; ab.textContent=action.label;
+    ab.onclick=()=>{ t.remove(); try{ action.fn(); }catch(e){} };
+    t.appendChild(ab);
+  }
+  $("#toasts").appendChild(t);
+  const life = action? 6000 : (type==="err"?4200:2200);
+  setTimeout(()=>{t.style.opacity="0";t.style.transition="opacity .3s";setTimeout(()=>t.remove(),300);}, life); }
 function thisMonth(iso){ if(!iso) return false; const d=new Date(iso),n=new Date(); return d.getMonth()===n.getMonth()&&d.getFullYear()===n.getFullYear(); }
-function hookOf(l){ return l.recommended_next_action || l.conversation_summary || l.customer_message || l.service_required || "No AI summary yet — qualify on the call."; }
+function hookOf(l){ return l.recommended_next_action || l.customer_message || l.service_required || ""; }
+/* Confidence: how sure are we about this prospect. Stored in lead_quality. */
+const CONF={ high:{label:"Hot",col:"#22C55E"}, medium:{label:"Warm",col:"#F59E0B"}, low:{label:"Low",col:"#F04D6A"} };
+function confChips(l, cls){
+  const cur=l.lead_quality||"";
+  return `<div class="conf ${cls||""}" data-lead="${l.id}"><span class="eyebrow" style="margin-right:2px">Confidence</span>`+
+    Object.keys(CONF).map(k=>`<button class="conf-chip ${cur===k?"on":""}" data-conf="${k}" style="--cc:${CONF[k].col}">${CONF[k].label}</button>`).join("")+`</div>`;
+}
+function wireConfChips(root, onSet){
+  root.querySelectorAll(".conf").forEach(c=>{
+    c.querySelectorAll(".conf-chip").forEach(b=> b.onclick=(e)=>{ e.stopPropagation();
+      c.querySelectorAll(".conf-chip").forEach(x=>x.classList.remove("on"));
+      b.classList.add("on");
+      onSet(c.dataset.lead, b.dataset.conf);
+    });
+  });
+}
 function nameOf(l){ return l.name || l.company_name || "Unnamed lead"; }
 function toLocalInput(iso){ const d=new Date(iso); const p=n=>String(n).padStart(2,"0");
   return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+"T"+p(d.getHours())+":"+p(d.getMinutes()); }
 function fmtMeet(iso){ if(!iso) return "—"; const d=new Date(iso);
   return d.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"})+" · "+d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}); }
+/* Click anywhere in a date/time box to open the picker (not just the tiny icon) */
+function wirePickers(root){
+  (root||document).querySelectorAll('input[type="datetime-local"]').forEach(inp=>{
+    inp.style.cursor="pointer";
+    inp.addEventListener("click",()=>{ try{ if(inp.showPicker) inp.showPicker(); }catch(e){} });
+  });
+}
 /* VIEW scoping: which owner's leads are on screen */
 function scoped(){ return VIEW==="team" ? LEADS : LEADS.filter(l=>l.owner===VIEW); }
 function ownerBadge(owner){
@@ -615,27 +766,32 @@ async function boot(){
 
 /* ============ COUNTS ============ */
 function counts(){
-  const c={all:0,call:0,lost:0}; const src=scoped();
+  const c={all:0,call:0,callback:0,lost:0}; const src=scoped();
   c.all=src.length;
   src.forEach(l=>{ const s=stOf(l);
     if(DEAD_ST.includes(s)) c.lost++;
-    if(l.phone && (s==="new"||s==="contacted")) c.call++;
+    if(l.phone && s==="new") c.call++;          // first-attempt queue
+    if(l.phone && (s==="contacted"||s==="voicemail")) c.callback++; // rung once, still chasing
   });
   return c;
 }
 function refreshPills(){ const c=counts();
-  $("#pill-leads").textContent=c.all; $("#pill-call").textContent=c.call; $("#pill-lost").textContent=c.lost; }
+  $("#pill-leads").textContent=c.all; $("#pill-call").textContent=c.call;
+  const pcb=$("#pill-callback"); if(pcb) pcb.textContent=c.callback;
+  $("#pill-lost").textContent=c.lost; }
 
 /* ============ RENDER DISPATCH ============ */
 const TITLES = {
   overview:["Overview","Everything happening across your pipeline, live"],
   pipeline:["Pipeline","Your outreach pipeline at a glance"],
   leads:["All leads","Click any row to open the full record"],
-  callsheet:["Call sheet","Phone-first worklist — log the outcome, it moves the lead"],
+  callsheet:["Call sheet","First-attempt worklist — log the outcome, it moves the lead"],
+  callbacks:["Callbacks","No answers, callbacks and voicemails — nothing gets forgotten"],
   lost:["Lost & parked","Dumped leads — nothing deleted, restore any time"]
 };
 function render(){
   refreshPills();
+  const ub=$("#btn-undo"); if(ub) ub.style.display = LAST_ACTION? "":"none";
   document.querySelectorAll("#nav button,#mtabs button").forEach(b=>b.classList.toggle("active",b.dataset.tab===TAB));
   document.querySelectorAll("#segbar button").forEach(b=>b.classList.toggle("on",b.dataset.view===VIEW));
   $("#t-title").textContent=TITLES[TAB][0]; $("#t-sub").textContent=TITLES[TAB][1];
@@ -647,6 +803,7 @@ function render(){
   else if(TAB==="pipeline") renderPipeline();
   else if(TAB==="leads") renderLeads();
   else if(TAB==="callsheet") renderCallsheet();
+  else if(TAB==="callbacks") renderCallbacks();
   else if(TAB==="lost") renderLost();
 }
 
@@ -675,7 +832,7 @@ async function renderOverview(){
   const scopeLabel=VIEW==="team"?"the team":(VIEW==="cam"?"Cam":"Finn");
 
   // value by stage
-  const stages=[["new","New"],["contacted","Contacted"],["demo_sent","Demo sent"],["meeting","Meeting"]];
+  const stages=[["new","New"],["contacted","Contacted"],["voicemail","Voicemail"],["demo_sent","Demo sent"],["meeting","Meeting"]];
   const stageVal=stages.map(([k,label])=>[label, st(k).reduce((a,l)=>a+Number(l.estimated_value||0),0), DOTC[k]]);
   const maxStageVal=Math.max(1,...stageVal.map(x=>x[1]));
 
@@ -708,7 +865,7 @@ async function renderOverview(){
     </div>
 
     <div class="ovp ov-full">
-      <div class="ovp-h"><h3>This year</h3><span class="ovp-sub">Activity by month — leads, calls, demos, meetings, wins</span></div>
+      <div class="ovp-h"><h3>Progress</h3><span class="ovp-sub">Month on month since launch (July 2026) — hover any month for the numbers</span></div>
       <div id="ov-months"><div class="spin"></div></div>
       <div class="ov-legend">
         <span><i style="background:#3B82F6"></i>Leads</span>
@@ -722,12 +879,12 @@ async function renderOverview(){
     <div class="ov-grid">
       <div class="ovp">
         <div class="ovp-h"><h3>Conversion funnel</h3><span class="ovp-sub">How ${scopeLabel}'s leads move through the journey</span></div>
-        <div class="funnel">
-          ${funnel.map(([label,n,col],i)=>{
-            const w=total?Math.max(4,Math.round(n/total*100)):4;
+        <div class="fnl">
+          ${total? funnel.map(([label,n,col],i)=>{
+            const w=Math.max(4,Math.round(n/total*100));
             const drop=i>0&&funnel[i-1][1]?pct(n,funnel[i-1][1]):100;
             return `<div class="fn-row"><div class="fn-label">${label}<span class="fn-n">${n}</span></div><div class="fn-bar"><div class="fn-fill" style="width:${w}%;background:${col}"></div></div><div class="fn-pct">${i===0?"":drop+"%"}</div></div>`;
-          }).join("")}
+          }).join("") : `<div class="feed-empty">No leads in this view yet - the funnel fills as the pipeline moves.</div>`}
         </div>
       </div>
       <div class="ovp">
@@ -744,7 +901,7 @@ async function renderOverview(){
     <div class="ov-grid">
       <div class="ovp">
         <div class="ovp-h"><h3>Value by stage</h3><span class="ovp-sub">Where the money sits in the pipeline</span></div>
-        <div class="funnel">
+        <div class="fnl">
           ${stageVal.map(([label,v,col])=>{
             const w=Math.max(4,Math.round(v/maxStageVal*100));
             return `<div class="fn-row"><div class="fn-label">${label}</div><div class="fn-bar"><div class="fn-fill" style="width:${w}%;background:${col}"></div></div><div class="fn-pct">${gbp(v)}</div></div>`;
@@ -753,7 +910,7 @@ async function renderOverview(){
       </div>
       <div class="ovp">
         <div class="ovp-h"><h3>Lead sources</h3><span class="ovp-sub">Where leads are coming from</span></div>
-        <div class="funnel">
+        <div class="fnl">
           ${sources.length?sources.map(([s,n])=>{
             const w=Math.max(4,Math.round(n/maxSrc*100));
             return `<div class="fn-row"><div class="fn-label">${esc(SRC_LABEL[s]||s)}</div><div class="fn-bar"><div class="fn-fill" style="width:${w}%;background:#00D4C8"></div></div><div class="fn-pct">${n}</div></div>`;
@@ -798,18 +955,47 @@ async function loadMonthlyChart(){
   }catch(e){ mount.innerHTML='<div class="feed-empty">Couldn\'t load monthly data.</div>'; }
 }
 function drawMonthly(rows, mount){
-  if(!rows||!rows.length){ mount.innerHTML='<div class="feed-empty">No data yet.</div>'; return; }
-  const series=[["leads","#3B82F6"],["calls","#00D4C8"],["demos","#8B5CF6"],["meetings","#A855F7"],["won","#22C55E"]];
-  const max=Math.max(1,...rows.map(r=>Math.max(r.leads,r.calls,r.demos,r.meetings,r.won)));
+  /* CRM went live July 2026 - chart starts there, no dead empty months. */
+  const LAUNCH="2026-07";
+  rows=(rows||[]).filter(r=>r.month>=LAUNCH).sort((a,b)=> a.month<b.month?-1:1);
+  if(!rows.length){ mount.innerHTML='<div class="feed-empty">Live since July 2026 - progress will chart here month by month.</div>'; return; }
+  const series=[["leads","Leads","#3B82F6"],["calls","Calls","#00D4C8"],["demos","Demos","#8B5CF6"],["meetings","Meetings","#A855F7"],["won","Won","#22C55E"]];
   const mn=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  mount.innerHTML=`<div class="mchart">${rows.map(r=>{
-    const [y,m]=r.month.split("-");
-    const label=mn[parseInt(m,10)-1];
-    return `<div class="mcol"><div class="mbars">${series.map(([k,c])=>{
-      const h=Math.round((r[k]/max)*100);
-      return `<div class="mbar" style="height:${Math.max(2,h)}%;background:${c}" title="${k}: ${r[k]}"></div>`;
-    }).join("")}</div><div class="mlabel">${label}</div></div>`;
-  }).join("")}</div>`;
+  const W=760,H=220,PL=38,PR=16,PT=14,PB=28;
+  const iw=W-PL-PR, ih=H-PT-PB;
+  const max=Math.max(4,...rows.map(r=>Math.max(r.leads||0,r.calls||0,r.demos||0,r.meetings||0,r.won||0)));
+  const X=i=> rows.length===1? PL+iw/2 : PL + i*(iw/(rows.length-1));
+  const Y=v=> PT + ih - ((v||0)/max)*ih;
+  const gridVals=[0, Math.round(max/2), max];
+  const gridSvg=gridVals.map(g=>`<line x1="${PL}" x2="${W-PR}" y1="${Y(g)}" y2="${Y(g)}" stroke="rgba(255,255,255,.07)"/>`+
+    `<text x="${PL-8}" y="${Y(g)+3}" text-anchor="end" font-size="9" fill="#5A668A" font-family="JetBrains Mono,monospace">${g}</text>`).join("");
+  const linesSvg=series.map(([k,,c])=>{
+    const pts=rows.map((r,i)=>X(i)+","+Y(r[k])).join(" ");
+    return `<polyline points="${pts}" fill="none" stroke="${c}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity=".9"/>`+
+      rows.map((r,i)=>`<circle cx="${X(i)}" cy="${Y(r[k])}" r="3.2" fill="${c}"/>`).join("");
+  }).join("");
+  const labelsSvg=rows.map((r,i)=>{const m=+r.month.split("-")[1];
+    return `<text x="${X(i)}" y="${H-8}" text-anchor="middle" font-size="9.5" fill="#5A668A" font-family="JetBrains Mono,monospace">${mn[m-1]}</text>`;}).join("");
+  const hovSvg=rows.map((r,i)=>{
+    const x0=i===0? PL : (X(i-1)+X(i))/2;
+    const x1=i===rows.length-1? W-PR : (X(i)+X(i+1))/2;
+    return `<rect class="hov" data-i="${i}" x="${x0}" y="${PT}" width="${x1-x0}" height="${ih}" fill="transparent"/>`;}).join("");
+  mount.innerHTML=`<svg class="lchart" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${gridSvg}${linesSvg}${labelsSvg}${hovSvg}</svg><div class="mtip" id="mtip"></div>`;
+  const tip=mount.querySelector("#mtip");
+  const place=(e)=>{ const pad=14; let x=e.clientX+pad, y=e.clientY+pad;
+    if(x+160>window.innerWidth) x=e.clientX-160;
+    if(y+160>window.innerHeight) y=e.clientY-160;
+    tip.style.left=x+"px"; tip.style.top=y+"px"; };
+  mount.querySelectorAll(".hov").forEach(hv=>{
+    const r=rows[+hv.dataset.i]; const [yy,m]=r.month.split("-");
+    hv.addEventListener("mouseenter",e=>{
+      tip.innerHTML=`<b class="mt-h">${mn[+m-1]} ${yy}</b>`+series.map(([k,lab,c])=>
+        `<div class="mt-r"><span><i style="background:${c}"></i>${lab}</span><b>${r[k]||0}</b></div>`).join("");
+      tip.classList.add("on"); place(e);
+    });
+    hv.addEventListener("mousemove",place);
+    hv.addEventListener("mouseleave",()=>tip.classList.remove("on"));
+  });
 }
 function timeAgo(d){
   const s=Math.floor((Date.now()-d.getTime())/1000);
@@ -868,7 +1054,7 @@ function statusChip(s,count,on){ return `<button class="chip ${on?"on":""}" data
 function renderLeads(){
   const S=scoped();
   const cnt=s=> s==="all"?S.length:S.filter(l=>stOf(l)===s).length;
-  const chips=["all","new","contacted","demo_sent","meeting","won","lost"];
+  const chips=["all","new","contacted","voicemail","demo_sent","meeting","won","lost"];
   let list = FILTER==="all"?S : S.filter(l=>stOf(l)===FILTER);
   $("#view").innerHTML=`
     <div class="chips">${chips.map(s=>statusChip(s,cnt(s),FILTER===s)).join("")}</div>
@@ -892,9 +1078,10 @@ function leadTable(list, mini){
 function wireRows(){ document.querySelectorAll("tr[data-id]").forEach(r=>r.onclick=()=>openDrawer(r.dataset.id)); }
 
 /* ---- CALL SHEET ---- */
+/* ---- CALL SHEET (first-attempt queue: status = new) ---- */
 function renderCallsheet(){
   const rank=l=>{const src=(l.source||"");return /electrical_prospecting|call_sheet/.test(src)?0:/adzuna/.test(src)?1:2;};
-  const list = scoped().filter(l=>l.phone && (stOf(l)==="new"||stOf(l)==="contacted"))
+  const list = scoped().filter(l=>l.phone && stOf(l)==="new")
     .sort((a,b)=> rank(a)-rank(b) || new Date(a.created_at)-new Date(b.created_at));
   const mine = list.filter(l=>l.owner===ME).length;
   $("#view").innerHTML=`
@@ -902,13 +1089,38 @@ function renderCallsheet(){
       <div><div class="big">${list.length}</div><div class="lab">calls left</div></div>
       <div class="divider"></div>
       <div><div class="big">${mine}</div><div class="lab">assigned to you</div></div>
-      <button class="btn-grad btn addbtn" id="cs-add"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Add prospect</button>
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+        <button class="btn-grad btn" id="cs-add"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Add prospect</button></div>
     </div>
     ${list.length? '<div class="callgrid" id="cg"></div>' :
-      '<div class="empty"><h3>Call sheet is clear</h3><p>Every lead with a number has been worked. Add prospects or import your Saturday list to load it up.</p></div>'}`;
+      '<div class="empty"><h3>Call sheet is clear</h3><p>Every new lead has been worked. Anyone you rung that needs another go is in Callbacks. Add prospects to load more.</p></div>'}`;
   $("#cs-add").onclick=openModal;
   const cg=$("#cg"); if(cg) list.forEach(l=>cg.appendChild(callCard(l)));
 }
+
+/* ---- CALLBACKS (rung once, still chasing: contacted + voicemail) ---- */
+function renderCallbacks(){
+  const byOld=(a,b)=> new Date(a.last_contact_at||a.created_at)-new Date(b.last_contact_at||b.created_at);
+  const S=scoped().filter(l=>l.phone);
+  const cbs=S.filter(l=>stOf(l)==="contacted").sort(byOld);
+  const vms=S.filter(l=>stOf(l)==="voicemail").sort(byOld);
+  const all=cbs.length+vms.length;
+  const mine=[...cbs,...vms].filter(l=>l.owner===ME).length;
+  $("#view").innerHTML=`
+    <div class="callbar">
+      <div><div class="big">${all}</div><div class="lab">to chase</div></div>
+      <div class="divider"></div>
+      <div><div class="big">${mine}</div><div class="lab">assigned to you</div></div>
+    </div>
+    ${vms.length?`<div class="section-h"><h2>Voicemail left</h2><span class="eyebrow">waiting on them · ${vms.length}</span></div><div class="callgrid" id="cg-vm"></div>`:""}
+    ${cbs.length?`<div class="section-h"><h2>Ring again</h2><span class="eyebrow">callbacks &amp; no answers · ${cbs.length}</span></div><div class="callgrid" id="cg-cb"></div>`:""}
+    ${all? "" : '<div class="empty"><h3>Nothing to chase</h3><p>No answers, callbacks and voicemails land here so nothing gets forgotten.</p></div>'}`;
+  const vg=$("#cg-vm"); if(vg) vms.forEach(l=>vg.appendChild(callCard(l)));
+  const cbg=$("#cg-cb"); if(cbg) cbs.forEach(l=>cbg.appendChild(callCard(l)));
+}
+
+/* Global Undo lives in the topbar - visible on every tab when there's something to reverse */
+
 function callCard(l){
   const s=stOf(l); const el=document.createElement("div"); el.className="callcard";
   el.innerHTML=`
@@ -919,17 +1131,23 @@ function callCard(l){
     <a class="phone" href="tel:${esc((l.phone||"").replace(/\s/g,""))}">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.4-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>
       ${esc(l.phone)}</a>
-    <div class="hook"><span class="eyebrow">The angle</span>${esc(hookOf(l))}</div>
+    ${hookOf(l)?`<div class="hook"><span class="eyebrow">The angle</span>${esc(hookOf(l))}</div>`:""}
+    ${confChips(l)}
     <textarea class="qn" placeholder="Quick note from the call…">${esc(l.notes||"")}</textarea>
     <div class="outcomes">
       <button class="oc" data-a="noanswer">No answer</button>
       <button class="oc" data-a="callback">Callback</button>
-      <button class="oc win" data-a="meeting">Booked ✓</button>
-      <button class="oc" data-a="demo">Demo sent</button>
+      <button class="oc" data-a="voicemail">Voicemail left</button>
+      <button class="oc win" data-a="meeting">Book meeting</button>
+      <button class="oc win" data-a="demo">Wants demo</button>
       <button class="oc kill" data-a="not_interested">Not interested</button>
       <button class="oc kill" data-a="lost">Dump / lost</button>
     </div>`;
   const note=el.querySelector(".qn");
+  wireConfChips(el, async(leadId,conf)=>{
+    try{ l=await saveLead(leadId,{lead_quality:conf}); toast("Confidence: "+CONF[conf].label,"ok"); }
+    catch(e){ toast(e.message,"err"); }
+  });
   note.addEventListener("blur", async()=>{
     const v=note.value;
     if(v===(l.notes||"")) return;
@@ -937,30 +1155,23 @@ function callCard(l){
     catch(e){ toast(e.message,"err"); }
   });
   el.querySelectorAll(".oc").forEach(b=> b.onclick=async()=>{
-    if(b.dataset.a==="meeting"){
-      /* Booking needs a time — save the note, then open the record to pick it */
+    const a=b.dataset.a;
+    if(a==="meeting" || a==="demo"){
+      /* Same popup as the pipeline: open the full record, staged to the new
+         stage. Nothing moves until Save or Send — close it with no changes and
+         the lead stays right here on the call sheet. */
       try{ if(note.value!==(l.notes||"")) await saveLead(l.id,{notes:note.value}); }catch(e){}
-      openDrawer(l.id);
-      setTimeout(()=>{ const st=$("#d-status"); if(st) st.value="meeting"; markDirty(); const dm=$("#d-meet"); if(dm) dm.focus(); },80);
-      toast("Pick the meeting time, then Save — that's what sends","info");
-      return;
-    }
-    if(b.dataset.a==="demo" && !l.demo_url){
-      /* Demo email needs a link — save the note, then open the record to paste it */
-      try{ if(note.value!==(l.notes||"")) await saveLead(l.id,{notes:note.value}); }catch(e){}
-      openDrawer(l.id);
-      setTimeout(()=>{ const st=$("#d-status"); if(st) st.value="demo_sent"; markDirty(); const dd=$("#d-demo"); if(dd) dd.focus(); },80);
-      toast("Paste the demo link, then Save — that's what sends the email","info");
+      openDrawer(l.id, a==="meeting" ? "meeting" : "demo_sent");
       return;
     }
     b.disabled=true;
+    /* snapshot BEFORE the move so Undo can put it back exactly */
+    const prev={status: stOf(l), follow_up_count: l.follow_up_count||0};
     try{
-      await logCall(l, b.dataset.a, note.value);
-      if(b.dataset.a==="demo"){
-        fetch(CFG.DEMO_WEBHOOK,{method:"POST",headers:{"Content-Type":"application/json"},
-          body:JSON.stringify({lead_id:l.id}),keepalive:true}).catch(()=>{});
-      }
-      renderCallsheet();
+      const msg=await logCall(l, a, note.value);
+      LAST_ACTION={type:"patch", id:l.id, prev, label:msg};
+      toast(msg,"ok",{label:"Undo", fn:undoLast});
+      render();   // re-renders the current tab; the card leaves the list
     }
     catch(e){ toast(e.message,"err"); b.disabled=false; }
   });
@@ -971,15 +1182,36 @@ async function logCall(l, action, note){
   const now=new Date().toISOString();
   let patch={ last_contact_at:now, notes: note!=null?note:l.notes, owner: l.owner||ME };
   let msg="Logged"; let evType="call"; let evDetail=action;
-  if(action==="noanswer"){ patch.status="contacted"; patch.follow_up_count=(l.follow_up_count||0)+1; msg="No answer — follow-up logged"; }
-  else if(action==="callback"){ patch.status="contacted"; msg="Callback noted"; }
-  else if(action==="meeting"){ patch.status="meeting"; msg="Booked — moved to Meeting"; evType="meeting_booked"; }
-  else if(action==="demo"){ patch.status="demo_sent"; msg="Demo sent"; evType="demo_sent"; }
-  else if(action==="not_interested"){ patch.status="not_interested"; msg="Dumped to Lost & parked"; }
-  else if(action==="lost"){ patch.status="lost"; msg="Dumped to Lost & parked"; }
+  if(action==="noanswer"){ patch.status="contacted"; patch.follow_up_count=(l.follow_up_count||0)+1; msg="No answer - moved to Callbacks"; }
+  else if(action==="callback"){ patch.status="contacted"; msg="Callback - moved to Callbacks"; }
+  else if(action==="voicemail"){ patch.status="voicemail"; patch.follow_up_count=(l.follow_up_count||0)+1; msg="Voicemail left - moved to Voicemails"; evDetail="voicemail"; }
+  else if(action==="meeting"){ patch.status="meeting"; msg="Moved to Meeting"; evType="meeting_booked"; }
+  else if(action==="demo"){ patch.status="demo_sent"; msg="Moved to Demo"; evType="demo_sent"; }
+  else if(action==="not_interested"){ patch.status="not_interested"; msg="Moved to Lost & parked"; }
+  else if(action==="lost"){ patch.status="lost"; msg="Moved to Lost & parked"; }
   await saveLead(l.id, patch);
   logEvent(l.id, patch.owner, evType, evDetail);
-  toast(msg,"ok");
+  return msg;
+}
+/* Reverse the last important action - restores previous fields, or re-inserts a
+   deleted lead whole. Sends are excluded: an email can't be unsent. */
+async function undoLast(){
+  if(!LAST_ACTION) return;
+  const act=LAST_ACTION;
+  try{
+    if(act.type==="insert"){
+      const fresh=await apiInsert(act.row);
+      LEADS.unshift(fresh);
+      toast(nameOf(fresh)+" restored","info");
+    } else {
+      await saveLead(act.id, act.prev);
+      const lead=LEADS.find(x=>x.id===act.id);
+      toast(lead? nameOf(lead)+" put back":"Change undone","info");
+    }
+    LAST_ACTION=null;
+    DRAWER_DIRTY=false; closeDrawer();
+    render();
+  }catch(e){ toast(e.message,"err"); }
 }
 /* Fire-and-forget event log for reporting history. Never blocks the UI. */
 function logEvent(leadId, owner, type, detail){
@@ -1001,7 +1233,14 @@ function renderLost(){
     </tr>`;}).join("")}</tbody></table></div>`;
   document.querySelectorAll(".restore").forEach(b=> b.onclick=async(e)=>{
     e.stopPropagation(); b.disabled=true;
-    try{ await saveLead(b.dataset.id,{status:"new"}); toast("Restored to New","ok"); renderLost(); refreshPills(); }
+    try{
+      const ld=LEADS.find(x=>x.id===b.dataset.id);
+      const prev={status: ld? stOf(ld) : "lost"};
+      await saveLead(b.dataset.id,{status:"new"});
+      LAST_ACTION={type:"patch", id:b.dataset.id, prev, label:"restore"};
+      toast("Restored to New","ok",{label:"Undo", fn:undoLast});
+      renderLost(); refreshPills();
+    }
     catch(err){ toast(err.message,"err"); b.disabled=false; }
   });
   document.querySelectorAll("tr[data-id]").forEach(r=>r.onclick=(e)=>{ if(!e.target.closest(".restore")) openDrawer(r.dataset.id); });
@@ -1014,7 +1253,7 @@ function tryCloseDrawer(){
   if(DRAWER_DIRTY && !confirm("You have unsaved changes - close without saving?")) return;
   DRAWER_DIRTY=false; closeDrawer();
 }
-function openDrawer(id){
+function openDrawer(id, presetStatus){
   const l=LEADS.find(x=>x.id===id); if(!l) return;
   const s=stOf(l);
   $("#drawer").innerHTML=`
@@ -1023,16 +1262,19 @@ function openDrawer(id){
       <small>${esc(l.company_name||"")}${l.source?" · "+esc(l.source):""} · ${new Date(l.created_at).toLocaleDateString("en-GB")}</small>
     </div><button class="dclose" id="d-x">✕</button></div>
     <div class="dbody">
-      <div class="contact-line">
-        ${l.phone?`<div><span class="k">Phone</span><a href="tel:${esc(l.phone.replace(/\s/g,''))}">${esc(l.phone)}</a></div>`:""}
-        ${l.email?`<div><span class="k">Email</span><a href="mailto:${esc(l.email)}">${esc(l.email)}</a></div>`:""}
-        ${l.location?`<div><span class="k">Location</span>${esc(l.location)}</div>`:""}
-        ${l.service_required?`<div><span class="k">Service</span>${esc(l.service_required)}</div>`:""}
+      <div class="frow">
+        <div class="fitem"><label>Name</label><input class="dinput" id="d-name" value="${esc(l.name||"")}"></div>
+        <div class="fitem"><label>Company</label><input class="dinput" id="d-company" value="${esc(l.company_name||"")}"></div>
       </div>
-      <div class="ai"><span class="eyebrow">AI conversation summary</span>
-        <p class="${l.conversation_summary?'':'na'}">${esc(l.conversation_summary||"No summary captured yet.")}</p></div>
-      <div class="ai"><span class="eyebrow">Recommended next action</span>
-        <p class="${l.recommended_next_action?'':'na'}">${esc(l.recommended_next_action||"—")}</p></div>
+      <div class="frow">
+        <div class="fitem"><label>Phone${l.phone?` <a href="tel:${esc((l.phone||"").replace(/\s/g,''))}" style="color:var(--sky);text-decoration:none;text-transform:none;letter-spacing:0;font-size:10.5px">· call</a>`:""}</label>
+          <input class="dinput" id="d-phone" value="${esc(l.phone||"")}" placeholder="07…"></div>
+        <div class="fitem"><label>Email${l.email?` <a href="mailto:${esc(l.email)}" style="color:var(--sky);text-decoration:none;text-transform:none;letter-spacing:0;font-size:10.5px">· email</a>`:""}</label>
+          <input class="dinput" id="d-email" type="email" value="${esc(l.email||"")}" placeholder="name@company.co.uk"></div>
+      </div>
+      <div class="fitem" style="margin-bottom:14px"><label>Location</label><input class="dinput" id="d-loc" value="${esc(l.location||"")}" placeholder="Town / area"></div>
+      <div id="d-actions"></div>
+      <div class="ai" style="margin-bottom:16px">${confChips(l)}</div>
       <div class="frow">
         <div class="fitem"><label>Status</label><select class="sel" id="d-status">
           ${Object.keys(ST).map(k=>`<option value="${k}" ${k===s?"selected":""}>${ST[k].label}</option>`).join("")}
@@ -1044,23 +1286,24 @@ function openDrawer(id){
         </select></div>
       </div>
       <div class="frow">
-        <div class="fitem"><label>Est. value £</label><input class="dinput" id="d-est" type="number" value="${l.estimated_value||0}"></div>
+        <div class="fitem"><label>Est. value £ / mo</label><input class="dinput" id="d-est" type="number" value="${l.estimated_value||0}"></div>
         <div class="fitem"><label>Won value £</label><input class="dinput" id="d-act" type="number" value="${l.actual_value||0}"></div>
       </div>
-      <div class="fitem" style="margin-bottom:12px"><label>Meeting date &amp; time</label>
+      <div class="fitem" style="margin-bottom:12px"><div class="vchips" id="d-valchips">
+        <button type="button" class="vchip" data-v="249">Pilot £249</button>
+        <button type="button" class="vchip" data-v="349">Starter £349</button>
+        <button type="button" class="vchip" data-v="549">Connected £549</button>
+        <button type="button" class="vchip" data-v="749">Full Office £749</button>
+      </div></div>
+      <div class="fitem" id="d-meet-wrap" style="margin-bottom:12px;display:none"><label>Meeting date &amp; time</label>
         <input class="dinput" id="d-meet" type="datetime-local" value="${l.meeting_at?toLocalInput(l.meeting_at):""}">
-        <small style="color:var(--faint);font-size:11px;display:block;margin-top:5px">Required to move to Meeting — this is what the booking email &amp; calendar invite will use.</small>
-        <label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:12px;color:var(--dim);cursor:pointer;text-transform:none;letter-spacing:0">
-          <input type="checkbox" id="d-custom-conf" style="width:auto;margin:0"> Customise the confirmation email before it sends</label>
-        <div id="d-conf-wrap" style="display:none;margin-top:10px">
-          <input class="dinput" id="d-conf-subject" placeholder="Subject (leave blank for default)" style="margin-bottom:8px">
-          <textarea class="darea" id="d-conf-msg" placeholder="Your opening message to the customer. The date/time card, agenda and your signature are added automatically." style="min-height:110px"></textarea>
-        </div></div>
-      <div class="fitem" style="margin-bottom:12px"><label>Demo link</label>
-        <input class="dinput" id="d-demo" type="url" placeholder="https://…" value="${esc(l.demo_url||"")}">
-        <small style="color:var(--faint);font-size:11px;display:block;margin-top:5px">Required to move to Demo sent — the demo email sends this link to the customer.</small></div>
+        <small style="color:var(--faint);font-size:11px;display:block;margin-top:5px">Set the time and Save, then use Send booking invite above. This is what the invite &amp; calendar event will use.</small>
+        </div>
       <div class="fitem" style="margin-bottom:4px"><label>Notes</label>
         <textarea class="darea" id="d-notes" placeholder="Add a note — saved to this lead">${esc(l.notes||"")}</textarea></div>
+      <div style="text-align:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)">
+        <button class="linkbtn" id="d-delete" style="color:var(--bad)">Delete this lead permanently</button>
+      </div>
     </div>
     <div class="dfoot">
       <span class="savestate" id="d-state"></span>
@@ -1069,67 +1312,196 @@ function openDrawer(id){
     </div>`;
   $("#drawer").classList.add("open"); $("#scrim").classList.add("open");
   DRAWER_DIRTY=false;
-  ["d-status","d-owner","d-est","d-act","d-meet","d-demo","d-notes"].forEach(fid=>{
+  ["d-status","d-owner","d-est","d-act","d-meet","d-notes","d-name","d-company","d-phone","d-email","d-loc"].forEach(fid=>{
     const el=$("#"+fid); if(el){ el.addEventListener("input",markDirty); el.addEventListener("change",markDirty); }
   });
+  const dstatus=$("#d-status");
+  if(presetStatus && ST[presetStatus]){
+    dstatus.value=presetStatus;
+    const dsx=$("#d-state"); if(dsx) dsx.textContent="Save or Send to move to "+ST[presetStatus].label;
+  }
+  /* Context-aware: the meeting date/time only belongs to a Meeting lead. A demo
+     is not a meeting — its details are handled in the Send step, not here. */
+  function updateDrawerFields(){ const mw=$("#d-meet-wrap"); if(mw) mw.style.display = dstatus.value==="meeting" ? "block":"none"; }
+  updateDrawerFields();
+  dstatus.addEventListener("change", ()=>{ updateDrawerFields(); renderDrawerActions(l, dstatus.value); });
   $("#d-x").onclick=tryCloseDrawer; $("#scrim").onclick=tryCloseDrawer;
+  wirePickers($("#drawer"));
+  wireValChips($("#d-valchips"), $("#d-est"));
+  wireConfChips($("#drawer"), async(leadId,conf)=>{
+    try{ await saveLead(leadId,{lead_quality:conf}); toast("Confidence: "+CONF[conf].label,"ok"); }
+    catch(e){ toast(e.message,"err"); }
+  });
   $("#d-followup").onclick=()=>openFollowUp(id);
-  const confChk=$("#d-custom-conf");
-  if(confChk){ confChk.onchange=()=>{ $("#d-conf-wrap").style.display=confChk.checked?"block":"none"; markDirty(); }; }
+  $("#d-delete").onclick=async()=>{
+    if(!confirm("Delete "+nameOf(l)+" permanently? (Use Dump / lost instead if you want to keep the record.)")) return;
+    try{
+      const row={...(LEADS.find(x=>x.id===id)||l)};   // full snapshot for Undo
+      await apiDelete(id);
+      LEADS=LEADS.filter(x=>x.id!==id);
+      LAST_ACTION={type:"insert", row, label:"delete"};
+      DRAWER_DIRTY=false; closeDrawer();
+      toast("Lead deleted","ok",{label:"Undo", fn:undoLast});
+      render();
+    }catch(e){ toast(e.message,"err"); }
+  };
+  renderDrawerActions(l, dstatus.value);
   $("#d-save").onclick=async()=>{
     const meetRaw=$("#d-meet").value;
-    const demoRaw=$("#d-demo").value.trim();
-    const newStatus=$("#d-status").value;
-    if(newStatus==="meeting" && !meetRaw){
-      $("#d-state").textContent="Set a meeting time"; toast("Pick the meeting date & time first — that's what gets sent.","err");
-      $("#d-meet").focus(); return;
-    }
-    if(newStatus==="demo_sent" && !demoRaw){
-      $("#d-state").textContent="Add the demo link"; toast("Paste the demo link first — that's what the email sends.","err");
-      $("#d-demo").focus(); return;
-    }
+    /* Save only ever saves. It NEVER sends. Demo link is set in the Send demo
+       step, so it's left untouched here. */
     const patch={
-      status: newStatus,
+      status: $("#d-status").value,
       owner: $("#d-owner").value || null,
+      name: $("#d-name").value.trim() || null,
+      company_name: $("#d-company").value.trim() || null,
+      phone: $("#d-phone").value.trim() || null,
+      email: $("#d-email").value.trim() || null,
+      location: $("#d-loc").value.trim() || null,
       estimated_value: parseInt($("#d-est").value||"0",10),
       actual_value: parseInt($("#d-act").value||"0",10),
       notes: $("#d-notes").value,
-      meeting_at: meetRaw? new Date(meetRaw).toISOString() : null,
-      demo_url: demoRaw || null
+      meeting_at: meetRaw? new Date(meetRaw).toISOString() : null
     };
     const btn=$("#d-save"); btn.disabled=true; $("#d-state").textContent="Saving…";
     try{
-      await saveLead(id, patch);
+      /* snapshot what's about to change so global Undo can put it all back */
+      const cur=LEADS.find(x=>x.id===id)||l;
+      const prevSnap={}; Object.keys(patch).forEach(k=> prevSnap[k]= cur[k]===undefined? null : cur[k]);
+      const fresh=await saveLead(id, patch);
+      LAST_ACTION={type:"patch", id, prev:prevSnap, label:"save"};
       DRAWER_DIRTY=false;
-      if(patch.status==="meeting" && patch.meeting_at){
-        /* Instant trigger: booking email + calendar invite. Guards in Make prevent double-sends. */
-        const body={lead_id:id};
-        if($("#d-custom-conf") && $("#d-custom-conf").checked){
-          body.intro=$("#d-conf-msg").value.trim();
-          body.subject=$("#d-conf-subject").value.trim();
-        }
-        fetch(CFG.MEETING_WEBHOOK,{method:"POST",headers:{"Content-Type":"application/json"},
-          body:JSON.stringify(body),keepalive:true}).catch(()=>{});
-        toast("Meeting saved - booking email & invite on their way","ok");
-        logEvent(id, patch.owner, "meeting_booked", null);
-      } else if(patch.status==="demo_sent" && patch.demo_url){
-        /* Instant trigger: personalised demo email. Same guard pattern - one send per lead. */
-        fetch(CFG.DEMO_WEBHOOK,{method:"POST",headers:{"Content-Type":"application/json"},
-          body:JSON.stringify({lead_id:id}),keepalive:true}).catch(()=>{});
-        toast("Saved - demo email on its way","ok");
-        logEvent(id, patch.owner, "demo_sent", null);
-      } else {
-        toast("Saved to "+nameOf(LEADS.find(x=>x.id===id)),"ok");
-      }
       $("#d-state").textContent="Saved ✓";
-      render();
-      setTimeout(closeDrawer,450);
+      toast("Saved to "+nameOf(fresh),"ok",{label:"Undo", fn:undoLast});
+      render();                     // keep pipeline/list behind the drawer in sync
+      renderDrawerActions(fresh);   // Send buttons now reflect the saved stage/link/time
+      btn.disabled=false;
     }catch(e){
       $("#d-state").textContent="Not saved"; toast(e.message,"err"); btn.disabled=false;
     }
   };
 }
 function closeDrawer(){ $("#drawer").classList.remove("open"); $("#scrim").classList.remove("open"); }
+
+/* ===== Explicit, confirmed sending (never fired by Save) ===== */
+/* Context-aware Send buttons inside the drawer. Requirements (link / time) are
+   enforced here, not on Save, so a lead can sit in Demo/Meeting stage while you
+   get the link or time ready. */
+function renderDrawerActions(l, ovr){
+  const wrap=$("#d-actions"); if(!wrap) return;
+  const s=(ovr && ST[ovr])? ovr : stOf(l); const first=esc((l.name||"this lead").split(" ")[0]);
+  if(s==="demo_sent"){
+    if(l.demo_email_sent_at){
+      wrap.innerHTML=`<div class="dact"><span class="eyebrow">Demo</span>
+        <div class="sent-ok"><span class="tick">✓</span>Demo sent ${esc(fmtMeet(l.demo_email_sent_at))}</div>
+        <button class="resend" data-send="demo">Send again</button></div>`;
+    } else {
+      wrap.innerHTML=`<div class="dact"><span class="eyebrow">Ready to send</span>
+        <button class="send-btn" data-send="demo">✉ Send demo to ${first}</button>
+        <div class="send-hint">Sends the demo email with the video. You'll confirm first.</div></div>`;
+    }
+  } else if(s==="meeting"){
+    if(l.booking_email_sent_at){
+      wrap.innerHTML=`<div class="dact"><span class="eyebrow">Meeting</span>
+        <div class="sent-ok"><span class="tick">✓</span>Booking invite sent ${esc(fmtMeet(l.booking_email_sent_at))}</div>
+        <button class="resend" data-send="meeting">Send again</button></div>`;
+    } else {
+      wrap.innerHTML=`<div class="dact"><span class="eyebrow">Ready to send</span>
+        <button class="send-btn" data-send="meeting">✉ Send booking invite</button>
+        <div class="send-hint">${l.meeting_at? "For "+esc(fmtMeet(l.meeting_at))+". ":""}You'll set the details and confirm before it sends.</div></div>`;
+    }
+  } else {
+    wrap.innerHTML="";
+  }
+  wrap.querySelectorAll("[data-send]").forEach(b=> b.onclick=()=> confirmSend(b.dataset.send, l.id));
+}
+
+let CONFIRM_CTX=null;
+function confirmSend(kind, id){
+  const l=LEADS.find(x=>x.id===id); if(!l) return;
+  const first=(l.name||"there").split(" ")[0];
+  $("#c-editbtn").style.display="none";
+  $("#c-preview").style.display="none";
+  if(kind==="demo"){
+    $("#c-title").textContent="Send demo to "+first+"?";
+    $("#c-sub").textContent="Sends the demo email with the video. Check the address, then send.";
+    $("#c-edit").innerHTML=`<label>Email</label>
+      <input class="dinput" id="c-email" type="email" placeholder="name@company.co.uk" value="${esc(l.email||"")}">`;
+  } else {
+    $("#c-title").textContent="Send booking invite to "+first+"?";
+    $("#c-sub").textContent="Confirmation email + calendar invite. Set the details, then send. Nothing goes out until you hit Send.";
+    $("#c-edit").innerHTML=`<label>Email</label>
+      <input class="dinput" id="c-email" type="email" placeholder="name@company.co.uk" value="${esc(l.email||"")}">
+      <label>Meeting date &amp; time</label>
+      <input class="dinput" id="c-meet" type="datetime-local" value="${l.meeting_at?toLocalInput(l.meeting_at):""}">
+      <label>Personal note (optional)</label>
+      <textarea class="darea" id="c-intro" placeholder="A friendly opening line. The date/time card, agenda and your signature are added automatically." style="min-height:80px"></textarea>`;
+  }
+  CONFIRM_CTX={kind, id};
+  $("#c-send").disabled=false; $("#c-send").textContent="Send";
+  $("#confirmmodal").classList.add("open");
+  wirePickers($("#confirmmodal"));
+  setTimeout(()=>{ const em=$("#c-email"); const mt=$("#c-meet");
+    if(em && !em.value) em.focus(); else if(mt && !mt.value) mt.focus(); },60);
+}
+function closeConfirm(){ $("#confirmmodal").classList.remove("open"); CONFIRM_CTX=null; }
+async function doConfirmedSend(){
+  if(!CONFIRM_CTX) return;
+  const {kind,id}=CONFIRM_CTX;
+  const l=LEADS.find(x=>x.id===id); if(!l){ closeConfirm(); return; }
+  const emEl=$("#c-email");
+  const email=emEl? emEl.value.trim() : (l.email||"");
+  if(!email || !email.includes("@")){ toast("Add a valid email first.","err"); if(emEl) emEl.focus(); return; }
+  const btn=$("#c-send");
+  if(kind==="meeting"){
+    const mr=$("#c-meet")? $("#c-meet").value : "";
+    if(!mr){ toast("Set the meeting date & time.","err"); const m=$("#c-meet"); if(m) m.focus(); return; }
+  }
+  btn.disabled=true; btn.textContent="Sending…";
+  try{
+    /* Save everything entered in the box — and commit the stage move itself,
+       so a staged lead lands in the pipeline as part of the send. */
+    const patch={};
+    if(email!==(l.email||"")) patch.email=email;
+    if(kind==="meeting"){
+      patch.meeting_at=new Date($("#c-meet").value).toISOString();
+      if(stOf(l)!=="meeting") patch.status="meeting";
+    } else if(stOf(l)!=="demo_sent"){ patch.status="demo_sent"; }
+    if(Object.keys(patch).length) await saveLead(id, patch);
+    if(kind==="demo"){
+      await fetch(CFG.DEMO_WEBHOOK,{method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({lead_id:id}),keepalive:true});
+      logEvent(id, l.owner, "demo_sent", null);
+      toast("Demo on its way to "+nameOf(l),"ok");
+    } else {
+      const body={lead_id:id};
+      const intro=$("#c-intro"); if(intro && intro.value.trim()) body.intro=intro.value.trim();
+      await fetch(CFG.MEETING_WEBHOOK,{method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(body),keepalive:true});
+      logEvent(id, l.owner, "meeting_booked", null);
+      toast("Booking invite on its way to "+nameOf(l),"ok");
+    }
+    /* Optimistic local sent-state. Make persists the real timestamp; its guard
+       blocks any true double-send. */
+    const idx=LEADS.findIndex(x=>x.id===id);
+    if(idx>-1) LEADS[idx][kind==="demo"?"demo_email_sent_at":"booking_email_sent_at"]=new Date().toISOString();
+    LAST_ACTION=null;   // an email can't be unsent — don't offer a misleading Undo
+    closeConfirm();
+    render();
+    if($("#drawer").classList.contains("open") && idx>-1){
+      const fresh=LEADS[idx];
+      DRAWER_DIRTY=false;
+      const ds=$("#d-state"); if(ds) ds.textContent="Saved ✓";
+      const de=$("#d-email"); if(de) de.value=fresh.email||"";
+      const dm=$("#d-meet"); if(dm && fresh.meeting_at) dm.value=toLocalInput(fresh.meeting_at);
+      const dst=$("#d-status"); if(dst) dst.value=stOf(fresh);
+      renderDrawerActions(fresh, dst? dst.value : undefined);
+    }
+  }catch(e){
+    toast("Couldn't send — check connection and try again.","err");
+    btn.disabled=false; btn.textContent="Send";
+  }
+}
 
 /* ============ FOLLOW-UP COMPOSE ============ */
 let FU_LEAD=null;
@@ -1149,7 +1521,7 @@ function fuDraft(l){
 }
 function openFollowUp(id){
   const l=LEADS.find(x=>x.id===id); if(!l) return;
-  if(!l.email){ toast("No email on this lead - add one first.","err"); return; }
+  if(!l.email){ toast("Add an email in the record and Save first.","err"); const ef=$("#d-email"); if(ef) ef.focus(); return; }
   FU_LEAD=l;
   const d=fuDraft(l);
   $("#fu-subject").value=d.subject;
@@ -1213,6 +1585,13 @@ function exportCSV(){
 }
 
 /* ============ WIRE ============ */
+/* Value preset chips: tap sets the amount, typing a custom amount unhighlights */
+function wireValChips(box, input){
+  if(!box||!input) return;
+  const sync=()=> box.querySelectorAll(".vchip").forEach(x=>x.classList.toggle("on", x.dataset.v===String(input.value)));
+  box.querySelectorAll(".vchip").forEach(b=> b.onclick=()=>{ input.value=b.dataset.v; sync(); input.dispatchEvent(new Event("input",{bubbles:true})); });
+  input.addEventListener("input",sync); sync();
+}
 $("#l-go").onclick=doLogin;
 $("#l-pass").addEventListener("keydown",e=>{if(e.key==="Enter")doLogin();});
 $("#l-email").addEventListener("keydown",e=>{if(e.key==="Enter")$("#l-pass").focus();});
@@ -1220,13 +1599,21 @@ document.querySelectorAll(".whocard").forEach(b=>b.onclick=()=>pickDesk(b.datase
 document.querySelectorAll("#nav button,#mtabs button").forEach(b=>b.onclick=()=>{TAB=b.dataset.tab;FILTER="all";render();});
 document.querySelectorAll("#segbar button").forEach(b=>b.onclick=()=>{ VIEW=b.dataset.view; render(); });
 $("#btn-refresh").onclick=boot;
+$("#btn-undo").onclick=undoLast;
 $("#btn-export").onclick=exportCSV;
 $("#btn-add").onclick=openModal;
 $("#m-cancel").onclick=closeModal;
 $("#m-save").onclick=addLead;
+wireValChips($("#m-valchips"), $("#m-val"));
+/* confirm-send modal */
+$("#c-cancel").onclick=closeConfirm;
+$("#c-send").onclick=doConfirmedSend;
+$("#c-editbtn").onclick=()=>{ const ctx=CONFIRM_CTX; closeConfirm(); if(!ctx) return;
+  if(ctx.kind==="meeting"){ const f=$("#d-meet"); if(f){ f.focus(); markDirty(); } } };
+$("#confirmmodal").addEventListener("click",e=>{ if(e.target.id==="confirmmodal") closeConfirm(); });
 $("#switch-op").onclick=()=>{ setMe(ME==="finn"?"cam":"finn"); VIEW=ME; updateWho(); render(); toast("Now at "+PNAME[ME]+"'s desk","info"); };
 $("#signout").onclick=()=>{ SS.removeItem("ll_auth"); SS.removeItem("ll_me"); location.reload(); };
-document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ tryCloseDrawer(); closeModal(); closeFollowUp(); }});
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ tryCloseDrawer(); closeModal(); closeFollowUp(); closeConfirm(); }});
 
 /* auto-resume session (front-end gate only) */
 (function(){ const me=SS.getItem("ll_me");
