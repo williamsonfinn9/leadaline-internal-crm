@@ -18,19 +18,20 @@
 <style>
 :root{
   --bg:#05080F; --panel:#0A0F1C; --panel2:#0D1424; --line:rgba(255,255,255,.08);
-  --line2:rgba(255,255,255,.14); --ink:#EAF0FF; --muted:#8A97B4; --faint:#5A668A;
+  --line2:rgba(255,255,255,.14); --ink:#EAF0FF; --muted:#AEB9D4; --faint:#7C88A8;
   --blue:#3B82F6; --cyan:#00D4C8; --purple:#7C3AED; --sky:#00B4FF;
   --good:#22C55E; --warn:#F59E0B; --bad:#F04D6A;
   --grad:linear-gradient(100deg,var(--sky),var(--blue) 45%,var(--purple));
   --radius:14px; --shadow:0 10px 40px rgba(0,0,0,.5);
+  --tabbar:56px;
 }
 *{box-sizing:border-box}
 html{background:var(--bg)}
 html,body{margin:0;height:100%}
-@supports (height:100dvh){ html,body{height:100dvh} }
-/* iOS Safari/standalone: fill the real screen even where dvh misbehaves */
-@supports (-webkit-touch-callout:none){ html,body{height:-webkit-fill-available;min-height:-webkit-fill-available} }
 body{overscroll-behavior:none}
+/* Single source of truth for full-screen fill: #app is fixed to the visual
+   viewport. dvh where supported, with a fill-available fallback for older iOS.
+   No competing html/body height hacks — this one rule owns vertical fill. */
 body{background:var(--bg);color:var(--ink);font-family:"Manrope",system-ui,-apple-system,sans-serif;
   font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased;overflow:hidden}
 h1,h2,h3{font-family:"Space Grotesk",system-ui,sans-serif;margin:0;letter-spacing:-.01em}
@@ -66,8 +67,10 @@ button:active{opacity:.85}
 .login-err{color:var(--bad);font-size:12.5px;text-align:center;margin-top:12px;min-height:16px}
 
 /* ---------- SHELL ---------- */
-#app{display:none;position:fixed;inset:0}
-.shell{display:grid;grid-template-columns:240px 1fr;height:100%}
+#app{display:none;position:fixed;top:0;left:0;right:0;bottom:0;height:100%}
+@supports (height:100dvh){ #app{height:100dvh} }
+@supports (-webkit-touch-callout:none){ #app{height:-webkit-fill-available} }
+.shell{display:grid;grid-template-columns:240px 1fr;height:100%;width:100%}
 .side{background:linear-gradient(180deg,var(--panel),#06090F);border-right:1px solid var(--line);
   display:flex;flex-direction:column;padding:18px 14px;gap:6px;min-height:0}
 .brand{display:flex;align-items:center;gap:10px;padding:4px 6px 16px}
@@ -271,7 +274,8 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
 .callcard .loc{font-size:12px;color:var(--muted)}
 .hook{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;
   font-size:12.5px;color:var(--ink);line-height:1.5}
-.hook .eyebrow{margin-bottom:5px}
+.hook .eyebrow{display:block;margin-bottom:6px}
+.reason .eyebrow{display:block;margin-bottom:5px;color:var(--cyan)}
 .meta-line{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
 .meta-line .ml-loc{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
 .meta-line .ml-loc svg{width:13px;height:13px;color:var(--faint)}
@@ -279,7 +283,6 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
 .meta-line .ml-web svg{width:13px;height:13px}
 .meta-line .ml-web:hover{text-decoration:underline}
 .reason{background:rgba(0,212,200,.06);border:1px solid rgba(0,212,200,.2);border-radius:10px;padding:9px 12px;font-size:12px;color:var(--ink);line-height:1.5}
-.reason .eyebrow{margin-bottom:4px;color:var(--cyan)}
 .outcomes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
 .outcomes .oc:first-child{grid-column:1/-1}
 .oc{border:1px solid var(--line2);background:var(--panel2);color:var(--ink);border-radius:9px;
@@ -427,8 +430,9 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
   .side{display:none}
   .grid-stats{grid-template-columns:repeat(2,1fr)}
   .funnel{grid-template-columns:repeat(2,1fr)}
-  /* room for the bottom tab bar + iPhone home indicator */
-  .scroll{padding:12px 14px calc(72px + env(safe-area-inset-bottom))}
+  /* Tab bar height derives scroll padding + toast position (defined in :root)
+     so they can never drift apart (browser or installed-app). */
+  .scroll{padding:12px 14px calc(var(--tabbar) + 18px + env(safe-area-inset-bottom))}
   /* clear the notch / Dynamic Island, but keep it tight */
   .topbar{padding:calc(6px + env(safe-area-inset-top)) 14px 10px;gap:8px}
   .topbar .sub{font-size:12px}
@@ -450,11 +454,12 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
   .dfoot{padding-bottom:calc(16px + env(safe-area-inset-bottom))}
   /* popups never taller than the screen; scroll inside (keyboard-safe) */
   .modal,.confirm{max-height:calc(100dvh - 28px);overflow:auto;-webkit-overflow-scrolling:touch}
-  /* toasts sit above the tab bar, never under the home indicator */
-  #toasts{bottom:calc(86px + env(safe-area-inset-bottom));width:calc(100vw - 24px)}
+  /* toast sits just above the tab bar, derived from the same --tabbar value */
+  #toasts{bottom:calc(var(--tabbar) + 16px + env(safe-area-inset-bottom));width:calc(100vw - 24px)}
   .toast{max-width:100%}
   .mtabs{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:40;background:var(--panel);
-    border-top:1px solid var(--line2);padding:6px 4px;padding-bottom:max(6px, env(safe-area-inset-bottom))}
+    border-top:1px solid var(--line2);height:calc(var(--tabbar) + env(safe-area-inset-bottom));
+    padding:6px 4px env(safe-area-inset-bottom);align-items:flex-start;box-sizing:border-box}
   .mtabs button{flex:1;background:none;border:none;color:var(--muted);font-size:9.5px;font-weight:600;
     display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;min-width:0}
   .mtabs button.active{color:var(--sky)}
@@ -462,9 +467,6 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
 }
 @media(max-width:520px){.grid-stats,.funnel{grid-template-columns:1fr 1fr}.frow{grid-template-columns:1fr}
   .ovc-v{font-size:26px}.callbar .big{font-size:24px}}
-/* Home-Screen app (standalone) mode: pin flush, no browser-toolbar allowance */
-body.standalone .mtabs{padding-bottom:max(8px, env(safe-area-inset-bottom))}
-body.standalone .scroll{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
 </style>
 </head>
 <body>
@@ -1001,14 +1003,14 @@ function drawMonthly(rows, mount){
   const Y=v=> PT + ih - ((v||0)/max)*ih;
   const gridVals=[0, Math.round(max/2), max];
   const gridSvg=gridVals.map(g=>`<line x1="${PL}" x2="${W-PR}" y1="${Y(g)}" y2="${Y(g)}" stroke="rgba(255,255,255,.07)"/>`+
-    `<text x="${PL-8}" y="${Y(g)+3}" text-anchor="end" font-size="9" fill="#5A668A" font-family="JetBrains Mono,monospace">${g}</text>`).join("");
+    `<text x="${PL-8}" y="${Y(g)+3}" text-anchor="end" font-size="9" fill="#7C88A8" font-family="JetBrains Mono,monospace">${g}</text>`).join("");
   const linesSvg=series.map(([k,,c])=>{
     const pts=rows.map((r,i)=>X(i)+","+Y(r[k])).join(" ");
     return `<polyline points="${pts}" fill="none" stroke="${c}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity=".9"/>`+
       rows.map((r,i)=>`<circle cx="${X(i)}" cy="${Y(r[k])}" r="3.2" fill="${c}"/>`).join("");
   }).join("");
   const labelsSvg=rows.map((r,i)=>{const m=+r.month.split("-")[1];
-    return `<text x="${X(i)}" y="${H-8}" text-anchor="middle" font-size="9.5" fill="#5A668A" font-family="JetBrains Mono,monospace">${mn[m-1]}</text>`;}).join("");
+    return `<text x="${X(i)}" y="${H-8}" text-anchor="middle" font-size="9.5" fill="#7C88A8" font-family="JetBrains Mono,monospace">${mn[m-1]}</text>`;}).join("");
   const hovSvg=rows.map((r,i)=>{
     const x0=i===0? PL : (X(i-1)+X(i))/2;
     const x1=i===rows.length-1? W-PR : (X(i)+X(i+1))/2;
