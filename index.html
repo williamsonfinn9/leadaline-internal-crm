@@ -28,11 +28,17 @@
 html{background:var(--bg)}
 html,body{margin:0;height:100%}
 @supports (height:100dvh){ html,body{height:100dvh} }
+/* iOS Safari/standalone: fill the real screen even where dvh misbehaves */
+@supports (-webkit-touch-callout:none){ html,body{height:-webkit-fill-available;min-height:-webkit-fill-available} }
 body{overscroll-behavior:none}
 body{background:var(--bg);color:var(--ink);font-family:"Manrope",system-ui,-apple-system,sans-serif;
   font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased;overflow:hidden}
 h1,h2,h3{font-family:"Space Grotesk",system-ui,sans-serif;margin:0;letter-spacing:-.01em}
-button{font-family:inherit;cursor:pointer}
+button{font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:active{opacity:.85}
+/* iOS: prevent long-press callout/selection on tappable chrome */
+.oc,.btn,.chip,.conf-chip,.vchip,.mtabs button,.nav button,.segbar button,.whocard,.send-btn{
+  -webkit-touch-callout:none;-webkit-user-select:none;user-select:none;touch-action:manipulation}
 .mono{font-family:"JetBrains Mono",monospace}
 .eyebrow{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
 ::-webkit-scrollbar{width:10px;height:10px}
@@ -266,6 +272,14 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
 .hook{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;
   font-size:12.5px;color:var(--ink);line-height:1.5}
 .hook .eyebrow{margin-bottom:5px}
+.meta-line{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.meta-line .ml-loc{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.meta-line .ml-loc svg{width:13px;height:13px;color:var(--faint)}
+.meta-line .ml-web{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--sky);text-decoration:none}
+.meta-line .ml-web svg{width:13px;height:13px}
+.meta-line .ml-web:hover{text-decoration:underline}
+.reason{background:rgba(0,212,200,.06);border:1px solid rgba(0,212,200,.2);border-radius:10px;padding:9px 12px;font-size:12px;color:var(--ink);line-height:1.5}
+.reason .eyebrow{margin-bottom:4px;color:var(--cyan)}
 .outcomes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
 .outcomes .oc:first-child{grid-column:1/-1}
 .oc{border:1px solid var(--line2);background:var(--panel2);color:var(--ink);border-radius:9px;
@@ -610,7 +624,8 @@ const CFG = {
   LOGIN_EMAIL: "hello@leadaline.com",   // legacy — no longer used for login, real accounts now
   MEETING_WEBHOOK: "https://hook.eu1.make.com/ee00mpx09pngw8ffmvb4y96vnexvsj2a",  // fires the booking email + calendar invite
   DEMO_WEBHOOK: "https://hook.eu1.make.com/j2hh25bl8giikgcjb2tx8ypaz53kamgt",      // fires the personalised demo email
-  FOLLOWUP_WEBHOOK: "https://hook.eu1.make.com/gssv98nahnf5eg59ku4cfxfw7023u3a7"   // fires the follow-up email (editable in CRM)
+  FOLLOWUP_WEBHOOK: "https://hook.eu1.make.com/gssv98nahnf5eg59ku4cfxfw7023u3a7",   // fires the follow-up email (editable in CRM)
+  SCOUT_WEBHOOK: "https://hook.eu1.make.com/svzjy7umupen1p18arpdb24tjc46wk4q"       // AI Lead Scout: finds + Fable-filters fresh prospects into the call sheet
 };
 const REST = CFG.SUPABASE_URL + "/rest/v1/" + CFG.TABLE;
 const REST_EVENTS = CFG.SUPABASE_URL + "/rest/v1/activity_events";
@@ -1104,11 +1119,14 @@ function renderCallsheet(){
       <div class="divider"></div>
       <div><div class="big">${mine}</div><div class="lab">assigned to you</div></div>
       <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+        <button class="btn ghost" id="cs-scout"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>Find leads</button>
         <button class="btn-grad btn" id="cs-add"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Add prospect</button></div>
     </div>
     ${list.length? '<div class="callgrid" id="cg"></div>' :
-      '<div class="empty"><h3>Call sheet is clear</h3><p>Every new lead has been worked. Anyone you rung that needs another go is in Callbacks. Add prospects to load more.</p></div>'}`;
+      '<div class="empty"><h3>Call sheet is clear</h3><p>Send the AI scout hunting for owner-reachable electrical contractors, or add prospects by hand.</p><button class="btn-grad btn" id="cs-scout2" style="margin-top:16px">Find leads</button></div>'}`;
   $("#cs-add").onclick=openModal;
+  $("#cs-scout").onclick=()=>scoutRun($("#cs-scout"));
+  const s2=$("#cs-scout2"); if(s2) s2.onclick=()=>scoutRun(s2);
   const cg=$("#cg"); if(cg) list.forEach(l=>cg.appendChild(callCard(l)));
 }
 
@@ -1145,6 +1163,11 @@ function callCard(l){
     <a class="phone" href="tel:${esc((l.phone||"").replace(/\s/g,""))}">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.4-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>
       ${esc(l.phone)}</a>
+    <div class="meta-line">
+      ${l.location?`<span class="ml-loc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${esc(l.location)}</span>`:""}
+      ${l.website?`<a class="ml-web" href="${esc(/^https?:\/\//.test(l.website)?l.website:"https://"+l.website)}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg>Visit website</a>`:""}
+    </div>
+    ${l.notes && (l.source==="ai_scout")?`<div class="reason"><span class="eyebrow">Why this prospect</span>${esc(l.notes)}</div>`:""}
     ${hookOf(l)?`<div class="hook"><span class="eyebrow">The angle</span>${esc(hookOf(l))}</div>`:""}
     ${confChips(l)}
     <textarea class="qn" placeholder="Quick note from the call…">${esc(l.notes||"")}</textarea>
@@ -1233,6 +1256,20 @@ function logEvent(leadId, owner, type, detail){
     body:JSON.stringify({lead_id:leadId, owner:owner||ME, event_type:type, detail:detail||null})}).catch(()=>{});
 }
 
+/* AI Lead Scout: source search -> Fable scores against the ICP (owner-reachable
+   UK electrical contractors) -> qualified prospects insert -> land on this sheet.
+   niche/area in the payload keep the scenario cloneable per client later. */
+async function scoutRun(btn){
+  if(btn) btn.disabled=true;
+  try{
+    await fetch(CFG.SCOUT_WEBHOOK,{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({owner:ME, max:10, niche:"electrical", area:"auto", requested_at:new Date().toISOString()})});
+    toast("Scout hunting - owner-reachable sparkies land here in about a minute","ok",{label:"Refresh", fn:boot});
+    setTimeout(boot, 60000);
+  }catch(e){ toast("Couldn't reach the scout - try again.","err"); }
+  setTimeout(()=>{ if(btn) btn.disabled=false; }, 8000);
+}
+
 /* ---- LOST & PARKED ---- */
 function renderLost(){
   const list=scoped().filter(l=>DEAD_ST.includes(stOf(l)));
@@ -1287,6 +1324,7 @@ function openDrawer(id, presetStatus){
           <input class="dinput" id="d-email" type="email" value="${esc(l.email||"")}" placeholder="name@company.co.uk"></div>
       </div>
       <div class="fitem" style="margin-bottom:14px"><label>Location</label><input class="dinput" id="d-loc" value="${esc(l.location||"")}" placeholder="Town / area"></div>
+      <div class="fitem" style="margin-bottom:14px"><label>Website${l.website?` <a href="${esc(/^https?:\/\//.test(l.website)?l.website:"https://"+l.website)}" target="_blank" rel="noopener" style="color:var(--sky);text-decoration:none;text-transform:none;letter-spacing:0;font-size:10.5px">· visit</a>`:""}</label><input class="dinput" id="d-web" value="${esc(l.website||"")}" placeholder="example.co.uk"></div>
       <div id="d-actions"></div>
       <div class="ai" style="margin-bottom:16px">${confChips(l)}</div>
       <div class="frow">
@@ -1326,7 +1364,7 @@ function openDrawer(id, presetStatus){
     </div>`;
   $("#drawer").classList.add("open"); $("#scrim").classList.add("open");
   DRAWER_DIRTY=false;
-  ["d-status","d-owner","d-est","d-act","d-meet","d-notes","d-name","d-company","d-phone","d-email","d-loc"].forEach(fid=>{
+  ["d-status","d-owner","d-est","d-act","d-meet","d-notes","d-name","d-company","d-phone","d-email","d-loc","d-web"].forEach(fid=>{
     const el=$("#"+fid); if(el){ el.addEventListener("input",markDirty); el.addEventListener("change",markDirty); }
   });
   const dstatus=$("#d-status");
@@ -1372,6 +1410,7 @@ function openDrawer(id, presetStatus){
       phone: $("#d-phone").value.trim() || null,
       email: $("#d-email").value.trim() || null,
       location: $("#d-loc").value.trim() || null,
+      website: $("#d-web").value.trim() || null,
       estimated_value: parseInt($("#d-est").value||"0",10),
       actual_value: parseInt($("#d-act").value||"0",10),
       notes: $("#d-notes").value,
