@@ -454,7 +454,7 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
   #toasts{bottom:calc(86px + env(safe-area-inset-bottom));width:calc(100vw - 24px)}
   .toast{max-width:100%}
   .mtabs{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:40;background:var(--panel);
-    border-top:1px solid var(--line2);padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+    border-top:1px solid var(--line2);padding:6px 4px;padding-bottom:max(6px, env(safe-area-inset-bottom))}
   .mtabs button{flex:1;background:none;border:none;color:var(--muted);font-size:9.5px;font-weight:600;
     display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;min-width:0}
   .mtabs button.active{color:var(--sky)}
@@ -462,6 +462,9 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
 }
 @media(max-width:520px){.grid-stats,.funnel{grid-template-columns:1fr 1fr}.frow{grid-template-columns:1fr}
   .ovc-v{font-size:26px}.callbar .big{font-size:24px}}
+/* Home-Screen app (standalone) mode: pin flush, no browser-toolbar allowance */
+body.standalone .mtabs{padding-bottom:max(8px, env(safe-area-inset-bottom))}
+body.standalone .scroll{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
 </style>
 </head>
 <body>
@@ -617,6 +620,7 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
 
 <script>
 /* ============ CONFIG ============ */
+(function(){ if(window.navigator.standalone===true || (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches)) document.body.classList.add("standalone"); })();
 const CFG = {
   SUPABASE_URL: "https://icshqgpsehddcqwydjxc.supabase.co",
   SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imljc2hxZ3BzZWhkZGNxd3lkanhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5OTU2NTcsImV4cCI6MjA5NTU3MTY1N30.JzLn0SfTJJIO7su4KxL9fN-2LXbtTNuPoyLw2fDt6to",
