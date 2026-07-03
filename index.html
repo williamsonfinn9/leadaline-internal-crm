@@ -94,7 +94,16 @@ button{font-family:inherit;cursor:pointer}
 .ov{padding:22px 26px;max-width:1200px}
 .ov-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
 @media(max-width:900px){.ov-cards{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:520px){.ov-cards{grid-template-columns:1fr}}
+@media(max-width:520px){
+  .ov{padding:14px}
+  .ov-cards{grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+  .ovc{padding:14px 14px}
+  .ovc-k{font-size:11px;margin-bottom:6px}
+  .ovc-v{font-size:26px}
+  .ovc-s{font-size:11px;margin-top:5px}
+  .ov-grid{gap:10px;margin-bottom:12px}
+  .ovp{padding:15px}
+}
 .ovc{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;position:relative;overflow:hidden}
 .ovc::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--grad)}
 .ovc-k{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:10px}
@@ -400,13 +409,17 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
 .mtabs{display:none}
 @media(max-width:860px){
   .shell{grid-template-columns:1fr}
+  /* fill the true screen height so there's no dead space above the tab bar */
+  #app,.shell,.main{height:100dvh}
+  .main{height:auto;flex:1;min-height:0}
   .side{display:none}
   .grid-stats{grid-template-columns:repeat(2,1fr)}
   .funnel{grid-template-columns:repeat(2,1fr)}
   /* room for the bottom tab bar + iPhone home indicator */
-  .scroll{padding:16px 14px calc(96px + env(safe-area-inset-bottom))}
-  /* clear the notch / Dynamic Island */
-  .topbar{padding:calc(12px + env(safe-area-inset-top)) 14px 12px;gap:10px}
+  .scroll{padding:12px 14px calc(72px + env(safe-area-inset-bottom))}
+  /* clear the notch / Dynamic Island, but keep it tight */
+  .topbar{padding:calc(6px + env(safe-area-inset-top)) 14px 10px;gap:8px}
+  .topbar .sub{font-size:12px}
   .topbar h1{font-size:17px}
   .top-actions{gap:6px}
   .top-actions .btn{padding:8px 10px;font-size:12px}
