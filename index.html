@@ -169,6 +169,63 @@ button:active{opacity:.85}
 .ov-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
 .ov-legend span{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--muted)}
 .ov-legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+/* ---- Progress + What's Hot split ---- */
+.ov-hot-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;align-items:stretch}
+@media(max-width:900px){.ov-hot-row{grid-template-columns:1fr}}
+.ovp.pane{display:flex;flex-direction:column;min-width:0}
+.ovp-h.row-h{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.expand-btn{flex:none;width:30px;height:30px;border-radius:8px;border:1px solid var(--line2);background:var(--panel2);
+  color:var(--muted);display:inline-flex;align-items:center;justify-content:center;transition:.14s;cursor:pointer}
+.expand-btn:hover{color:var(--ink);border-color:var(--blue);background:rgba(59,130,246,.1)}
+.expand-btn svg{width:15px;height:15px}
+.ovp.hot{position:relative;overflow:hidden;border-color:rgba(59,130,246,.28)}
+.ovp.hot::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(120% 90% at 100% 0,rgba(124,58,237,.14),transparent 55%),radial-gradient(90% 80% at 0 0,rgba(0,180,255,.1),transparent 50%)}
+.ovp.hot>*{position:relative}
+.live{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;color:#5be39a;margin-left:8px;vertical-align:middle}
+.live i{width:7px;height:7px;border-radius:50%;background:#22C55E;box-shadow:0 0 0 0 rgba(34,197,94,.5);animation:livep 1.8s infinite}
+@keyframes livep{0%{box-shadow:0 0 0 0 rgba(34,197,94,.5)}70%{box-shadow:0 0 0 7px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
+.hot-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.hotstat{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px 10px;text-align:left;
+  position:relative;overflow:hidden;transition:.15s;cursor:pointer}
+.hotstat::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--hsc,#3B82F6)}
+.hotstat:hover{border-color:var(--hsc,#3B82F6);transform:translateY(-1px)}
+.hs-demo{--hsc:#8B5CF6}.hs-meet{--hsc:#00D4C8}.hs-won{--hsc:#22C55E}
+.hotstat .hs-n{font-family:"Space Grotesk","Manrope",sans-serif;font-size:24px;font-weight:700;line-height:1;display:block;color:var(--ink)}
+.hotstat .hs-l{font-size:11px;color:var(--muted);font-weight:600;margin-top:5px;display:block}
+.hot-list{display:flex;flex-direction:column;gap:7px;flex:1}
+.hot-row{display:flex;align-items:center;gap:11px;padding:10px 11px;border-radius:11px;cursor:pointer;
+  background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--hc,#3B82F6);transition:.14s}
+.hot-row:hover{background:rgba(255,255,255,.04);transform:translateX(2px)}
+.hot-ic{flex:none;width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center}
+.hot-ic svg{width:15px;height:15px}
+.hot-main{flex:1;min-width:0;display:flex;flex-direction:column}
+.hot-main b{font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hot-main span{font-size:11.5px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hot-right{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.hot-meta{font-size:11px;color:var(--faint);font-family:"JetBrains Mono",monospace;white-space:nowrap}
+.hot-meta.soon{color:#6ee7dc}
+/* expand overlay */
+.expand-scrim{position:fixed;inset:0;background:rgba(2,4,10,.72);backdrop-filter:blur(4px);z-index:85;
+  display:none;align-items:center;justify-content:center;padding:24px}
+.expand-scrim.open{display:flex}
+.expand{width:min(940px,96vw);max-height:90dvh;overflow:auto;-webkit-overflow-scrolling:touch;
+  background:var(--panel);border:1px solid var(--line2);border-radius:18px;padding:22px 24px;box-shadow:var(--shadow)}
+.expand-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.expand-top h2{font-family:"Space Grotesk","Manrope",sans-serif;font-size:19px;font-weight:700;margin:0}
+.expand-x{width:34px;height:34px;border-radius:9px;border:1px solid var(--line2);background:var(--panel2);color:var(--muted);
+  display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:.14s}
+.expand-x:hover{color:var(--ink);border-color:var(--bad)}
+.expand-x svg{width:17px;height:17px}
+.exp-chart{min-height:240px}
+.exp-fnl .fn-bar{height:30px}
+.exp-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:20px}
+@media(max-width:760px){.exp-cols{grid-template-columns:1fr}}
+.exp-col h4{font-size:12px;font-weight:700;margin:0 0 10px;display:flex;align-items:center;gap:7px}
+.exp-col h4 .dotc{width:9px;height:9px;border-radius:50%}
+.exp-col h4 .cnt{margin-left:auto;color:var(--faint);font-family:"JetBrains Mono",monospace;font-weight:600}
+@media(max-width:520px){.expand{padding:18px 15px}.hot-stats{gap:6px}.hotstat{padding:10px 8px}}
 /* line chart */
 .lchart{width:100%;height:auto;display:block}
 .lchart .hov{cursor:crosshair}
@@ -240,6 +297,7 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
 .badge.b-new{background:rgba(0,180,255,.12);color:#7cd4ff}
 .badge.b-contacted{background:rgba(124,58,237,.14);color:#c4a6ff}
 .badge.b-voicemail{background:rgba(251,146,60,.14);color:#fdba74}
+.badge.b-whatsapp{background:rgba(37,211,102,.15);color:#5be39a}
 .badge.b-demo_sent{background:rgba(59,130,246,.14);color:#9ec2ff}
 .badge.b-meeting{background:rgba(0,212,200,.13);color:#6ee7dc}
 .badge.b-won{background:rgba(34,197,94,.14);color:#7ee6a6}
@@ -271,6 +329,11 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
   display:inline-flex;align-items:center;gap:9px;letter-spacing:.01em}
 .phone:hover{color:var(--sky)}
 .phone svg{width:15px;height:15px;color:var(--sky)}
+.wa-open{display:inline-flex;align-items:center;gap:7px;margin-top:8px;font-size:12.5px;font-weight:600;
+  color:#5be39a;text-decoration:none;border:1px solid rgba(37,211,102,.3);background:rgba(37,211,102,.1);
+  border-radius:9px;padding:7px 12px;transition:.14s;width:fit-content}
+.wa-open:hover{background:rgba(37,211,102,.18);border-color:rgba(37,211,102,.55)}
+.wa-open svg{width:15px;height:15px}
 .callcard .loc{font-size:12px;color:var(--muted)}
 .hook{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;
   font-size:12.5px;color:var(--ink);line-height:1.5}
@@ -290,6 +353,7 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
 .oc:hover{border-color:var(--blue);background:rgba(59,130,246,.1)}
 .oc.win:hover{border-color:var(--good);background:rgba(34,197,94,.12);color:#8ff0b3}
 .oc.kill:hover{border-color:var(--bad);background:rgba(240,77,106,.12);color:#ffa6b6}
+.oc.wa:hover{border-color:#25D366;background:rgba(37,211,102,.14);color:#5be39a}
 .qn{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:8px;color:var(--ink);
   padding:9px 11px;font-size:12.5px;font-family:inherit;resize:vertical;min-height:38px}
 .qn:focus{border-color:var(--blue);outline:none}
@@ -618,6 +682,19 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
   </div>
 </div>
 
+<!-- EXPAND (Progress / What's Hot open up big) -->
+<div class="expand-scrim" id="expandmodal">
+  <div class="expand">
+    <div class="expand-top">
+      <h2 id="exp-title">Expanded</h2>
+      <button class="expand-x" id="exp-close" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="expand-body" id="exp-body"></div>
+  </div>
+</div>
+
 <div id="toasts"></div>
 
 <script>
@@ -649,6 +726,7 @@ let FILTER = "all";
 let ME = "finn";      // who is at this desk (finn | cam) — set at login
 let VIEW = "finn";    // whose leads are shown across the app (team | finn | cam)
 let LAST_ACTION = null; // {id, prev:{status,follow_up_count}, label} — powers Undo
+let HOT_LAST = null;    // snapshot of what's-hot data for the expand overlay
 const SS = window.localStorage;   // persistent sign-in across visits
 const PNAME = { finn:"Finn", cam:"Cam" };
 
@@ -656,12 +734,13 @@ const PNAME = { finn:"Finn", cam:"Cam" };
 const ST = {
   new:{label:"New",cls:"b-new"}, contacted:{label:"Contacted",cls:"b-contacted"},
   voicemail:{label:"Voicemail",cls:"b-voicemail"},
+  whatsapp:{label:"WhatsApp",cls:"b-whatsapp"},
   demo_sent:{label:"Demo sent",cls:"b-demo_sent"}, meeting:{label:"Meeting",cls:"b-meeting"},
   won:{label:"Won",cls:"b-won"}, lost:{label:"Lost",cls:"b-lost"},
   not_interested:{label:"Not interested",cls:"b-not_interested"}, parked:{label:"Parked",cls:"b-parked"}
 };
-const ACTIVE_ST = ["new","contacted","voicemail","demo_sent","meeting","won"];
-const DOTC = {new:"#3B82F6",contacted:"#6366F1",voicemail:"#FB923C",demo_sent:"#8B5CF6",meeting:"#A855F7",won:"#22C55E",lost:"#F04D6A",not_interested:"#F04D6A",parked:"#8A97B4"};
+const ACTIVE_ST = ["new","contacted","voicemail","whatsapp","demo_sent","meeting","won"];
+const DOTC = {new:"#3B82F6",contacted:"#6366F1",voicemail:"#FB923C",whatsapp:"#25D366",demo_sent:"#8B5CF6",meeting:"#A855F7",won:"#22C55E",lost:"#F04D6A",not_interested:"#F04D6A",parked:"#8A97B4"};
 const DEAD_ST = ["lost","not_interested","parked"];
 function stOf(l){ return (l.status && ST[l.status]) ? l.status : "new"; }
 
@@ -718,6 +797,28 @@ function toast(msg,type,action){ const t=document.createElement("div"); t.classN
   setTimeout(()=>{t.style.opacity="0";t.style.transition="opacity .3s";setTimeout(()=>t.remove(),300);}, life); }
 function thisMonth(iso){ if(!iso) return false; const d=new Date(iso),n=new Date(); return d.getMonth()===n.getMonth()&&d.getFullYear()===n.getFullYear(); }
 function hookOf(l){ return l.recommended_next_action || l.customer_message || l.service_required || ""; }
+/* wa.me deep link from a UK mobile: strip spaces, 0 -> 44 */
+function waLink(phone){ let n=(phone||"").replace(/[^\d+]/g,""); if(n.startsWith("+"))n=n.slice(1); if(n.startsWith("0"))n="44"+n.slice(1); return n?("https://wa.me/"+n):""; }
+/* ---- What's Hot helpers ---- */
+const HOT_IC={
+  demo_sent:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>',
+  meeting:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
+  won:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>'
+};
+function fmtWhen(iso){ if(!iso) return "time TBC"; const d=new Date(iso); const t=d.toLocaleTimeString("en-GB",{hour:"numeric",minute:"2-digit"}); return d.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"})+" · "+t; }
+function hotRowHTML(l,s){
+  const col=DOTC[s]||"#3B82F6";
+  let meta, cls="";
+  if(s==="meeting"){ meta=fmtWhen(l.meeting_at); cls=l.meeting_at?"soon":""; }
+  else if(s==="won"){ meta=gbp(l.actual_value||l.estimated_value||0); }
+  else { meta=timeAgo(new Date(l.last_contact_at||l.created_at)); }
+  const sub=(l.company_name&&l.name)?l.company_name:(l.location||l.service_required||"");
+  return `<div class="hot-row" data-open="${l.id}" style="--hc:${col}">
+    <div class="hot-ic" style="color:${col};background:${col}22">${HOT_IC[s]||""}</div>
+    <div class="hot-main"><b>${esc(nameOf(l))}</b><span>${esc(sub)}</span></div>
+    <div class="hot-right">${ownerBadge(l.owner)}<span class="hot-meta ${cls}">${esc(meta)}</span></div>
+  </div>`;
+}
 /* Confidence: how sure are we about this prospect. Stored in lead_quality. */
 const CONF={ high:{label:"Hot",col:"#22C55E"}, medium:{label:"Warm",col:"#F59E0B"}, low:{label:"Low",col:"#F04D6A"} };
 function confChips(l, cls){
@@ -806,7 +907,7 @@ function counts(){
   src.forEach(l=>{ const s=stOf(l);
     if(DEAD_ST.includes(s)) c.lost++;
     if(l.phone && s==="new") c.call++;          // first-attempt queue
-    if(l.phone && (s==="contacted"||s==="voicemail")) c.callback++; // rung once, still chasing
+    if(l.phone && (s==="contacted"||s==="voicemail"||s==="whatsapp")) c.callback++; // rung once, still chasing
   });
   return c;
 }
@@ -886,6 +987,13 @@ async function renderOverview(){
 
   const funnel=[["Captured",total,"#3B82F6"],["Contacted",contacted,"#6366F1"],["Demo sent",demoed,"#8B5CF6"],["Meeting",met,"#A855F7"],["Won",won,"#22C55E"]];
 
+  // what's hot — the live movers: demos out, meetings booked, deals won
+  const hotDemos=st("demo_sent"), hotMeet=st("meeting"), hotWonArr=st("won");
+  const hotWhen=l=> new Date(l.last_contact_at||l.meeting_at||l.value_confirmed_at||l.created_at);
+  const hotFeed=[...hotMeet.map(l=>[l,"meeting"]),...hotDemos.map(l=>[l,"demo_sent"]),...hotWonArr.map(l=>[l,"won"])]
+    .sort((a,b)=> hotWhen(b[0])-hotWhen(a[0]));
+  HOT_LAST={demos:hotDemos,meet:hotMeet,won:hotWonArr,funnel,total};
+
   // feed
   const feed=[...S].filter(l=>l.last_contact_at||l.created_at)
     .sort((a,b)=> new Date(b.last_contact_at||b.created_at)-new Date(a.last_contact_at||a.created_at)).slice(0,6);
@@ -899,15 +1007,35 @@ async function renderOverview(){
       <div class="ovc"><div class="ovc-k">Conversion rate</div><div class="ovc-v">${convRate}<span class="u">%</span></div><div class="ovc-s">${won} won all-time</div></div>
     </div>
 
-    <div class="ovp ov-full">
-      <div class="ovp-h"><h3>Progress</h3><span class="ovp-sub">Month on month since launch (July 2026) — hover any month for the numbers</span></div>
-      <div id="ov-months"><div class="spin"></div></div>
-      <div class="ov-legend">
-        <span><i style="background:#3B82F6"></i>Leads</span>
-        <span><i style="background:#00D4C8"></i>Calls</span>
-        <span><i style="background:#8B5CF6"></i>Demos</span>
-        <span><i style="background:#A855F7"></i>Meetings</span>
-        <span><i style="background:#22C55E"></i>Won</span>
+    <div class="ov-hot-row">
+      <div class="ovp pane">
+        <div class="ovp-h row-h">
+          <div><h3>Progress</h3><span class="ovp-sub">Month on month since launch — hover any month</span></div>
+          <button class="expand-btn" data-exp="progress" aria-label="Expand progress"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button>
+        </div>
+        <div id="ov-months"><div class="spin"></div></div>
+        <div class="ov-legend">
+          <span><i style="background:#3B82F6"></i>Leads</span>
+          <span><i style="background:#00D4C8"></i>Calls</span>
+          <span><i style="background:#8B5CF6"></i>Demos</span>
+          <span><i style="background:#A855F7"></i>Meetings</span>
+          <span><i style="background:#22C55E"></i>Won</span>
+        </div>
+      </div>
+
+      <div class="ovp hot pane">
+        <div class="ovp-h row-h">
+          <div><h3>What's Hot<span class="live"><i></i>live</span></h3><span class="ovp-sub">Demos, meetings &amp; wins moving right now</span></div>
+          <button class="expand-btn" data-exp="hot" aria-label="Expand what's hot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button>
+        </div>
+        <div class="hot-stats">
+          <button class="hotstat hs-demo" data-exp="hot"><span class="hs-n">${hotDemos.length}</span><span class="hs-l">Demos sent</span></button>
+          <button class="hotstat hs-meet" data-exp="hot"><span class="hs-n">${hotMeet.length}</span><span class="hs-l">Meetings</span></button>
+          <button class="hotstat hs-won" data-exp="hot"><span class="hs-n">${hotWonArr.length}</span><span class="hs-l">Won</span></button>
+        </div>
+        <div class="hot-list">
+          ${hotFeed.length? hotFeed.slice(0,5).map(([l,s])=>hotRowHTML(l,s)).join("") : `<div class="feed-empty">Nothing hot yet — send a demo or book a meeting and it lights up here.</div>`}
+        </div>
       </div>
     </div>
 
@@ -976,11 +1104,13 @@ async function renderOverview(){
   </div>`;
 
   $("#view").querySelectorAll(".feed-row").forEach(r=> r.onclick=()=>openDrawer(r.dataset.open));
+  $("#view").querySelectorAll(".hot-row").forEach(r=> r.onclick=()=>openDrawer(r.dataset.open));
+  $("#view").querySelectorAll("[data-exp]").forEach(b=> b.onclick=()=>openExpand(b.dataset.exp));
   loadMonthlyChart();
 }
 
-async function loadMonthlyChart(){
-  const mount=$("#ov-months"); if(!mount) return;
+async function ensureMonthly(mount){
+  if(!mount) return;
   try{
     if(!MONTHLY_CACHE){
       const r=await fetch(RPC+"monthly_activity",{method:"POST",headers:{...headers(),"Content-Type":"application/json"},body:JSON.stringify({months_back:12})});
@@ -989,6 +1119,46 @@ async function loadMonthlyChart(){
     drawMonthly(MONTHLY_CACHE, mount);
   }catch(e){ mount.innerHTML='<div class="feed-empty">Couldn\'t load monthly data.</div>'; }
 }
+function loadMonthlyChart(){ ensureMonthly($("#ov-months")); }
+
+/* ---- Expand overlay: Progress + What's Hot open up big ---- */
+function openExpand(kind){
+  const scrim=$("#expandmodal"), body=$("#exp-body"), ttl=$("#exp-title");
+  if(!scrim||!body) return;
+  if(kind==="progress"){
+    ttl.textContent="Progress — since launch";
+    body.innerHTML=`<div class="ov-legend" style="margin-bottom:12px">
+        <span><i style="background:#3B82F6"></i>Leads</span><span><i style="background:#00D4C8"></i>Calls</span>
+        <span><i style="background:#8B5CF6"></i>Demos</span><span><i style="background:#A855F7"></i>Meetings</span>
+        <span><i style="background:#22C55E"></i>Won</span></div>
+      <div id="exp-months" class="exp-chart"><div class="spin"></div></div>`;
+    ensureMonthly($("#exp-months"));
+  } else {
+    ttl.textContent="What's Hot";
+    body.innerHTML=buildHotExpanded();
+    body.querySelectorAll(".hot-row").forEach(r=> r.onclick=()=>{ closeExpand(); openDrawer(r.dataset.open); });
+  }
+  scrim.classList.add("open");
+}
+function buildHotExpanded(){
+  const H=HOT_LAST||{demos:[],meet:[],won:[],funnel:[],total:0};
+  const tot=H.total||0;
+  const fnl=`<div class="fnl exp-fnl">${(H.funnel||[]).map(([label,n,col],i)=>{
+      const w=Math.max(4,Math.round((tot?n/tot:0)*100));
+      const drop=i>0&&H.funnel[i-1][1]?Math.round(n/H.funnel[i-1][1]*100):100;
+      return `<div class="fn-row"><div class="fn-label">${label}<span class="fn-n">${n}</span></div><div class="fn-bar"><div class="fn-fill" style="width:${w}%;background:${col}"></div></div><div class="fn-pct">${i===0?"":drop+"%"}</div></div>`;
+    }).join("")}</div>`;
+  const col=(title,dot,arr,stage)=>`<div class="exp-col">
+      <h4><span class="dotc" style="background:${dot}"></span>${title}<span class="cnt">${arr.length}</span></h4>
+      <div class="hot-list">${arr.length? arr.map(l=>hotRowHTML(l,stage)).join("") : `<div class="feed-empty">None yet.</div>`}</div>
+    </div>`;
+  return fnl+`<div class="exp-cols">
+      ${col("Meetings booked","#00D4C8",H.meet,"meeting")}
+      ${col("Demos sent","#8B5CF6",H.demos,"demo_sent")}
+      ${col("Won","#22C55E",H.won,"won")}
+    </div>`;
+}
+function closeExpand(){ const s=$("#expandmodal"); if(s) s.classList.remove("open"); }
 function drawMonthly(rows, mount){
   /* CRM went live July 2026 - chart starts there, no dead empty months. */
   const LAUNCH="2026-07";
@@ -1089,7 +1259,7 @@ function statusChip(s,count,on){ return `<button class="chip ${on?"on":""}" data
 function renderLeads(){
   const S=scoped();
   const cnt=s=> s==="all"?S.length:S.filter(l=>stOf(l)===s).length;
-  const chips=["all","new","contacted","voicemail","demo_sent","meeting","won","lost"];
+  const chips=["all","new","contacted","voicemail","whatsapp","demo_sent","meeting","won","lost"];
   let list = FILTER==="all"?S : S.filter(l=>stOf(l)===FILTER);
   $("#view").innerHTML=`
     <div class="chips">${chips.map(s=>statusChip(s,cnt(s),FILTER===s)).join("")}</div>
@@ -1142,17 +1312,20 @@ function renderCallbacks(){
   const S=scoped().filter(l=>l.phone);
   const cbs=S.filter(l=>stOf(l)==="contacted").sort(byOld);
   const vms=S.filter(l=>stOf(l)==="voicemail").sort(byOld);
-  const all=cbs.length+vms.length;
-  const mine=[...cbs,...vms].filter(l=>l.owner===ME).length;
+  const was=S.filter(l=>stOf(l)==="whatsapp").sort(byOld);
+  const all=cbs.length+vms.length+was.length;
+  const mine=[...cbs,...vms,...was].filter(l=>l.owner===ME).length;
   $("#view").innerHTML=`
     <div class="callbar">
       <div><div class="big">${all}</div><div class="lab">to chase</div></div>
       <div class="divider"></div>
       <div><div class="big">${mine}</div><div class="lab">assigned to you</div></div>
     </div>
+    ${was.length?`<div class="section-h"><h2>WhatsApp sent</h2><span class="eyebrow">awaiting a reply · ${was.length}</span></div><div class="callgrid" id="cg-wa"></div>`:""}
     ${vms.length?`<div class="section-h"><h2>Voicemail left</h2><span class="eyebrow">waiting on them · ${vms.length}</span></div><div class="callgrid" id="cg-vm"></div>`:""}
     ${cbs.length?`<div class="section-h"><h2>Ring again</h2><span class="eyebrow">callbacks &amp; no answers · ${cbs.length}</span></div><div class="callgrid" id="cg-cb"></div>`:""}
-    ${all? "" : '<div class="empty"><h3>Nothing to chase</h3><p>No answers, callbacks and voicemails land here so nothing gets forgotten.</p></div>'}`;
+    ${all? "" : '<div class="empty"><h3>Nothing to chase</h3><p>No answers, WhatsApps, callbacks and voicemails land here so nothing gets forgotten.</p></div>'}`;
+  const wag=$("#cg-wa"); if(wag) was.forEach(l=>wag.appendChild(callCard(l)));
   const vg=$("#cg-vm"); if(vg) vms.forEach(l=>vg.appendChild(callCard(l)));
   const cbg=$("#cg-cb"); if(cbg) cbs.forEach(l=>cbg.appendChild(callCard(l)));
 }
@@ -1169,6 +1342,7 @@ function callCard(l){
     <a class="phone" href="tel:${esc((l.phone||"").replace(/\s/g,""))}">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.4-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>
       ${esc(l.phone)}</a>
+    ${l.phone?`<a class="wa-open" href="${waLink(l.phone)}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.2-1.7-.9-2-1-.3-.1-.5-.1-.6.2s-.7.9-.9 1.1c-.2.2-.3.2-.6.1a8 8 0 0 1-2.4-1.5 9 9 0 0 1-1.6-2c-.2-.3 0-.4.1-.6l.4-.5c.1-.2.2-.3.3-.5s0-.4 0-.5l-.9-2.1c-.2-.5-.4-.5-.6-.5h-.5c-.2 0-.5.1-.7.3a2.7 2.7 0 0 0-.9 2c0 1.2.9 2.4 1 2.5.1.2 1.7 2.7 4.2 3.7 1.5.7 2.1.7 2.9.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2s-.2-.2-.5-.3zM12 2a10 10 0 0 0-8.6 15l-1.3 4.6 4.8-1.3A10 10 0 1 0 12 2z"/></svg>WhatsApp</a>`:""}
     <div class="meta-line">
       ${l.location?`<span class="ml-loc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${esc(l.location)}</span>`:""}
       ${l.website?`<a class="ml-web" href="${esc(/^https?:\/\//.test(l.website)?l.website:"https://"+l.website)}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg>Visit website</a>`:""}
@@ -1181,6 +1355,7 @@ function callCard(l){
       <button class="oc" data-a="noanswer">No answer</button>
       <button class="oc" data-a="callback">Callback</button>
       <button class="oc" data-a="voicemail">Voicemail left</button>
+      <button class="oc wa" data-a="whatsapp">WhatsApp'd</button>
       <button class="oc win" data-a="meeting">Book meeting</button>
       <button class="oc win" data-a="demo">Wants demo</button>
       <button class="oc kill" data-a="not_interested">Not interested</button>
@@ -1228,6 +1403,7 @@ async function logCall(l, action, note){
   if(action==="noanswer"){ patch.status="contacted"; patch.follow_up_count=(l.follow_up_count||0)+1; msg="No answer - moved to Callbacks"; }
   else if(action==="callback"){ patch.status="contacted"; msg="Callback - moved to Callbacks"; }
   else if(action==="voicemail"){ patch.status="voicemail"; patch.follow_up_count=(l.follow_up_count||0)+1; msg="Voicemail left - moved to Voicemails"; evDetail="voicemail"; }
+  else if(action==="whatsapp"){ patch.status="whatsapp"; patch.follow_up_count=(l.follow_up_count||0)+1; msg="WhatsApp sent - moved to Callbacks"; evDetail="whatsapp"; }
   else if(action==="meeting"){ patch.status="meeting"; msg="Moved to Meeting"; evType="meeting_booked"; }
   else if(action==="demo"){ patch.status="demo_sent"; msg="Moved to Demo"; evType="demo_sent"; }
   else if(action==="not_interested"){ patch.status="not_interested"; msg="Moved to Lost & parked"; }
@@ -1323,6 +1499,7 @@ function openDrawer(id, presetStatus){
         <div class="fitem"><label>Name</label><input class="dinput" id="d-name" value="${esc(l.name||"")}"></div>
         <div class="fitem"><label>Company</label><input class="dinput" id="d-company" value="${esc(l.company_name||"")}"></div>
       </div>
+      <div class="fitem" style="margin-bottom:14px"><label>Contact name <span style="color:var(--faint);font-size:10.5px;text-transform:none;letter-spacing:0">· the first name used in the email greeting</span></label><input class="dinput" id="d-contact" value="${esc(l.contact_name||"")}" placeholder="e.g. Isa - leave blank and it uses the Name field"></div>
       <div class="frow">
         <div class="fitem"><label>Phone${l.phone?` <a href="tel:${esc((l.phone||"").replace(/\s/g,''))}" style="color:var(--sky);text-decoration:none;text-transform:none;letter-spacing:0;font-size:10.5px">· call</a>`:""}</label>
           <input class="dinput" id="d-phone" value="${esc(l.phone||"")}" placeholder="07…"></div>
@@ -1413,6 +1590,7 @@ function openDrawer(id, presetStatus){
       owner: $("#d-owner").value || null,
       name: $("#d-name").value.trim() || null,
       company_name: $("#d-company").value.trim() || null,
+      contact_name: $("#d-contact").value.trim() || null,
       phone: $("#d-phone").value.trim() || null,
       email: $("#d-email").value.trim() || null,
       location: $("#d-loc").value.trim() || null,
@@ -1478,18 +1656,22 @@ function renderDrawerActions(l, ovr){
 let CONFIRM_CTX=null;
 function confirmSend(kind, id){
   const l=LEADS.find(x=>x.id===id); if(!l) return;
-  const first=(l.name||"there").split(" ")[0];
+  const first=((l.contact_name||l.name||"there").split(" ")[0])||"there";
   $("#c-editbtn").style.display="none";
   $("#c-preview").style.display="none";
   if(kind==="demo"){
     $("#c-title").textContent="Send demo to "+first+"?";
-    $("#c-sub").textContent="Sends the demo email with the video. Check the address, then send.";
-    $("#c-edit").innerHTML=`<label>Email</label>
+    $("#c-sub").textContent="Sends the demo email with the video. Check the name and address, then send.";
+    $("#c-edit").innerHTML=`<label>Name for the greeting</label>
+      <input class="dinput" id="c-contact" placeholder="First name, e.g. Isa" value="${esc(l.contact_name||"")}">
+      <label>Email</label>
       <input class="dinput" id="c-email" type="email" placeholder="name@company.co.uk" value="${esc(l.email||"")}">`;
   } else {
     $("#c-title").textContent="Send booking invite to "+first+"?";
     $("#c-sub").textContent="Confirmation email + calendar invite. Set the details, then send. Nothing goes out until you hit Send.";
-    $("#c-edit").innerHTML=`<label>Email</label>
+    $("#c-edit").innerHTML=`<label>Name for the greeting</label>
+      <input class="dinput" id="c-contact" placeholder="First name, e.g. Isa" value="${esc(l.contact_name||"")}">
+      <label>Email</label>
       <input class="dinput" id="c-email" type="email" placeholder="name@company.co.uk" value="${esc(l.email||"")}">
       <label>Meeting date &amp; time</label>
       <input class="dinput" id="c-meet" type="datetime-local" value="${l.meeting_at?toLocalInput(l.meeting_at):""}">
@@ -1522,6 +1704,8 @@ async function doConfirmedSend(){
        so a staged lead lands in the pipeline as part of the send. */
     const patch={};
     if(email!==(l.email||"")) patch.email=email;
+    const contactEl=$("#c-contact");
+    if(contactEl){ const cn=contactEl.value.trim()||null; if(cn!==(l.contact_name||null)) patch.contact_name=cn; }
     if(kind==="meeting"){
       patch.meeting_at=new Date($("#c-meet").value).toISOString();
       if(stOf(l)!=="meeting") patch.status="meeting";
@@ -1592,6 +1776,8 @@ function openFollowUp(id){
 function closeFollowUp(){ $("#fumodal").classList.remove("open"); FU_LEAD=null; }
 $("#fu-cancel").onclick=closeFollowUp;
 $("#fumodal").addEventListener("click",e=>{ if(e.target.id==="fumodal") closeFollowUp(); });
+$("#exp-close").onclick=closeExpand;
+$("#expandmodal").addEventListener("click",e=>{ if(e.target.id==="expandmodal") closeExpand(); });
 $("#fu-send").onclick=async()=>{
   if(!FU_LEAD) return;
   const subject=$("#fu-subject").value.trim(), msg=$("#fu-msg").value.trim();
@@ -1681,7 +1867,7 @@ $("#c-editbtn").onclick=()=>{ const ctx=CONFIRM_CTX; closeConfirm(); if(!ctx) re
 $("#confirmmodal").addEventListener("click",e=>{ if(e.target.id==="confirmmodal") closeConfirm(); });
 $("#switch-op").onclick=()=>{ setMe(ME==="finn"?"cam":"finn"); VIEW=ME; updateWho(); render(); toast("Now at "+PNAME[ME]+"'s desk","info"); };
 $("#signout").onclick=()=>{ SS.removeItem("ll_auth"); SS.removeItem("ll_me"); location.reload(); };
-document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ tryCloseDrawer(); closeModal(); closeFollowUp(); closeConfirm(); }});
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ tryCloseDrawer(); closeModal(); closeFollowUp(); closeConfirm(); closeExpand(); }});
 
 /* auto-resume session (front-end gate only) */
 (function(){ const me=SS.getItem("ll_me");
