@@ -77,7 +77,8 @@ bundler.
 
 ```
 factory/
-    index.html      ← the Factory tool UI (LeadaLine-branded)
+    index.html      ← the Factory tool — SELF-CONTAINED, built (open this)
+    index.src.html  ← editable source (uses <script src>); build inlines them
     app.js          ← UI orchestration: form → research → render → preview/zip
     research.js     ← research adapter  ★ the AI plug-in seam ★
     profiles.js     ← bundled CompanyProfiles (D3C + Ashworth) — reproducible demos
@@ -89,8 +90,26 @@ factory/
         pages.js    ← shared shell + every supporting page
         index.js    ← renderPackage(profile) → { path: html, ... }
 scripts/
-    build-demos.cjs ← Node batch builder → writes /demos/<slug>/
+    build-demos.cjs   ← Node batch builder → writes /demos/<slug>/
+    build-factory.cjs ← inlines the modules → self-contained factory/index.html
 ```
+
+### Why `factory/index.html` is a single self-contained file
+
+`factory/index.html` is **built**: `scripts/build-factory.cjs` inlines every
+engine/data/app module into one file. That means it runs however it's opened —
+`file://`, GitHub Pages, downloaded on its own, or under a strict CSP — with **no
+sibling scripts to fail to load**. (If the Factory ever "does nothing" on
+Generate, it's because the page couldn't load its scripts — a single file removes
+that failure mode entirely.)
+
+To change the tool: edit `factory/index.src.html` or any module, then rebuild:
+
+```bash
+node scripts/build-factory.cjs   # regenerates the self-contained factory/index.html
+```
+
+Do not hand-edit `factory/index.html` — it's regenerated.
 
 **Data flow:** `research(input)` → `CompanyProfile` → `engine.renderPackage()` →
 files. The profile is the single source of truth; the engine is pure
