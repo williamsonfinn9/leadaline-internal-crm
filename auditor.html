@@ -1,0 +1,1634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>LeadaLine — AI Website Auditor</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="favicon-64.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#05080F">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LeadaLine Auditor">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#05080F; --panel:#0A0F1C; --panel2:#0D1424; --panel3:#111A2E;
+  --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.14);
+  --ink:#EAF0FF; --muted:#AEB9D4; --faint:#7C88A8;
+  --blue:#3B82F6; --cyan:#00D4C8; --purple:#7C3AED; --sky:#00B4FF;
+  --good:#22C55E; --warn:#F59E0B; --bad:#F04D6A; --amber:#F59E0B;
+  --grad:linear-gradient(100deg,var(--sky),var(--blue) 45%,var(--purple));
+  --grad2:linear-gradient(120deg,#00B4FF,#7C3AED);
+  --radius:16px; --shadow:0 10px 40px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box}
+html{background:var(--bg);scroll-behavior:smooth}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:"Manrope",system-ui,-apple-system,sans-serif;
+  font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(1200px 700px at 85% -5%,rgba(124,58,237,.10),transparent 55%),
+                   radial-gradient(1100px 700px at 0% 0%,rgba(0,180,255,.10),transparent 50%)}
+h1,h2,h3,h4{font-family:"Space Grotesk",system-ui,sans-serif;margin:0;letter-spacing:-.015em;font-weight:700}
+button{font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;border:none}
+button:active{opacity:.9}
+a{color:inherit}
+.mono{font-family:"JetBrains Mono",monospace}
+.eyebrow{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--sky)}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:10px}
+::-webkit-scrollbar-track{background:transparent}
+:focus-visible{outline:2px solid var(--sky);outline-offset:2px;border-radius:6px}
+.hidden{display:none!important}
+
+/* ============ TOP BAR ============ */
+.appbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:14px;
+  padding:14px 26px;border-bottom:1px solid var(--line);
+  background:rgba(5,8,15,.72);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.appbar .brand{display:flex;align-items:center;gap:11px;text-decoration:none}
+.appbar .brand img{height:24px}
+.appbar .brand .tag{font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--faint);border-left:1px solid var(--line2);padding-left:11px}
+.appbar .spacer{flex:1}
+.appbar .ab-btn{display:inline-flex;align-items:center;gap:7px;background:var(--panel2);border:1px solid var(--line);
+  color:var(--muted);padding:8px 13px;border-radius:10px;font-size:12.5px;font-weight:600;transition:.15s}
+.appbar .ab-btn:hover{color:var(--ink);border-color:var(--line2)}
+.appbar .ab-btn.on{background:rgba(59,130,246,.14);border-color:rgba(59,130,246,.4);color:#fff}
+.appbar .ab-btn svg{width:15px;height:15px}
+.ab-btn.primary{background:var(--grad);border:none;color:#fff}
+
+/* ============ START SCREEN ============ */
+.wrap{max-width:1180px;margin:0 auto;padding:34px 26px 90px}
+.hero{text-align:center;padding:52px 0 30px;position:relative}
+.hero .kick{display:inline-flex;align-items:center;gap:9px;background:rgba(124,58,237,.10);
+  border:1px solid rgba(124,58,237,.28);border-radius:100px;padding:7px 15px;margin-bottom:22px}
+.hero .kick .dot{width:7px;height:7px;border-radius:50%;background:var(--sky);box-shadow:0 0 0 4px rgba(0,180,255,.18)}
+.hero .kick span{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.hero h1{font-size:clamp(34px,5.5vw,58px);line-height:1.02;letter-spacing:-.03em;margin-bottom:18px}
+.hero h1 .g{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{color:var(--muted);font-size:clamp(15px,1.6vw,18px);max-width:660px;margin:0 auto;line-height:1.6}
+
+.searchcard{max-width:720px;margin:34px auto 0;background:linear-gradient(180deg,var(--panel),var(--panel2));
+  border:1px solid var(--line2);border-radius:22px;padding:26px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.searchcard::before{content:"";position:absolute;inset:0 0 auto 0;height:2px;background:var(--grad)}
+.searchcard label{display:block;font-size:12px;color:var(--muted);margin-bottom:9px;font-weight:600;letter-spacing:.02em}
+.searchrow{display:flex;gap:10px}
+.url-in{flex:1;display:flex;align-items:center;gap:11px;background:var(--bg);border:1px solid var(--line2);
+  border-radius:13px;padding:0 15px;transition:border-color .15s,box-shadow .15s}
+.url-in:focus-within{border-color:var(--blue);box-shadow:0 0 0 4px rgba(59,130,246,.14)}
+.url-in svg{width:19px;height:19px;color:var(--faint);flex:none}
+.url-in input{flex:1;background:none;border:none;color:var(--ink);font-size:16px;font-family:inherit;padding:16px 0;outline:none}
+.url-in input::placeholder{color:var(--faint)}
+.run-btn{background:var(--grad);color:#fff;font-weight:800;font-size:15px;padding:0 26px;border-radius:13px;
+  display:inline-flex;align-items:center;gap:9px;white-space:nowrap;transition:transform .1s,filter .15s;letter-spacing:.01em}
+.run-btn:hover{filter:brightness(1.09)}
+.run-btn:active{transform:translateY(1px)}
+.run-btn svg{width:17px;height:17px}
+.search-foot{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:16px;flex-wrap:wrap}
+.opts{display:flex;gap:8px;flex-wrap:wrap}
+.opt{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);cursor:pointer;user-select:none;
+  background:var(--panel2);border:1px solid var(--line);padding:7px 12px;border-radius:9px;transition:.14s}
+.opt:hover{border-color:var(--line2)}
+.opt.on{background:rgba(0,180,255,.10);border-color:rgba(0,180,255,.35);color:var(--ink)}
+.opt .chk{width:15px;height:15px;border-radius:5px;border:1.5px solid var(--faint);display:grid;place-items:center;flex:none}
+.opt.on .chk{background:var(--sky);border-color:var(--sky)}
+.opt .chk svg{width:10px;height:10px;color:#04131f;opacity:0}
+.opt.on .chk svg{opacity:1}
+.samples{font-size:12px;color:var(--faint)}
+.samples b{color:var(--sky);cursor:pointer;font-weight:600}
+.samples b:hover{text-decoration:underline}
+.err-msg{color:var(--bad);font-size:13px;margin-top:12px;min-height:15px;text-align:left}
+
+.feats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:50px}
+@media(max-width:820px){.feats{grid-template-columns:1fr 1fr}}
+.feat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
+.feat .fi{width:38px;height:38px;border-radius:10px;background:rgba(59,130,246,.12);display:grid;place-items:center;margin-bottom:12px}
+.feat .fi svg{width:19px;height:19px;color:var(--sky)}
+.feat h4{font-size:14px;margin-bottom:5px}
+.feat p{font-size:12.5px;color:var(--faint);line-height:1.5}
+
+/* ============ LOADING ============ */
+#loading{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;
+  background:radial-gradient(1000px 600px at 50% 0%,rgba(59,130,246,.12),transparent 60%),var(--bg)}
+.load-card{width:min(480px,92vw);text-align:center;padding:20px}
+.load-ring{width:120px;height:120px;margin:0 auto 26px;position:relative}
+.load-ring svg{transform:rotate(-90deg)}
+.load-ring .pct{position:absolute;inset:0;display:grid;place-items:center;font-family:"Space Grotesk";
+  font-size:30px;font-weight:700}
+.load-card h3{font-size:20px;margin-bottom:8px}
+.load-host{font-family:"JetBrains Mono",monospace;font-size:13px;color:var(--sky);margin-bottom:26px;word-break:break-all}
+.load-steps{text-align:left;display:flex;flex-direction:column;gap:11px;max-width:340px;margin:0 auto}
+.lstep{display:flex;align-items:center;gap:12px;font-size:13.5px;color:var(--faint);transition:.3s}
+.lstep .li{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--line2);flex:none;display:grid;place-items:center;transition:.3s}
+.lstep .li svg{width:11px;height:11px;opacity:0}
+.lstep.active{color:var(--ink)}
+.lstep.active .li{border-color:var(--sky)}
+.lstep.done{color:var(--muted)}
+.lstep.done .li{background:var(--good);border-color:var(--good)}
+.lstep.done .li svg{opacity:1;color:#04131f}
+.lstep .spin{width:12px;height:12px;border:2px solid rgba(255,255,255,.2);border-top-color:var(--sky);border-radius:50%;animation:spin .7s linear infinite;display:none}
+.lstep.active .spin{display:block}
+.lstep.active .li{display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ============ REPORT ============ */
+#report{display:none}
+.rep-shell{max-width:1180px;margin:0 auto;padding:0 26px}
+.rep-nav{position:sticky;top:53px;z-index:30;display:flex;gap:4px;padding:12px 0;margin-bottom:8px;
+  overflow-x:auto;background:linear-gradient(180deg,var(--bg) 70%,transparent);-ms-overflow-style:none;scrollbar-width:none}
+.rep-nav::-webkit-scrollbar{display:none}
+.rep-nav button{background:var(--panel2);border:1px solid var(--line);color:var(--muted);padding:8px 14px;
+  border-radius:100px;font-size:12.5px;font-weight:600;white-space:nowrap;transition:.14s}
+.rep-nav button:hover{color:var(--ink);border-color:var(--line2)}
+.rep-nav button.on{background:rgba(59,130,246,.16);border-color:rgba(59,130,246,.4);color:#fff}
+
+section.blk{margin-bottom:30px;scroll-margin-top:120px}
+.sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:16px;flex-wrap:wrap}
+.sec-head .eyebrow{margin-bottom:6px;display:block}
+.sec-head h2{font-size:clamp(20px,2.6vw,27px)}
+.sec-head p{color:var(--faint);font-size:13px;margin-top:4px;max-width:600px}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px}
+.glass{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,0)),var(--panel);
+  border:1px solid var(--line2);border-radius:var(--radius);backdrop-filter:blur(6px)}
+
+/* ---- Executive / company header ---- */
+.exec{position:relative;overflow:hidden;padding:26px}
+.exec::before{content:"";position:absolute;inset:0;background:
+  radial-gradient(600px 300px at 90% -20%,rgba(124,58,237,.16),transparent 60%),
+  radial-gradient(500px 260px at -5% 120%,rgba(0,180,255,.14),transparent 60%);pointer-events:none}
+.exec-top{display:flex;align-items:center;gap:18px;margin-bottom:22px;position:relative;flex-wrap:wrap}
+.exec-logo{width:60px;height:60px;border-radius:14px;background:#fff;display:grid;place-items:center;overflow:hidden;flex:none;
+  border:1px solid var(--line2)}
+.exec-logo img{max-width:100%;max-height:100%;object-fit:contain}
+.exec-logo.mono-logo{background:var(--grad);color:#fff;font-family:"Space Grotesk";font-weight:700;font-size:24px}
+.exec-id h2{font-size:24px;margin-bottom:3px}
+.exec-id .meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;color:var(--faint);font-size:12.5px}
+.exec-id .meta a{color:var(--sky);text-decoration:none}
+.exec-id .chip{background:var(--panel2);border:1px solid var(--line);padding:3px 10px;border-radius:100px;font-size:11.5px;color:var(--muted)}
+.exec-verdict{margin-left:auto;text-align:right}
+.exec-verdict .lab{font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.1em;font-family:"JetBrains Mono"}
+.exec-verdict .val{font-family:"Space Grotesk";font-weight:700;font-size:26px}
+.exec-body{position:relative}
+.exec-body p{color:var(--muted);font-size:14.5px;line-height:1.65;max-width:820px}
+.exec-body p+p{margin-top:12px}
+.exec-body b{color:var(--ink)}
+
+/* ---- KPI score row ---- */
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+@media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.kpis{grid-template-columns:1fr 1fr}}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 16px;text-align:center;position:relative;overflow:hidden}
+.kpi .gauge{width:112px;height:112px;margin:0 auto 10px;position:relative}
+.kpi .gauge .num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.kpi .gauge .num b{font-family:"Space Grotesk";font-size:27px;font-weight:700;line-height:1}
+.kpi .gauge .num s{font-size:10px;color:var(--faint);text-decoration:none;font-family:"JetBrains Mono"}
+.kpi .klab{font-size:12.5px;font-weight:600;color:var(--ink)}
+.kpi .ktag{font-size:10.5px;margin-top:3px;font-family:"JetBrains Mono";letter-spacing:.04em}
+
+/* ---- Big overall gauge ---- */
+.overall{display:grid;grid-template-columns:220px 1fr;gap:26px;align-items:center}
+@media(max-width:680px){.overall{grid-template-columns:1fr;text-align:center}}
+.overall .big-gauge{width:200px;height:200px;position:relative;margin:0 auto}
+.overall .big-gauge .num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.overall .big-gauge .num b{font-family:"Space Grotesk";font-size:52px;font-weight:700;line-height:.9}
+.overall .big-gauge .num s{font-size:12px;color:var(--faint);text-decoration:none;font-family:"JetBrains Mono";margin-top:4px;letter-spacing:.08em}
+.ov-sum h3{font-size:19px;margin-bottom:8px}
+.ov-sum p{color:var(--muted);font-size:14px;line-height:1.6}
+.ov-badges{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.ov-badge{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:11px 14px;flex:1;min-width:130px}
+.ov-badge .l{font-size:11px;color:var(--faint);margin-bottom:3px}
+.ov-badge .v{font-family:"Space Grotesk";font-size:18px;font-weight:700}
+
+/* ---- rating rows (lead capture) ---- */
+.rate-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:720px){.rate-grid{grid-template-columns:1fr}}
+.rate{display:flex;align-items:center;gap:13px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px 15px}
+.rate .ri{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;flex:none}
+.rate .ri svg{width:17px;height:17px}
+.rate .rmid{flex:1;min-width:0}
+.rate .rmid b{font-size:13.5px;font-weight:600;display:block}
+.rate .rmid span{font-size:12px;color:var(--faint);display:block;line-height:1.4}
+.rate .rpill{font-family:"JetBrains Mono";font-size:10.5px;font-weight:600;padding:4px 9px;border-radius:100px;white-space:nowrap;flex:none}
+.p-excellent{background:rgba(34,197,94,.14);color:#4ade80} .b-excellent{background:rgba(34,197,94,.14);color:#4ade80}
+.p-good{background:rgba(0,180,255,.14);color:#38bdf8} .b-good{background:rgba(0,180,255,.14);color:#38bdf8}
+.p-needs{background:rgba(245,158,11,.14);color:#fbbf24} .b-needs{background:rgba(245,158,11,.14);color:#fbbf24}
+.p-poor{background:rgba(240,77,106,.16);color:#fb7185} .b-poor{background:rgba(240,77,106,.16);color:#fb7185}
+
+/* ---- journey timeline ---- */
+.journey{display:flex;flex-direction:column;gap:0}
+.jstep{display:grid;grid-template-columns:34px 1fr;gap:14px;position:relative;padding-bottom:18px}
+.jstep::before{content:"";position:absolute;left:16px;top:30px;bottom:-6px;width:2px;background:var(--line)}
+.jstep:last-child::before{display:none}
+.jstep .jn{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-family:"Space Grotesk";
+  font-weight:700;font-size:14px;flex:none;border:1px solid var(--line2);background:var(--panel2);z-index:1}
+.jstep.bad .jn{background:rgba(240,77,106,.15);border-color:rgba(240,77,106,.4);color:#fb7185}
+.jstep.warn .jn{background:rgba(245,158,11,.15);border-color:rgba(245,158,11,.4);color:#fbbf24}
+.jstep.ok .jn{background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.4);color:#4ade80}
+.jstep .jc b{font-size:14px;display:block;margin-bottom:2px}
+.jstep .jc p{font-size:12.5px;color:var(--faint);line-height:1.5}
+.jstep .jc .jflag{display:inline-block;font-size:10.5px;font-family:"JetBrains Mono";margin-top:6px;padding:3px 8px;border-radius:6px}
+
+/* ---- opportunities ---- */
+.opps{display:flex;flex-direction:column;gap:11px}
+.opp{display:grid;grid-template-columns:44px 1fr auto;gap:15px;align-items:center;background:var(--panel);
+  border:1px solid var(--line);border-radius:13px;padding:15px 17px;transition:.15s}
+.opp:hover{border-color:var(--line2);transform:translateX(2px)}
+.opp .orank{font-family:"Space Grotesk";font-size:22px;font-weight:700;color:var(--faint);text-align:center}
+.opp .omid b{font-size:14.5px;display:block;margin-bottom:3px;line-height:1.35}
+.opp .omid span{font-size:12.5px;color:var(--faint)}
+.opp .omid .rec{color:var(--sky);font-weight:600}
+.opp .oright{text-align:right;flex:none}
+.opp .impact{font-family:"JetBrains Mono";font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:100px;display:inline-block;font-weight:600}
+.i-veryhigh{background:rgba(240,77,106,.16);color:#fb7185}
+.i-high{background:rgba(245,158,11,.16);color:#fbbf24}
+.i-medium{background:rgba(0,180,255,.14);color:#38bdf8}
+.i-low{background:rgba(124,136,168,.16);color:var(--muted)}
+
+/* ---- AI opportunities grid ---- */
+.ai-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(max-width:720px){.ai-grid{grid-template-columns:1fr}}
+.ai-op{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:16px;display:flex;gap:13px}
+.ai-op .aii{width:40px;height:40px;border-radius:11px;background:var(--grad2);display:grid;place-items:center;flex:none}
+.ai-op .aii svg{width:20px;height:20px;color:#fff}
+.ai-op .aic{flex:1;min-width:0}
+.ai-op .aic .aihd{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px}
+.ai-op .aic b{font-size:14px}
+.ai-op .aic p{font-size:12.5px;color:var(--faint);line-height:1.5}
+.impact-dots{display:flex;gap:3px;align-items:center}
+.impact-dots i{width:6px;height:6px;border-radius:50%;background:var(--line2)}
+.impact-dots i.on{background:var(--sky)}
+
+/* ---- revenue ---- */
+.rev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:820px){.rev-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.rev-grid{grid-template-columns:1fr}}
+.rev{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;position:relative;overflow:hidden}
+.rev::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--grad)}
+.rev .rk{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:9px;display:flex;align-items:center;gap:7px}
+.rev .rk svg{width:15px;height:15px;color:var(--sky)}
+.rev .rv{font-family:"Space Grotesk";font-size:27px;font-weight:700;line-height:1;letter-spacing:-.02em}
+.rev .rv .u{font-size:15px;color:var(--muted)}
+.rev .rs{font-size:12px;color:var(--faint);margin-top:7px;line-height:1.45}
+.rev-hero{background:linear-gradient(120deg,rgba(124,58,237,.14),rgba(0,180,255,.10)),var(--panel);
+  border:1px solid var(--line2);grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.rev-hero .rv{font-size:40px}
+.rev-hero::before{display:none}
+
+/* ---- recommendations ---- */
+.recs{display:flex;flex-direction:column;gap:12px}
+.rec{display:grid;grid-template-columns:52px 1fr;gap:16px;background:var(--panel);border:1px solid var(--line);
+  border-radius:14px;padding:18px;position:relative;overflow:hidden}
+.rec.top{border-color:rgba(0,180,255,.35);background:linear-gradient(120deg,rgba(0,180,255,.07),transparent 60%),var(--panel)}
+.rec .rico{width:52px;height:52px;border-radius:13px;background:var(--grad2);display:grid;place-items:center;flex:none}
+.rec .rico svg{width:26px;height:26px;color:#fff}
+.rec .rhd{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px;flex-wrap:wrap}
+.rec .rhd b{font-size:16px}
+.stars{font-size:15px;letter-spacing:2px;color:var(--warn);white-space:nowrap}
+.stars .off{color:var(--line2)}
+.rec p{font-size:13px;color:var(--muted);line-height:1.6}
+.rec .rprio{font-family:"JetBrains Mono";font-size:10px;text-transform:uppercase;letter-spacing:.08em;padding:3px 9px;border-radius:100px;background:rgba(0,180,255,.14);color:#38bdf8}
+
+/* ---- screenshots ---- */
+.shots{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:720px){.shots{grid-template-columns:1fr}}
+.shot{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.shot .shd{display:flex;align-items:center;justify-content:space-between;padding:12px 15px;border-bottom:1px solid var(--line)}
+.shot .shd b{font-size:13px}
+.shot .shd .stag{font-size:10.5px;font-family:"JetBrains Mono";color:var(--faint)}
+.shot .simg{position:relative;background:#0a0e18;min-height:200px;display:grid;place-items:center;overflow:hidden}
+.shot .simg img{width:100%;display:block}
+.shot .simg .ld{position:absolute;inset:0;display:grid;place-items:center;color:var(--faint);font-size:12px;gap:10px}
+.shot .simg .ld .spin{width:22px;height:22px;border:2.5px solid rgba(255,255,255,.15);border-top-color:var(--sky);border-radius:50%;animation:spin .8s linear infinite}
+.anno{position:absolute;border:2px solid var(--bad);border-radius:6px;pointer-events:none;box-shadow:0 0 0 3px rgba(240,77,106,.15)}
+.anno .lbl{position:absolute;top:-11px;left:8px;background:var(--bad);color:#fff;font-size:10px;font-weight:700;
+  font-family:"JetBrains Mono";padding:2px 7px;border-radius:5px;white-space:nowrap}
+.anno.warn{border-color:var(--warn);box-shadow:0 0 0 3px rgba(245,158,11,.15)}
+.anno.warn .lbl{background:var(--warn);color:#04131f}
+.shot .snote{padding:11px 15px;font-size:12px;color:var(--faint);border-top:1px solid var(--line)}
+
+/* ---- bonus scan tiles ---- */
+.scan-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.scan{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px}
+.scan .sbar{height:6px;border-radius:100px;background:var(--panel3);margin:10px 0 8px;overflow:hidden}
+.scan .sbar i{display:block;height:100%;border-radius:100px}
+.scan .sk{font-size:12px;color:var(--muted);font-weight:600}
+.scan .sv{font-family:"Space Grotesk";font-size:20px;font-weight:700}
+.scan .sv s{font-size:11px;color:var(--faint);text-decoration:none}
+.scan .snote{font-size:11px;color:var(--faint)}
+
+/* ---- funnel ---- */
+.funnel{display:flex;flex-direction:column;gap:8px}
+.fn-row{display:grid;grid-template-columns:150px 1fr 70px;align-items:center;gap:14px}
+@media(max-width:560px){.fn-row{grid-template-columns:110px 1fr 54px}}
+.fn-row .fl{font-size:12.5px;color:var(--muted);font-weight:600}
+.fn-track{height:30px;background:var(--panel3);border-radius:8px;overflow:hidden}
+.fn-fill{height:100%;border-radius:8px;background:var(--grad);display:flex;align-items:center;padding-left:11px;
+  color:#fff;font-size:12px;font-weight:700;min-width:34px;transition:width .8s cubic-bezier(.2,.7,.3,1)}
+.fn-drop{font-size:11.5px;color:var(--bad);text-align:right;font-family:"JetBrains Mono"}
+
+/* ---- owner summary / callout ---- */
+.callout{background:linear-gradient(120deg,rgba(0,180,255,.10),rgba(124,58,237,.10)),var(--panel);
+  border:1px solid var(--line2);border-radius:var(--radius);padding:26px}
+.callout h3{font-size:19px;margin-bottom:12px}
+.callout .ol{display:flex;flex-direction:column;gap:9px;margin:14px 0}
+.callout .ol .oli{display:flex;gap:11px;align-items:flex-start;font-size:14px;color:var(--muted)}
+.callout .ol .oli svg{width:18px;height:18px;color:var(--bad);flex:none;margin-top:2px}
+.callout p{color:var(--muted);font-size:14px;line-height:1.65}
+.callout .cta-line{margin-top:18px;padding-top:18px;border-top:1px solid var(--line);color:var(--ink);font-size:14.5px;font-weight:600}
+
+/* ---- private sales notes ---- */
+.sales{border:1px dashed rgba(240,77,106,.4);background:rgba(240,77,106,.04);border-radius:var(--radius);padding:24px}
+.sales-warn{display:inline-flex;align-items:center;gap:8px;font-family:"JetBrains Mono";font-size:11px;text-transform:uppercase;
+  letter-spacing:.08em;color:#fb7185;background:rgba(240,77,106,.10);padding:6px 12px;border-radius:100px;margin-bottom:18px}
+.sales-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:720px){.sales-grid{grid-template-columns:1fr}}
+.sn h4{font-size:13px;color:var(--sky);margin-bottom:9px;display:flex;align-items:center;gap:8px}
+.sn h4 svg{width:15px;height:15px}
+.sn ul{margin:0;padding-left:18px;color:var(--muted);font-size:13px;line-height:1.65}
+.sn ul li{margin-bottom:4px}
+.sn .oneline{color:var(--muted);font-size:13px;line-height:1.6}
+.intent-meter{display:flex;align-items:center;gap:12px;margin-top:6px}
+.intent-bar{flex:1;height:9px;border-radius:100px;background:var(--panel3);overflow:hidden}
+.intent-bar i{display:block;height:100%;background:var(--grad)}
+.intent-val{font-family:"Space Grotesk";font-weight:700;font-size:16px}
+
+/* ---- next steps ---- */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:720px){.steps{grid-template-columns:1fr}}
+.step{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px}
+.step .sn{width:32px;height:32px;border-radius:9px;background:var(--grad);display:grid;place-items:center;color:#fff;
+  font-family:"Space Grotesk";font-weight:700;margin-bottom:13px}
+.step h4{font-size:15px;margin-bottom:6px}
+.step p{font-size:13px;color:var(--faint);line-height:1.55}
+
+.disclaimer{margin-top:26px;padding:16px 18px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;
+  font-size:12px;color:var(--faint);line-height:1.6;display:flex;gap:11px}
+.disclaimer svg{width:17px;height:17px;flex:none;color:var(--warn);margin-top:1px}
+
+.rep-foot{text-align:center;padding:34px 0 60px;color:var(--faint);font-size:12px}
+.rep-foot img{height:20px;opacity:.8;margin-bottom:10px}
+
+/* export menu */
+.exp-wrap{position:relative}
+.exp-menu{position:absolute;right:0;top:calc(100% + 8px);background:var(--panel2);border:1px solid var(--line2);
+  border-radius:12px;padding:6px;box-shadow:var(--shadow);min-width:210px;z-index:50;display:none}
+.exp-menu.open{display:block}
+.exp-menu button{display:flex;align-items:center;gap:11px;width:100%;text-align:left;background:none;color:var(--muted);
+  padding:10px 12px;border-radius:8px;font-size:13px;font-weight:600;transition:.12s}
+.exp-menu button:hover{background:rgba(255,255,255,.05);color:var(--ink)}
+.exp-menu button svg{width:16px;height:16px;color:var(--faint)}
+.exp-menu .div{height:1px;background:var(--line);margin:5px 8px}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);z-index:80;
+  background:var(--panel2);border:1px solid var(--line2);border-radius:12px;padding:12px 18px;font-size:13px;
+  box-shadow:var(--shadow);opacity:0;transition:.25s;display:flex;align-items:center;gap:10px;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast svg{width:17px;height:17px;color:var(--good)}
+
+/* print */
+@media print{
+  body{background:#fff;color:#111}
+  .appbar,.rep-nav,.no-print{display:none!important}
+  #report{display:block!important}
+  .card,.glass,.kpi,.rate,.opp,.rev,.rec,.shot,.scan,.step,.exec{
+    break-inside:avoid;box-shadow:none}
+  section.blk{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ TOP BAR ============ -->
+<header class="appbar">
+  <a class="brand" href="#" onclick="goHome();return false">
+    <img src="https://icshqgpsehddcqwydjxc.supabase.co/functions/v1/logo" alt="LeadaLine"
+      onerror="this.replaceWith(Object.assign(document.createElement('b'),{textContent:'LeadaLine',style:'font-family:Space Grotesk;font-size:17px'}))">
+    <span class="tag">AI Website Auditor</span>
+  </a>
+  <div class="spacer"></div>
+  <button class="ab-btn" id="sales-toggle" onclick="toggleSales()" style="display:none">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+    <span id="sales-toggle-txt">Show Sales Notes</span>
+  </button>
+  <div class="exp-wrap" id="exp-wrap" style="display:none">
+    <button class="ab-btn primary" onclick="toggleExport(event)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Export
+    </button>
+    <div class="exp-menu" id="exp-menu">
+      <button onclick="exportPDF()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>PDF Report</button>
+      <button onclick="exportInteractive()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/></svg>Interactive Report (.html)</button>
+      <button onclick="exportPPT()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 10h5a2 2 0 0 0 0-4H8v8"/></svg>PowerPoint Outline</button>
+      <div class="div"></div>
+      <button onclick="exportProposal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>Copy Proposal Insert</button>
+      <button onclick="exportScreens()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Screenshot Pack</button>
+    </div>
+  </div>
+</header>
+
+<!-- ============ START SCREEN ============ -->
+<main id="start">
+  <div class="wrap">
+    <div class="hero">
+      <div class="kick"><span class="dot"></span><span>Internal Sales Intelligence</span></div>
+      <h1>See where a business is<br><span class="g">losing enquiries</span> — in 60 seconds</h1>
+      <p>Enter a service business website. LeadaLine analyses their lead capture, customer journey and response gaps, then builds a premium audit that shows exactly how the AI Office Team would win them more customers.</p>
+    </div>
+
+    <div class="searchcard">
+      <label for="url">Company website URL</label>
+      <div class="searchrow">
+        <div class="url-in">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <input id="url" type="text" placeholder="e.g. acmeplumbing.co.uk" autocomplete="off" spellcheck="false"
+            onkeydown="if(event.key==='Enter')runAudit()">
+        </div>
+        <button class="run-btn" onclick="runAudit()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+          Run Audit
+        </button>
+      </div>
+      <div class="search-foot">
+        <div class="opts">
+          <div class="opt on" id="opt-shots" onclick="this.classList.toggle('on')">
+            <div class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            Capture screenshots
+          </div>
+          <div class="opt on" id="opt-bonus" onclick="this.classList.toggle('on')">
+            <div class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            Bonus scans (speed, SEO, a11y)
+          </div>
+        </div>
+        <div class="samples">Try: <b onclick="fillSample('emergencyplumberlondon.com')">a plumber</b> · <b onclick="fillSample('example-dental.com')">a dentist</b></div>
+      </div>
+      <div class="err-msg" id="err"></div>
+    </div>
+
+    <div class="feats">
+      <div class="feat"><div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg></div><h4>Business Impact Score</h4><p>Website, lead capture, customer experience, response &amp; AI readiness scored out of 100.</p></div>
+      <div class="feat"><div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><h4>Lead Leak Analysis</h4><p>Finds missed calls, after-hours gaps, weak forms and no follow-up.</p></div>
+      <div class="feat"><div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></div><h4>AI Opportunities</h4><p>Maps each gap to a LeadaLine AI Employee, ranked by impact.</p></div>
+      <div class="feat"><div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><h4>Revenue at Risk</h4><p>Estimates lost enquiries, missed calls and monthly revenue leakage.</p></div>
+    </div>
+  </div>
+</main>
+
+<!-- ============ LOADING ============ -->
+<div id="loading">
+  <div class="load-card">
+    <div class="load-ring">
+      <svg width="120" height="120" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="8"/>
+        <circle id="load-arc" cx="60" cy="60" r="52" fill="none" stroke="url(#lg)" stroke-width="8" stroke-linecap="round"
+          stroke-dasharray="326.7" stroke-dashoffset="326.7"/>
+        <defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00B4FF"/><stop offset="1" stop-color="#7C3AED"/></linearGradient></defs>
+      </svg>
+      <div class="pct" id="load-pct">0%</div>
+    </div>
+    <h3>Auditing website</h3>
+    <div class="load-host" id="load-host">—</div>
+    <div class="load-steps" id="load-steps"></div>
+  </div>
+</div>
+
+<!-- ============ REPORT ============ -->
+<div id="report"></div>
+
+<div class="toast" id="toast"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span id="toast-msg">Done</span></div>
+
+<script>
+/* =================================================================
+   LeadaLine AI Website Auditor — analysis engine + report renderer
+   Self-contained. Runs entirely in the browser.
+   ================================================================= */
+"use strict";
+const $ = s => document.querySelector(s);
+const el = (t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;};
+const esc = s => (s==null?"":String(s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const money = n => "£"+Math.round(n).toLocaleString("en-GB");
+const clamp = (n,a,b)=>Math.max(a,Math.min(b,n));
+
+let REPORT = null;        // last generated report object (for exports)
+let SALES_VISIBLE = false;
+
+/* ---------- CORS fetch with fallbacks ---------- */
+async function fetchHTML(url){
+  const proxies = [
+    u => "https://api.allorigins.win/raw?url="+encodeURIComponent(u),
+    u => "https://corsproxy.io/?url="+encodeURIComponent(u),
+    u => "https://r.jina.ai/"+u,
+    u => "https://api.codetabs.com/v1/proxy/?quest="+encodeURIComponent(u),
+  ];
+  for(const p of proxies){
+    try{
+      const ctrl = new AbortController();
+      const t = setTimeout(()=>ctrl.abort(), 15000);
+      const res = await fetch(p(url), {signal:ctrl.signal});
+      clearTimeout(t);
+      if(!res.ok) continue;
+      const txt = await res.text();
+      if(txt && txt.length > 400) return txt;
+    }catch(e){ /* try next */ }
+  }
+  return null;
+}
+
+/* ---------- URL helpers ---------- */
+function normUrl(raw){
+  let u = (raw||"").trim();
+  if(!u) return null;
+  if(!/^https?:\/\//i.test(u)) u = "https://"+u;
+  try{ const p = new URL(u); if(!p.hostname.includes(".")) return null; return p.href; }
+  catch(e){ return null; }
+}
+function hostOf(u){ try{ return new URL(u).hostname.replace(/^www\./,""); }catch(e){ return u; } }
+
+/* =================================================================
+   SITE PARSER — extract everything we can from raw HTML
+   ================================================================= */
+function parseSite(html, url){
+  const host = hostOf(url);
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  const text = (doc.body ? doc.body.textContent : html).replace(/\s+/g," ");
+  const lowerHtml = html.toLowerCase();
+  const lowerText = text.toLowerCase();
+  const get = sel => doc.querySelector(sel);
+  const all = sel => Array.from(doc.querySelectorAll(sel));
+  const metaC = n => { const m = doc.querySelector(`meta[property="${n}"],meta[name="${n}"]`); return m ? m.getAttribute("content") : ""; };
+  const has = (...k) => k.some(x => lowerHtml.includes(x));
+
+  const d = { host, url, rawLen: html.length };
+
+  /* --- company name --- */
+  let name = metaC("og:site_name") || "";
+  if(!name){ const t = (doc.title||"").trim(); name = t.split(/[|\-–—:·»]/)[0].trim(); }
+  if(!name || name.length<2){ name = host.split(".")[0].replace(/[-_]/g," "); }
+  name = name.replace(/\b\w/g,c=>c.toUpperCase()).slice(0,60);
+  d.name = name;
+  d.title = (doc.title||"").trim();
+  d.description = metaC("description") || metaC("og:description") || "";
+
+  /* --- logo --- */
+  let logo = metaC("og:image:secure_url") || "";
+  const logoImg = all("img").find(i=>/logo/i.test(i.getAttribute("src")||"")||/logo/i.test(i.getAttribute("alt")||"")||/logo/i.test(i.className||""));
+  if(logoImg){ try{ logo = new URL(logoImg.getAttribute("src"), url).href; }catch(e){} }
+  if(!logo){ const og = metaC("og:image"); if(og){ try{ logo = new URL(og,url).href; }catch(e){} } }
+  d.logo = logo;
+  d.favicon = "https://www.google.com/s2/favicons?domain="+host+"&sz=128";
+
+  /* --- brand colours --- */
+  const colors = {};
+  (html.match(/#[0-9a-f]{6}\b/gi)||[]).forEach(c=>{c=c.toLowerCase();colors[c]=(colors[c]||0)+1;});
+  const theme = metaC("theme-color");
+  let brand = theme && /^#/.test(theme) ? theme : "";
+  const ranked = Object.entries(colors).filter(([c])=>{
+    // drop near-white / near-black / greys
+    const r=parseInt(c.slice(1,3),16),g=parseInt(c.slice(3,5),16),b=parseInt(c.slice(5,7),16);
+    const mx=Math.max(r,g,b),mn=Math.min(r,g,b);
+    return (mx-mn)>28 && mx>40 && mn<235;
+  }).sort((a,b)=>b[1]-a[1]).map(x=>x[0]);
+  if(!brand && ranked.length) brand = ranked[0];
+  d.brand = brand || "#3B82F6";
+  d.palette = ranked.slice(0,5);
+
+  /* --- phones --- */
+  const tels = all('a[href^="tel:"]').map(a=>a.getAttribute("href").replace("tel:","").trim());
+  const phoneRe = /(?:\+?44\s?|0)(?:\d[\s-]?){9,10}\d/g;
+  const found = (text.match(phoneRe)||[]).map(s=>s.replace(/\s+/g," ").trim());
+  d.phones = [...new Set([...tels, ...found])].filter(p=>p.replace(/\D/g,"").length>=10).slice(0,4);
+  d.telLinks = tels.length;
+
+  /* --- emails --- */
+  const mailto = all('a[href^="mailto:"]').map(a=>a.getAttribute("href").replace(/^mailto:/,"").split("?")[0].trim());
+  const emailRe = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/gi;
+  d.emails = [...new Set([...mailto, ...(text.match(emailRe)||[])])].filter(e=>!/\.(png|jpg|gif|svg|webp)$/i.test(e)).slice(0,4);
+
+  /* --- forms --- */
+  const forms = all("form");
+  d.hasForm = forms.length>0 || has("wpforms","gravity","hubspot-form","typeform","jotform","contact-form-7","formspree");
+  let maxFields = 0;
+  forms.forEach(f=>{ const n = f.querySelectorAll("input:not([type=hidden]):not([type=submit]),textarea,select").length; if(n>maxFields)maxFields=n; });
+  d.formFields = maxFields;
+  d.formSignals = { name:has("your name",'name="name"','id="name"'), email:has('type="email"',"your email"), phone:has('type="tel"',"phone number","your phone"),
+                    message:has("<textarea","your message","how can we help"), service:/service|reason|enquir|subject|help with/i.test(lowerText) };
+
+  /* --- booking --- */
+  d.booking = null;
+  const bookMap = {calendly:"Calendly",acuityscheduling:"Acuity",acuity:"Acuity","cal.com":"Cal.com",setmore:"Setmore",simplybook:"SimplyBook",youcanbook:"YouCanBook.me",squareup:"Square",fresha:"Fresha",treatwell:"Treatwell",booksy:"Booksy"};
+  for(const k in bookMap){ if(lowerHtml.includes(k)){ d.booking = bookMap[k]; break; } }
+  if(!d.booking && /book (online|now|a|an appointment|your)/i.test(lowerText)) d.booking = "Custom / link";
+  d.bookingWord = /\b(book|booking|appointment|schedule)\b/i.test(lowerText);
+
+  /* --- live chat --- */
+  d.chat = null;
+  const chatMap = {intercom:"Intercom",tawk:"Tawk.to",drift:"Drift","crisp.chat":"Crisp",zendesk:"Zendesk",livechat:"LiveChat",tidio:"Tidio","hubspot":"HubSpot",messenger:"FB Messenger",whatsapp:"WhatsApp","gorgias":"Gorgias","fb-customerchat":"FB Chat"};
+  for(const k in chatMap){ if(lowerHtml.includes(k)){ d.chat = chatMap[k]; break; } }
+  d.whatsapp = /wa\.me|whatsapp/i.test(lowerHtml);
+
+  /* --- social --- */
+  const social = {};
+  all("a[href]").forEach(a=>{
+    const h = (a.getAttribute("href")||"").toLowerCase();
+    if(h.includes("facebook.com"))social.Facebook=1;
+    else if(h.includes("instagram.com"))social.Instagram=1;
+    else if(h.includes("twitter.com")||h.includes("x.com"))social.X=1;
+    else if(h.includes("linkedin.com"))social.LinkedIn=1;
+    else if(h.includes("youtube.com"))social.YouTube=1;
+    else if(h.includes("tiktok.com"))social.TikTok=1;
+  });
+  d.social = Object.keys(social);
+
+  /* --- reviews / testimonials --- */
+  d.testimonials = /testimonial|what our (customers|clients)|reviews?|★|⭐|5 star|five star/i.test(lowerText) || has("trustpilot","reviews.io","yelp","google review");
+  const ratingM = text.match(/\b([0-5](?:\.\d)?)\s*(?:\/\s*5|out of 5|star)/i);
+  d.rating = ratingM ? parseFloat(ratingM[1]) : null;
+  d.trustpilot = has("trustpilot");
+  d.googleReviews = /google review|reviews on google/i.test(lowerText) || has("g.page");
+
+  /* --- FAQ --- */
+  d.faq = /frequently asked|faq/i.test(lowerText) || has('itemtype="https://schema.org/faqpage"',"faqpage");
+
+  /* --- opening hours --- */
+  d.hours = /(mon(day)?|open(ing)? (hours|times)|hours of business)[\s\S]{0,40}(\d{1,2}(:\d{2})?\s?(am|pm)|\d{1,2}\s?[-–]\s?\d)/i.test(text) || has("openinghours");
+  d.h247 = /24\/7|24 hours|round the clock|any time day or night|day (or|&) night/i.test(lowerText);
+
+  /* --- emergency --- */
+  d.emergency = /emergency|urgent|same[- ]day|rapid response|call out|callout|24 hour|24hr/i.test(lowerText);
+
+  /* --- CTA --- */
+  const ctaWords = ["get a quote","request a quote","free quote","get quote","book now","book online","contact us","call now","get in touch","enquire","request a callback","book a call","get started","request a call"];
+  const buttons = all("a,button").map(b=>(b.textContent||"").trim().toLowerCase()).filter(Boolean);
+  d.ctas = [...new Set(ctaWords.filter(w=>buttons.some(b=>b.includes(w))))];
+  d.primaryCTA = d.ctas[0] ? d.ctas[0].replace(/\b\w/g,c=>c.toUpperCase()) : (d.hasForm ? "Contact form" : "None obvious");
+  d.callback = /call ?back|request a callback|we'?ll call you/i.test(lowerText);
+  d.quoteFlow = /quote/i.test(lowerText);
+
+  /* --- navigation --- */
+  const navLinks = all("nav a, header a").map(a=>(a.textContent||"").trim()).filter(t=>t && t.length<26);
+  d.nav = [...new Set(navLinks)].slice(0,10);
+  d.navCount = d.nav.length;
+
+  /* --- industry & services --- */
+  d.industry = detectIndustry(lowerText, host, d.title+" "+d.description);
+  d.services = detectServices(lowerText, d.industry);
+
+  /* --- service areas --- */
+  const areaM = text.match(/(?:serving|covering|areas? (?:we cover|covered)|based in|across)\s+([A-Z][a-zA-Z]+(?:,?\s+(?:and\s+)?[A-Z][a-zA-Z]+){0,4})/);
+  d.areas = areaM ? areaM[1] : "";
+
+  /* --- tech / perf hints for bonus --- */
+  d.imgCount = all("img").length;
+  d.scriptCount = all("script").length;
+  d.hasViewport = !!doc.querySelector('meta[name="viewport"]');
+  d.hasH1 = !!doc.querySelector("h1");
+  d.h1Count = all("h1").length;
+  d.hasSchema = has("schema.org");
+  d.hasSSL = url.startsWith("https");
+  d.altMissing = all("img").filter(i=>!i.getAttribute("alt")).length;
+  d.titleLen = d.title.length;
+  d.metaDescLen = (d.description||"").length;
+  d.wordCount = lowerText.split(" ").length;
+  d.gtag = has("googletagmanager","gtag(","google-analytics","fbq(","pixel");
+
+  return d;
+}
+
+function detectIndustry(t, host, meta){
+  const m = (t+" "+host+" "+meta).toLowerCase();
+  const map = [
+    ["Plumbing & Heating",["plumb","boiler","heating","gas safe","central heating","drain"]],
+    ["Electrical",["electric","electrician","rewire","fuse box","niceic","pat test"]],
+    ["Roofing",["roof","roofer","guttering","fascia","chimney"]],
+    ["Dental",["dental","dentist","teeth","implant","orthodont","invisalign"]],
+    ["Aesthetics & Beauty",["aesthetic","botox","filler","skin clinic","beauty salon","facial"]],
+    ["Legal Services",["solicitor","law firm","legal","conveyancing","barrister","litigation"]],
+    ["Accountancy",["accountant","bookkeep","tax return","chartered account","payroll"]],
+    ["Construction & Building",["builder","construction","extension","renovation","loft","brickwork"]],
+    ["Landscaping & Gardening",["landscap","gardening","gardener","turf","fencing","paving"]],
+    ["Cleaning Services",["cleaning","cleaner","carpet clean","end of tenancy"]],
+    ["Automotive",["garage","mot","car service","mechanic","bodywork","tyres"]],
+    ["Pest Control",["pest control","rodent","infestation","exterminator"]],
+    ["HVAC & Air Con",["air con","hvac","ventilation","air condition"]],
+    ["Locksmith",["locksmith","lock","door entry"]],
+    ["Estate Agency",["estate agent","property for sale","lettings","valuation"]],
+    ["Fitness & Wellbeing",["gym","personal train","pilates","physio","chiropract","wellbeing"]],
+    ["Veterinary",["veterinary","vet ","pet clinic","animal hospital"]],
+    ["Financial Services",["mortgage","financial adviser","wealth","pension","insurance broker"]],
+    ["Removals & Storage",["removals","man and van","storage units","house move"]],
+    ["Flooring & Tiling",["flooring","tiler","tiling","carpet fit"]],
+  ];
+  for(const [name,kw] of map){ if(kw.some(k=>m.includes(k))) return name; }
+  return "Service Business";
+}
+function detectServices(t, industry){
+  const lib = {
+    "Plumbing & Heating":["Boiler installation","Boiler repair","Emergency plumbing","Bathroom fitting","Central heating","Leak detection"],
+    "Electrical":["Rewiring","Fuse box upgrades","EV charger install","Fault finding","Lighting","EICR testing"],
+    "Roofing":["Roof repairs","New roofs","Guttering","Flat roofing","Chimney work","Emergency call-outs"],
+    "Dental":["Check-ups","Teeth whitening","Implants","Invisalign","Emergency dentistry","Hygiene"],
+    "Aesthetics & Beauty":["Anti-wrinkle","Dermal fillers","Skin treatments","Consultations","Facials"],
+    "Legal Services":["Conveyancing","Family law","Wills & probate","Dispute resolution","Employment law"],
+    "Accountancy":["Tax returns","Bookkeeping","Payroll","VAT","Business advisory"],
+    "Construction & Building":["Extensions","Loft conversions","Renovations","New builds","Project management"],
+    "Landscaping & Gardening":["Garden design","Patios & paving","Fencing","Turfing","Maintenance"],
+    "Cleaning Services":["Domestic cleaning","Commercial cleaning","End of tenancy","Carpet cleaning"],
+    "Automotive":["Servicing","MOT","Repairs","Diagnostics","Tyres"],
+  };
+  return lib[industry] || ["Consultation","Quotes","Installation / service","Aftercare & support"];
+}
+
+/* =================================================================
+   SCORING ENGINE
+   ================================================================= */
+const RATE = {excellent:{k:"excellent",label:"Excellent",cls:"excellent"},good:{k:"good",label:"Good",cls:"good"},
+              needs:{k:"needs",label:"Needs Improvement",cls:"needs"},poor:{k:"poor",label:"Poor",cls:"poor"}};
+const rScore = {excellent:100,good:75,needs:45,poor:15};
+
+function rate(cond){ // cond: score 0..3
+  return [RATE.poor,RATE.needs,RATE.good,RATE.excellent][clamp(cond,0,3)];
+}
+
+function scoreSite(d){
+  const cats = [];
+  const add = (name, r, note) => cats.push({name, rating:r, note});
+
+  // Phone Visibility
+  add("Phone Visibility",
+    d.telLinks>0 && d.phones.length ? RATE.excellent : d.phones.length ? RATE.good : RATE.poor,
+    d.telLinks>0 ? "Click-to-call number present" : d.phones.length ? "Number shown but not click-to-call" : "No phone number detected on the page");
+
+  // Contact Form
+  add("Contact Form",
+    !d.hasForm ? RATE.poor : d.formFields>=5 ? RATE.good : d.formFields>=3 ? RATE.needs : RATE.needs,
+    !d.hasForm ? "No contact form found" : `Form detected with ~${d.formFields||"a few"} fields`);
+
+  // Call-To-Actions
+  add("Call-To-Actions",
+    d.ctas.length>=3 ? RATE.excellent : d.ctas.length===2 ? RATE.good : d.ctas.length===1 ? RATE.needs : RATE.poor,
+    d.ctas.length ? `Primary CTA: "${d.primaryCTA}"` : "No clear call-to-action detected");
+
+  // Quote Request Process
+  add("Quote Request Process",
+    d.quoteFlow && d.hasForm ? RATE.good : d.quoteFlow ? RATE.needs : RATE.poor,
+    d.quoteFlow ? "Quote language present but flow is manual" : "No quote request path found");
+
+  // Booking Process
+  add("Booking Process",
+    d.booking && d.booking!=="Custom / link" ? RATE.excellent : d.booking ? RATE.good : d.bookingWord ? RATE.needs : RATE.poor,
+    d.booking ? `Booking via ${d.booking}` : d.bookingWord ? "Talks about booking but no online system" : "No online booking");
+
+  // Mobile Contact Experience
+  add("Mobile Contact Experience",
+    d.hasViewport && d.telLinks>0 ? RATE.good : d.hasViewport ? RATE.needs : RATE.poor,
+    d.hasViewport ? (d.telLinks>0?"Mobile-ready with tap-to-call":"Responsive but no tap-to-call"):"Not mobile optimised");
+
+  // Live Chat
+  add("Live Chat",
+    d.chat ? RATE.excellent : d.whatsapp ? RATE.good : RATE.poor,
+    d.chat ? `${d.chat} live chat active` : d.whatsapp ? "WhatsApp contact only" : "No live chat — visitors can't get instant answers");
+
+  // Lead Qualification
+  const qual = [d.formSignals.name,d.formSignals.email,d.formSignals.phone,d.formSignals.service,d.formSignals.message].filter(Boolean).length;
+  add("Lead Qualification",
+    !d.hasForm ? RATE.poor : qual>=4 ? RATE.good : qual>=2 ? RATE.needs : RATE.poor,
+    !d.hasForm ? "Nothing captured — no form" : `Captures ~${qual}/5 useful qualifying details`);
+
+  // Trust Signals
+  const trust = [d.testimonials,d.rating,d.trustpilot,d.googleReviews,d.social.length>=2].filter(Boolean).length;
+  add("Trust Signals",
+    trust>=3 ? RATE.excellent : trust===2 ? RATE.good : trust===1 ? RATE.needs : RATE.poor,
+    trust ? `${d.rating?d.rating+"★ rating, ":""}${d.testimonials?"testimonials, ":""}${d.social.length} social profiles`.replace(/, $/,"") : "Few trust signals to reassure new customers");
+
+  // Follow-Up Options
+  add("Follow-Up Options",
+    d.gtag && d.hasForm ? RATE.needs : RATE.poor,
+    "No visible automated follow-up — enquiries rely on someone remembering to reply");
+
+  // After-Hours Contact
+  add("After-Hours Contact",
+    d.h247 ? RATE.good : d.chat ? RATE.needs : RATE.poor,
+    d.h247 ? "Advertises 24/7 availability" : "Enquiries outside office hours likely go unanswered");
+
+  // Response Expectations
+  add("Response Expectations",
+    /within (\d+ )?(hour|24|minutes|the hour)/i.test(d.title+d.description) ? RATE.good : RATE.poor,
+    "No stated response time — visitors don't know when they'll hear back");
+
+  // Emergency Contact Process
+  add("Emergency Contact Process",
+    d.emergency && d.h247 ? RATE.good : d.emergency ? RATE.needs : RATE.poor,
+    d.emergency ? (d.h247?"Emergency line promoted":"Mentions emergencies but no 24/7 handling"):"No emergency contact route");
+
+  // Multiple Contact Methods
+  const methods = [d.phones.length>0,d.emails.length>0,d.hasForm,d.chat,d.whatsapp,d.booking].filter(Boolean).length;
+  add("Multiple Contact Methods",
+    methods>=4 ? RATE.excellent : methods===3 ? RATE.good : methods===2 ? RATE.needs : RATE.poor,
+    `${methods} contact method${methods===1?"":"s"} available`);
+
+  /* ---- composite scores ---- */
+  const avg = arr => arr.reduce((s,c)=>s+rScore[c.rating.k],0)/arr.length;
+  const byName = n => cats.find(c=>c.name===n);
+
+  const websitePerf = Math.round(clamp(
+    (d.hasSSL?12:0)+(d.hasViewport?16:0)+(d.hasH1?10:0)+(d.metaDescLen>50?10:0)+(d.hasSchema?10:0)+
+    (d.imgCount<40?10:4)+(d.scriptCount<25?10:4)+(d.titleLen>10&&d.titleLen<65?10:4)+
+    (d.altMissing<5?12:4), 12, 98));
+
+  const leadCapture = Math.round(avg([byName("Contact Form"),byName("Call-To-Actions"),byName("Quote Request Process"),
+    byName("Lead Qualification"),byName("Multiple Contact Methods"),byName("Phone Visibility")]));
+
+  const custExp = Math.round(avg([byName("Mobile Contact Experience"),byName("Booking Process"),byName("Trust Signals"),
+    byName("Live Chat"),byName("Emergency Contact Process")])*0.85 + (d.faq?6:0) + (d.navCount>=4?4:0));
+
+  const leadResponse = Math.round(avg([byName("Follow-Up Options"),byName("After-Hours Contact"),byName("Response Expectations"),
+    byName("Live Chat"),byName("Emergency Contact Process")]));
+
+  const aiReadiness = Math.round(clamp(
+    (d.gtag?18:6)+(d.hasForm?16:4)+(d.booking?16:4)+(d.chat?14:2)+(d.hasSchema?10:2)+(d.social.length>=2?10:2)+(d.testimonials?8:2)+(d.emails.length?8:2),10,92));
+
+  const overall = Math.round((websitePerf*0.15 + leadCapture*0.30 + custExp*0.20 + leadResponse*0.25 + aiReadiness*0.10));
+  const oppLevel = overall<45?"Very High":overall<60?"High":overall<74?"Moderate":"Emerging";
+
+  return {cats, scores:{websitePerf,leadCapture,custExp,leadResponse,aiReadiness,overall,oppLevel}};
+}
+
+/* ---------- customer journey ---------- */
+function buildJourney(d,s){
+  const J=[];
+  J.push({t:"Visitor lands on the site", ok:d.hasViewport?"ok":"warn",
+    p:d.hasViewport?"Page is responsive and loads for mobile users.":"Page may not be mobile-friendly — most local searches are on a phone.",
+    flag:d.hasViewport?null:{c:"warn",txt:"Mobile risk"}});
+  J.push({t:"Looks for how to make contact", ok:d.phones.length&&d.telLinks?"ok":d.phones.length?"warn":"bad",
+    p:d.telLinks?"A tap-to-call number is available.":d.phones.length?"A number is shown but isn't click-to-call on mobile.":"No obvious phone number — a frustrated visitor may leave.",
+    flag:d.telLinks?null:{c:"bad",txt:"Contact friction"}});
+  J.push({t:"Tries to get a quote or enquire", ok:d.hasForm&&d.formFields>=4?"ok":d.hasForm?"warn":"bad",
+    p:!d.hasForm?"No contact form found — the only option is to phone or email manually.":d.formFields>=4?"A form exists but there is no instant acknowledgement.":`The form captures only ~${d.formFields||"a couple of"} fields, so leads arrive under-qualified.`,
+    flag:d.hasForm?(d.formFields<4?{c:"warn",txt:"Weak qualification"}:null):{c:"bad",txt:"No enquiry path"}});
+  J.push({t:"Submits — then waits", ok:"bad",
+    p:"There's no automated confirmation, SMS or email. The lead now depends on a human noticing and replying in time.",
+    flag:{c:"bad",txt:"No instant response"}});
+  J.push({t:"Enquires outside office hours", ok:d.h247?"warn":"bad",
+    p:d.h247?"24/7 is advertised, but there's no system shown to actually capture and route after-hours enquiries.":"Evenings and weekends are when many people search. Those enquiries likely sit unanswered until morning — by then they've often called a competitor.",
+    flag:{c:"bad",txt:"After-hours gap"}});
+  J.push({t:"Nobody follows up", ok:"bad",
+    p:"With no automated follow-up sequence, a single missed reply usually means the lead is lost for good.",
+    flag:{c:"bad",txt:"No follow-up"}});
+  return J;
+}
+
+/* ---------- AI opportunities ---------- */
+function aiOpportunities(d,s){
+  const ops = [
+    {name:"AI Receptionist", icon:"phone", why:"Answers every call and web enquiry instantly, 24/7 — including the after-hours and missed calls that are currently lost.",
+     impact: (!d.h247||!d.chat)?3:2},
+    {name:"Missed Call Recovery", icon:"phoneMissed", why:"Auto-texts anyone whose call isn't answered, turning missed calls into booked jobs instead of lost ones.",
+     impact: d.phones.length?3:1},
+    {name:"AI Sales Assistant", icon:"chat", why:"Qualifies every lead on the spot — job type, urgency, budget, location — so only real jobs reach the team.",
+     impact: (!d.hasForm||d.formFields<4)?3:2},
+    {name:"AI Follow-Up Assistant", icon:"repeat", why:"Chases every quote and enquiry automatically over SMS & email until the customer books or says no.",
+     impact:3},
+    {name:"AI Booking Assistant", icon:"calendar", why:"Lets customers book straight into the diary without back-and-forth, day or night.",
+     impact: d.booking?1:3},
+    {name:"Website AI Assistant", icon:"bot", why:"An on-site assistant that answers questions instantly and captures the visitor's details before they bounce.",
+     impact: d.chat?1:3},
+    {name:"Quote Follow-Up", icon:"file", why:"Automatically follows up sent quotes — the single biggest source of recoverable revenue for service businesses.",
+     impact: d.quoteFlow?3:2},
+    {name:"SMS Automation", icon:"message", why:"Instant text confirmations and reminders that cut no-shows and reassure customers they've been heard.",
+     impact:2},
+    {name:"Owner Notifications", icon:"bell", why:"The owner gets an instant alert on every new lead, so nothing slips through the cracks.",
+     impact:2},
+    {name:"AI Reporting Assistant", icon:"chart", why:"A live dashboard of enquiries, response times and conversion — visibility the business doesn't have today.",
+     impact:1},
+    {name:"CRM & Lead Pipeline", icon:"layers", why:"Every enquiry captured, tagged and tracked in one place instead of scattered across inboxes and notepads.",
+     impact: d.gtag?1:2},
+    {name:"AI Admin Assistant", icon:"clipboard", why:"Handles the repetitive admin — data entry, reminders, chasing paperwork — freeing the team for billable work.",
+     impact:1},
+  ];
+  return ops.sort((a,b)=>b.impact-a.impact);
+}
+
+/* ---------- top opportunities ---------- */
+function topOpportunities(d,s){
+  const list=[];
+  const push=(cond,title,impact,rec)=>{ if(cond) list.push({title,impact,rec}); };
+  push(!d.h247,"No instant response after business hours","Very High","AI Receptionist");
+  push(!d.hasForm||d.formFields<4,"Contact form collects almost no qualification information","High","AI Sales Assistant");
+  push(true,"No automated quote or enquiry follow-up","Very High","AI Follow-Up Assistant");
+  push(!d.chat,"No live chat or website assistant to catch visitors","High","Website AI Assistant");
+  push(d.phones.length>0,"Missed calls have no safety net","Very High","Missed Call Recovery");
+  push(!d.booking,"No online booking — every appointment needs a phone call","High","AI Booking Assistant");
+  push(true,"Owner has no instant visibility of new enquiries","Medium","Owner Notifications");
+  push(!d.telLinks,"Phone number isn't click-to-call on mobile","Medium","Mobile Contact Fix");
+  push(d.formSignals && !d.formSignals.service,"Enquiries don't capture the job type or urgency","High","AI Sales Assistant");
+  push(true,"No SMS confirmation to reassure customers","Medium","SMS Automation");
+  push(!d.testimonials,"Limited trust signals to convert cautious visitors","Medium","Reputation Assistant");
+  push(!d.faq,"No FAQ — repetitive questions eat up staff time","Low","Website AI Assistant");
+  push(true,"No response-time promise sets customer expectations","Medium","AI Receptionist");
+  push(true,"Enquiries scattered across phone, email &amp; forms with no single record","Medium","CRM & Lead Pipeline");
+  push(!d.callback,"No 'request a callback' option for visitors who can't talk now","Low","AI Receptionist");
+  push(true,"Repetitive admin &amp; data entry is eating billable hours","Low","AI Admin Assistant");
+  push(d.rating&&d.rating<4.6,"Review rating could be actively grown to lift conversion","Low","Reputation Assistant");
+  // rank Very High > High > Medium > Low, keep 10
+  const order={"Very High":0,"High":1,"Medium":2,"Low":3};
+  return list.sort((a,b)=>order[a.impact]-order[b.impact]).slice(0,10);
+}
+
+/* ---------- recommendations ---------- */
+function recommendations(d,s){
+  const recs=[
+    {name:"AI Receptionist", stars:5,
+     why:"Handles calls and enquiries around the clock. For "+d.industry.toLowerCase()+", where jobs are urgent and often out-of-hours, this is the single biggest win — no enquiry ever goes unanswered again."},
+    {name:"AI Follow-Up Assistant", stars:5,
+     why:"Automatically chases every quote and lead. Most service businesses lose a large share of revenue simply because nobody follows up a second or third time — this fixes that on autopilot."},
+    {name:"AI Sales Assistant", stars: (!d.hasForm||d.formFields<4)?5:4,
+     why:"Qualifies every lead instantly and captures the details the current "+(d.hasForm?"form":"process")+" misses, so the team only spends time on genuine, ready-to-buy jobs."},
+    {name:"AI Booking Assistant", stars: d.booking?3:4,
+     why: d.booking? "You already have "+d.booking+", so this layers AI on top to reduce back-and-forth." : "Lets customers self-book into the diary 24/7, removing the phone-tag that loses appointments."},
+    {name:"AI Reporting Assistant", stars:3,
+     why:"Gives the owner a live view of enquiries, response times and conversion — turning guesswork into decisions."},
+  ];
+  return recs;
+}
+
+/* ---------- revenue model ---------- */
+const AVG_JOB = {
+  "Plumbing & Heating":420,"Electrical":380,"Roofing":2600,"Dental":540,"Aesthetics & Beauty":260,
+  "Legal Services":1400,"Accountancy":900,"Construction & Building":8500,"Landscaping & Gardening":1900,
+  "Cleaning Services":180,"Automotive":260,"Pest Control":180,"HVAC & Air Con":1400,"Locksmith":150,
+  "Estate Agency":3200,"Fitness & Wellbeing":320,"Veterinary":220,"Financial Services":1600,
+  "Removals & Storage":650,"Flooring & Tiling":1800,"Service Business":600
+};
+function revenueModel(d,s){
+  const job = AVG_JOB[d.industry] || 600;
+  // conservative benchmark monthly enquiries for a local service site
+  const enquiries = 45;                       // typical blended calls + forms / month
+  const missGaps = (d.h247?0:1)+(d.chat?0:1)+(d.formFields<4?1:0)+1; // 1 baseline for no follow-up
+  const missRate = clamp(0.14 + missGaps*0.06, 0.15, 0.42);
+  const lostEnq = Math.round(enquiries*missRate);
+  const missedCalls = Math.round(enquiries*0.4*(d.h247?0.12:0.28)); // ~40% of enquiries are calls
+  const lostFollowups = Math.round(enquiries*0.55*0.5*(1));         // quotes not followed up
+  const closeRate = 0.35;
+  const leakage = lostEnq*closeRate*job;
+  const adminHours = Math.round((enquiries*0.15) + 8);              // manual chasing/data entry per month
+  return {
+    job, enquiries,
+    lostEnq, missedCalls, lostFollowups,
+    leakageMonth: leakage, leakageYear: leakage*12,
+    adminHours, responseDelay: d.h247?"~2 hrs":"12+ hrs",
+    missRate
+  };
+}
+
+/* ---------- owner summary + private notes ---------- */
+function ownerSummary(d,s,rev){
+  const gaps=[];
+  if(!d.h247) gaps.push("No instant response after hours");
+  if(!d.hasForm||d.formFields<4) gaps.push("Limited lead qualification on enquiries");
+  gaps.push("No automated follow-up on quotes &amp; leads");
+  if(!d.chat) gaps.push("No AI customer assistant on the website");
+  if(d.phones.length&&!d.h247) gaps.push("No safety net for missed calls");
+  return gaps.slice(0,5);
+}
+function salesNotes(d,s,rev){
+  const buying = clamp( 100 - s.scores.overall*0.5 + (d.gtag?8:0) + (d.hasForm?6:0) + (rev.leakageMonth>2500?12:0), 30, 92);
+  const painPoints=[
+    (!d.h247?"Losing evening/weekend enquiries to faster-responding competitors":"Response times slower than they realise"),
+    (!d.hasForm||d.formFields<4?"Leads arrive vague — team wastes time qualifying by phone":"Under-qualified leads clog the pipeline"),
+    "Quotes go out and are never chased — money left on the table",
+    "Owner has no real visibility of how many enquiries convert",
+    (d.phones.length?"Missed calls during jobs are never recovered":"Hard for customers to reach them quickly")
+  ];
+  const objections=[
+    "\"We already answer our phones\" → but not after hours, on jobs, or all at once.",
+    "\"AI feels impersonal for our customers\" → it's branded, on-message and hands off to a human seamlessly.",
+    "\"We're too small / too busy for this\" → that's exactly why the admin & follow-up automation pays for itself.",
+    "\"How much is it?\" → anchor against the "+money(rev.leakageMonth)+"/mo currently leaking."
+  ];
+  const questions=[
+    "How many enquiries a week do you get — and roughly how many turn into jobs?",
+    "What happens to a call or web enquiry that comes in at 8pm on a Saturday?",
+    "Who follows up a quote if the customer goes quiet — and how many times?",
+    "How would you even know today if you'd missed 5 enquiries this week?",
+    "If you could clone your best receptionist and have them work 24/7, what's that worth?"
+  ];
+  let angle, pkg;
+  if(s.scores.leadResponse<40){ angle="Lead the whole pitch on speed-to-lead and after-hours capture — it's their most visible, most painful leak."; pkg="AI Office Team (Receptionist + Follow-Up + Sales Assistant)"; }
+  else if(s.scores.leadCapture<50){ angle="Focus on qualification & follow-up — show how much better-quality the pipeline becomes."; pkg="Growth Package (Sales Assistant + Follow-Up + CRM)"; }
+  else { angle="They're doing OK — sell the efficiency & scale story, and being ahead of local competitors."; pkg="Efficiency Package (Follow-Up + Reporting + Admin)"; }
+  const crosssell=["Reputation / review automation to lift trust signals","SMS reminders to cut no-shows","Reporting dashboard for the owner","Website assistant + FAQ deflection"];
+  return {buying:Math.round(buying), painPoints, objections, questions, angle, pkg, crosssell,
+    closing:"Book the demo on the call — \"I've already built a working example for "+esc(d.name)+", let me show you live.\" Then anchor price against "+money(rev.leakageYear)+"/yr of leakage and close on a 30-day pilot."};
+}
+
+/* =================================================================
+   BONUS SCANS
+   ================================================================= */
+function bonusScans(d){
+  const g=v=>v>=75?"#22C55E":v>=50?"#F59E0B":"#F04D6A";
+  const pageSpeed = clamp(92 - Math.round(d.imgCount*0.6) - Math.round(d.scriptCount*0.9) - (d.rawLen>250000?12:0), 24, 96);
+  const mobile = clamp((d.hasViewport?60:20)+(d.telLinks?18:0)+(d.imgCount<30?12:4)+10, 20, 98);
+  const seo = clamp((d.titleLen>10&&d.titleLen<65?22:8)+(d.metaDescLen>50?20:6)+(d.hasH1?16:0)+(d.hasSchema?18:2)+(d.hasSSL?12:0)+(d.wordCount>400?12:4),15,96);
+  const a11y = clamp(90-(d.altMissing*4)-(d.hasH1?0:15)-(d.hasViewport?0:10),20,98);
+  const gbp = clamp((d.googleReviews?30:6)+(d.rating?24:0)+(d.hours?18:4)+(d.social.length>=2?14:4)+10,12,96);
+  const trust = clamp((d.testimonials?24:2)+(d.rating?22:0)+(d.trustpilot?16:0)+(d.social.length*6)+(d.faq?10:0),10,96);
+  return [
+    {k:"Page Speed", v:pageSpeed, note:pageSpeed<50?"Heavy page — slow on mobile data":"Reasonable load weight", c:g(pageSpeed)},
+    {k:"Mobile Optimisation", v:mobile, note:d.hasViewport?"Responsive layout":"Not mobile-ready", c:g(mobile)},
+    {k:"SEO Basics", v:seo, note:d.hasSchema?"Structured data present":"Missing key SEO signals", c:g(seo)},
+    {k:"Accessibility", v:a11y, note:d.altMissing?`${d.altMissing} images missing alt text`:"Good alt coverage", c:g(a11y)},
+    {k:"Google Business", v:gbp, note:d.googleReviews?"Google presence detected":"Weak Google Business signals", c:g(gbp)},
+    {k:"Trust Signals", v:trust, note:d.rating?`${d.rating}★ visible`:"Add reviews & testimonials", c:g(trust)},
+  ];
+}
+
+/* =================================================================
+   MAIN ORCHESTRATION
+   ================================================================= */
+const STEPS = ["Connecting to website","Reading page content","Extracting business details","Analysing lead capture","Mapping the customer journey","Finding AI opportunities","Estimating revenue impact","Building your report"];
+
+function fillSample(u){ $("#url").value=u; }
+function goHome(){ $("#report").style.display="none"; $("#loading").style.display="none"; $("#start").style.display="block";
+  $("#exp-wrap").style.display="none"; $("#sales-toggle").style.display="none"; window.scrollTo(0,0); }
+
+async function runAudit(){
+  const raw = $("#url").value;
+  const url = normUrl(raw);
+  const errBox = $("#err");
+  errBox.textContent="";
+  if(!url){ errBox.textContent="Please enter a valid website address (e.g. acmeplumbing.co.uk)."; return; }
+
+  const wantShots = $("#opt-shots").classList.contains("on");
+  const wantBonus = $("#opt-bonus").classList.contains("on");
+
+  // show loading
+  $("#start").style.display="none";
+  $("#report").style.display="none";
+  $("#loading").style.display="flex";
+  $("#load-host").textContent = hostOf(url);
+  renderSteps();
+  setStep(0); setPct(6);
+
+  // fetch
+  await tick(300);
+  const html = await fetchHTML(url);
+  if(!html){
+    $("#loading").style.display="none";
+    $("#start").style.display="block";
+    errBox.textContent="Couldn't reach that site (it may block automated access, or be offline). Check the URL and try again.";
+    return;
+  }
+  setStep(1); setPct(24); await tick(280);
+  setStep(2);
+  const data = parseSite(html, url);
+  setPct(42); await tick(320);
+  setStep(3);
+  const scored = scoreSite(data);
+  setPct(58); await tick(300);
+  setStep(4);
+  const journey = buildJourney(data,scored);
+  setPct(68); await tick(220);
+  setStep(5);
+  const ai = aiOpportunities(data,scored);
+  const tops = topOpportunities(data,scored);
+  const recs = recommendations(data,scored);
+  setPct(80); await tick(260);
+  setStep(6);
+  const rev = revenueModel(data,scored);
+  const owner = ownerSummary(data,scored,rev);
+  const notes = salesNotes(data,scored,rev);
+  const bonus = wantBonus ? bonusScans(data) : null;
+  setPct(90); await tick(240);
+  setStep(7);
+
+  REPORT = {data,scored,journey,ai,tops,recs,rev,owner,notes,bonus,wantShots,url,generated:new Date()};
+  renderReport(REPORT);
+  setPct(100); await tick(320);
+
+  $("#loading").style.display="none";
+  $("#report").style.display="block";
+  $("#exp-wrap").style.display="block";
+  $("#sales-toggle").style.display="inline-flex";
+  window.scrollTo(0,0);
+  animateGauges();
+  if(wantShots) loadScreenshots(REPORT);
+}
+
+function tick(ms){ return new Promise(r=>setTimeout(r,ms)); }
+function renderSteps(){
+  const box=$("#load-steps"); box.innerHTML="";
+  STEPS.forEach((s,i)=>{
+    box.appendChild(el("div","lstep","<div class='li'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3'><polyline points='20 6 9 17 4 12'/></svg></div><div class='spin'></div><span>"+s+"</span>"));
+  });
+}
+function setStep(i){
+  document.querySelectorAll(".lstep").forEach((n,idx)=>{
+    n.classList.toggle("done",idx<i); n.classList.toggle("active",idx===i);
+  });
+}
+function setPct(p){
+  $("#load-pct").textContent=Math.round(p)+"%";
+  const arc=$("#load-arc"), C=326.7; arc.style.strokeDashoffset = C-(C*p/100);
+}
+
+/* =================================================================
+   SVG helpers
+   ================================================================= */
+function gaugeSVG(id,size,stroke){
+  const r=(size-stroke)/2, c=2*Math.PI*r, cx=size/2;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="transform:rotate(-90deg)">
+    <circle cx="${cx}" cy="${cx}" r="${r}" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="${stroke}"/>
+    <circle id="${id}" cx="${cx}" cy="${cx}" r="${r}" fill="none" stroke="url(#gg)" stroke-width="${stroke}"
+      stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${c.toFixed(1)}" data-c="${c.toFixed(1)}"/>
+  </svg>`;
+}
+function scoreColor(v){ return v>=75?"#22C55E":v>=55?"#00B4FF":v>=40?"#F59E0B":"#F04D6A"; }
+
+function animateGauges(){
+  document.querySelectorAll("[data-gv]").forEach(node=>{
+    const v=+node.getAttribute("data-gv"); const circ=node.querySelector("circle[data-c]");
+    if(circ){ const c=+circ.getAttribute("data-c"); requestAnimationFrame(()=>{ setTimeout(()=>{ circ.style.transition="stroke-dashoffset 1.1s cubic-bezier(.2,.7,.3,1)"; circ.style.strokeDashoffset=(c-(c*v/100)).toFixed(1); },60); }); }
+    const num=node.querySelector("[data-count]");
+    if(num){ let start=0; const dur=1000, t0=performance.now();
+      const step=now=>{ const k=clamp((now-t0)/dur,0,1); num.textContent=Math.round(v*k*(2-k)); if(k<1)requestAnimationFrame(step); };
+      requestAnimationFrame(step);
+    }
+  });
+  document.querySelectorAll(".fn-fill[data-w]").forEach(f=>{ requestAnimationFrame(()=>{ setTimeout(()=>f.style.width=f.getAttribute("data-w")+"%",80); }); });
+  document.querySelectorAll(".sbar i[data-w]").forEach(f=>{ requestAnimationFrame(()=>{ setTimeout(()=>f.style.width=f.getAttribute("data-w")+"%",80); }); });
+}
+
+/* SVG icon set for AI ops */
+const ICONS = {
+  phone:'<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.6a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.5-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.6 2.6.7a2 2 0 0 1 1.7 2z"/>',
+  phoneMissed:'<line x1="23" y1="1" x2="17" y2="7"/><line x1="17" y1="1" x2="23" y2="7"/><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.6a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.5-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.6 2.6.7a2 2 0 0 1 1.7 2z"/>',
+  chat:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+  repeat:'<polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>',
+  calendar:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',
+  bot:'<rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/>',
+  file:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>',
+  message:'<path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z"/>',
+  bell:'<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>',
+  chart:'<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',
+  layers:'<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
+  clipboard:'<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/>',
+};
+
+/* =================================================================
+   REPORT RENDER
+   ================================================================= */
+function renderReport(R){
+  const {data:d,scored:s,journey,ai,tops,recs,rev,owner,notes,bonus} = R;
+  const sc=s.scores;
+  const root=$("#report");
+
+  const stars=n=>{let h="";for(let i=0;i<5;i++)h+=`<span class="${i<n?'':'off'}">★</span>`;return h;};
+  const impCls=i=>({"Very High":"i-veryhigh","High":"i-high","Medium":"i-medium","Low":"i-low"}[i]||"i-medium");
+
+  const logoBlock = d.logo
+    ? `<div class="exec-logo"><img src="${esc(d.logo)}" alt="" onerror="this.parentNode.className='exec-logo mono-logo';this.parentNode.textContent='${esc((d.name||'?')[0])}'"></div>`
+    : `<div class="exec-logo mono-logo">${esc((d.name||'?')[0].toUpperCase())}</div>`;
+
+  const nav = [["exec","Summary"],["scores","Scores"],["health","Website"],["capture","Lead Capture"],["journey","Journey"],["ai","AI Opportunities"],["opps","Top 10"],["revenue","Revenue"],["recs","Recommendations"],["shots","Screenshots"],["owner","Owner Summary"],["next","Next Steps"]];
+
+  root.innerHTML = `
+  <div class="rep-shell">
+    <nav class="rep-nav">
+      ${nav.map((n,i)=>`<button class="${i===0?'on':''}" onclick="jumpTo('${n[0]}',this)">${n[1]}</button>`).join("")}
+    </nav>
+
+    <!-- EXEC SUMMARY -->
+    <section class="blk" id="exec">
+      <div class="glass exec">
+        <div class="exec-top">
+          ${logoBlock}
+          <div class="exec-id">
+            <h2>${esc(d.name)}</h2>
+            <div class="meta">
+              <span class="chip">${esc(d.industry)}</span>
+              ${d.areas?`<span class="chip">${esc(d.areas)}</span>`:""}
+              <a href="${esc(d.url)}" target="_blank" rel="noopener">${esc(d.host)} ↗</a>
+              ${d.rating?`<span class="chip">${d.rating}★ rating</span>`:""}
+            </div>
+          </div>
+          <div class="exec-verdict">
+            <div class="lab">Opportunity</div>
+            <div class="val" style="color:${sc.overall<60?'#fb7185':'#38bdf8'}">${sc.oppLevel}</div>
+          </div>
+        </div>
+        <div class="exec-body">
+          <p><b>${esc(d.name)}</b> has a functional website${d.hasForm?" with a contact form":""}${d.phones.length?" and a visible phone number":""}, but our audit found that enquiries are very likely slipping through the cracks — especially <b>after hours, on missed calls, and when quotes aren't followed up</b>.</p>
+          <p>The business scores <b>${sc.overall}/100</b> overall. The weakest area is <b>${weakest(sc)}</b>, where potential customers can reach out but there's no system to capture, qualify and respond to them fast enough. Based on industry benchmarks, that's an estimated <b>${money(rev.leakageMonth)}/month</b> in recoverable revenue.</p>
+          <p>The good news: every gap we found maps directly to a LeadaLine AI Employee that can be live in days — <b>answering every enquiry instantly, 24/7, qualifying leads and following up automatically</b>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCORES -->
+    <section class="blk" id="scores">
+      <div class="sec-head"><div><span class="eyebrow">Business Impact Score</span><h2>The numbers behind the enquiry leak</h2></div></div>
+      <div class="glass card" style="margin-bottom:14px">
+        <div class="overall">
+          <div class="big-gauge" data-gv="${sc.overall}">
+            ${gaugeSVG("ov-arc",200,14)}
+            <div class="num"><b data-count style="color:${scoreColor(sc.overall)}">0</b><s>/ 100 OVERALL</s></div>
+          </div>
+          <div class="ov-sum">
+            <h3>Overall Opportunity: <span style="color:${sc.overall<60?'#fb7185':'#38bdf8'}">${sc.oppLevel}</span></h3>
+            <p>This blended score weighs lead capture and response most heavily, because that's where service businesses win or lose customers. ${esc(d.name)} is leaving measurable revenue on the table through slow, manual, easily-automated processes.</p>
+            <div class="ov-badges">
+              <div class="ov-badge"><div class="l">Est. lost enquiries / mo</div><div class="v" style="color:#fb7185">${rev.lostEnq}</div></div>
+              <div class="ov-badge"><div class="l">Revenue at risk / yr</div><div class="v" style="color:#fb7185">${money(rev.leakageYear)}</div></div>
+              <div class="ov-badge"><div class="l">Avg. response delay</div><div class="v">${rev.responseDelay}</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="kpis">
+        ${kpi("Website",sc.websitePerf)}
+        ${kpi("Lead Capture",sc.leadCapture)}
+        ${kpi("Customer Experience",sc.custExp)}
+        ${kpi("Lead Response",sc.leadResponse)}
+        ${kpi("AI Readiness",sc.aiReadiness)}
+      </div>
+    </section>
+
+    <!-- WEBSITE HEALTH / bonus -->
+    <section class="blk" id="health">
+      <div class="sec-head"><div><span class="eyebrow">Website Health</span><h2>Technical &amp; visibility scan</h2><p>Automated checks on speed, mobile, SEO, accessibility and Google presence.</p></div></div>
+      ${bonus?`<div class="scan-grid">${bonus.map(b=>`
+        <div class="scan">
+          <div class="sk">${b.k}</div>
+          <div class="sbar"><i data-w="${b.v}" style="background:${b.c};width:0"></i></div>
+          <div class="sv">${b.v}<s>/100</s></div>
+          <div class="snote">${esc(b.note)}</div>
+        </div>`).join("")}</div>`
+       :`<div class="card" style="color:var(--faint)">Bonus scans were disabled for this audit.</div>`}
+    </section>
+
+    <!-- LEAD CAPTURE -->
+    <section class="blk" id="capture">
+      <div class="sec-head"><div><span class="eyebrow">Lead Capture Analysis</span><h2>How well the site turns visitors into enquiries</h2><p>Each area rated Excellent, Good, Needs Improvement or Poor based on what we detected.</p></div></div>
+      <div class="rate-grid">
+        ${s.cats.map(c=>rateRow(c)).join("")}
+      </div>
+    </section>
+
+    <!-- CUSTOMER JOURNEY -->
+    <section class="blk" id="journey">
+      <div class="sec-head"><div><span class="eyebrow">Customer Journey</span><h2>What actually happens when someone tries to enquire</h2></div></div>
+      <div class="card">
+        <div class="journey">
+          ${journey.map((j,i)=>`
+          <div class="jstep ${j.ok}">
+            <div class="jn">${i+1}</div>
+            <div class="jc">
+              <b>${esc(j.t)}</b>
+              <p>${j.p}</p>
+              ${j.flag?`<span class="jflag ${j.flag.c==='bad'?'p-poor':'p-needs'}">${esc(j.flag.txt)}</span>`:""}
+            </div>
+          </div>`).join("")}
+        </div>
+      </div>
+    </section>
+
+    <!-- AI OPPORTUNITIES -->
+    <section class="blk" id="ai">
+      <div class="sec-head"><div><span class="eyebrow">AI Opportunity Analysis</span><h2>Where the LeadaLine AI Office Team plugs in</h2><p>Ranked by potential impact for this business.</p></div></div>
+      <div class="ai-grid">
+        ${ai.slice(0,10).map(o=>`
+        <div class="ai-op">
+          <div class="aii"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICONS[o.icon]||ICONS.bot}</svg></div>
+          <div class="aic">
+            <div class="aihd"><b>${esc(o.name)}</b>
+              <span class="impact-dots">${[1,2,3].map(n=>`<i class="${n<=o.impact?'on':''}"></i>`).join("")}</span>
+            </div>
+            <p>${o.why}</p>
+          </div>
+        </div>`).join("")}
+      </div>
+    </section>
+
+    <!-- TOP 10 -->
+    <section class="blk" id="opps">
+      <div class="sec-head"><div><span class="eyebrow">Biggest Opportunities</span><h2>Top ${tops.length} improvements, by impact</h2></div></div>
+      <div class="opps">
+        ${tops.map((o,i)=>`
+        <div class="opp">
+          <div class="orank">${i+1}</div>
+          <div class="omid"><b>${esc(o.title)}</b><span>Recommendation: <span class="rec">${esc(o.rec)}</span></span></div>
+          <div class="oright"><span class="impact ${impCls(o.impact)}">${o.impact}</span></div>
+        </div>`).join("")}
+      </div>
+    </section>
+
+    <!-- REVENUE -->
+    <section class="blk" id="revenue">
+      <div class="sec-head"><div><span class="eyebrow">Revenue Opportunity</span><h2>Estimated cost of the current gaps</h2></div></div>
+      <div class="rev-grid">
+        <div class="rev rev-hero">
+          <div><div class="rk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Estimated revenue leakage</div>
+            <div class="rv">${money(rev.leakageMonth)}<span class="u"> / month</span></div>
+            <div class="rs">≈ ${money(rev.leakageYear)} per year, based on ~${rev.lostEnq} lost enquiries a month at an avg. job value of ${money(rev.job)} and a 35% close rate.</div></div>
+        </div>
+        ${revCard("Potential enquiries lost","users",rev.lostEnq,"/mo",`~${Math.round(rev.missRate*100)}% of enquiries currently go cold or unanswered.`)}
+        ${revCard("Potential calls missed","phoneMissed",rev.missedCalls,"/mo","Calls during jobs & after hours with no recovery text.")}
+        ${revCard("Follow-ups missed","repeat",rev.lostFollowups,"/mo","Quotes & enquiries never chased a second time.")}
+        ${revCard("Admin time wasted","clock",rev.adminHours,"hrs/mo","Manual chasing, data entry & repetitive questions.")}
+        ${revCard("Response delay","clock",rev.responseDelay,"","Vs. an instant AI response measured in seconds.")}
+      </div>
+      <div class="disclaimer" style="margin-top:16px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12" y2="17"/></svg>
+        <span>These are informed estimates based on industry benchmarks and the information available on the website, not measured figures. They're intended as guidance to size the opportunity.</span>
+      </div>
+    </section>
+
+    <!-- CONVERSION FUNNEL -->
+    <section class="blk" id="funnel">
+      <div class="sec-head"><div><span class="eyebrow">Conversion Funnel</span><h2>Where visitors drop off today</h2></div></div>
+      <div class="card">
+        <div class="funnel">
+          ${funnelRow("Website visitors",100,0)}
+          ${funnelRow("Find a way to contact",d.telLinks?82:62,d.telLinks?18:38)}
+          ${funnelRow("Start an enquiry",d.hasForm?46:30,d.hasForm?36:32)}
+          ${funnelRow("Enquiry fully captured",d.formFields>=4?32:18,d.formFields>=4?14:12)}
+          ${funnelRow("Get a fast response",d.h247?22:11,d.h247?10:7)}
+          ${funnelRow("Followed up → booked",d.chat?14:7,d.chat?8:4)}
+        </div>
+      </div>
+    </section>
+
+    <!-- RECOMMENDATIONS -->
+    <section class="blk" id="recs">
+      <div class="sec-head"><div><span class="eyebrow">LeadaLine Recommendations</span><h2>The AI Employees that would help most</h2></div></div>
+      <div class="recs">
+        ${recs.map((r,i)=>`
+        <div class="rec ${i===0?'top':''}">
+          <div class="rico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${recIcon(r.name)}</svg></div>
+          <div>
+            <div class="rhd"><b>${esc(r.name)}</b><span class="stars">${stars(r.stars)}</span>${i===0?'<span class="rprio">Start here</span>':''}</div>
+            <p>${r.why}</p>
+          </div>
+        </div>`).join("")}
+      </div>
+    </section>
+
+    <!-- SCREENSHOTS -->
+    <section class="blk" id="shots">
+      <div class="sec-head"><div><span class="eyebrow">Screenshots</span><h2>Your site, with the leaks marked up</h2><p>Automatically captured and annotated where enquiries are at risk.</p></div></div>
+      <div class="shots" id="shot-grid"></div>
+    </section>
+
+    <!-- OWNER SUMMARY -->
+    <section class="blk" id="owner">
+      <div class="sec-head"><div><span class="eyebrow">Owner Summary</span><h2>The one-page version</h2></div></div>
+      <div class="callout">
+        <h3>Here's what we found, in plain terms</h3>
+        <p>We analysed <b>${esc(d.host)}</b> and identified several opportunities where enquiries may currently be slipping through the cracks. The biggest ones are:</p>
+        <div class="ol">
+          ${owner.map(g=>`<div class="oli"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg><span>${g}</span></div>`).join("")}
+        </div>
+        <p>Individually these feel small. Together, they're an estimated <b>${money(rev.leakageMonth)} a month</b> in enquiries that could be converting — and every one is fixable with automation, not more staff.</p>
+        <div class="cta-line">We've already built an example of how LeadaLine's AI Office Team could solve these for ${esc(d.name)} — the next step is a 15-minute demo to show it live.</div>
+      </div>
+    </section>
+
+    <!-- PRIVATE SALES NOTES -->
+    <section class="blk" id="sales-sec" style="display:none">
+      <div class="sec-head"><div><span class="eyebrow" style="color:#fb7185">Internal Only</span><h2>Private Sales Notes</h2></div></div>
+      <div class="sales">
+        <div class="sales-warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Not shown to the prospect</div>
+        <div class="sales-grid">
+          <div class="sn"><h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h9l-1 8 10-12h-9z"/></svg>Likely pain points</h4><ul>${notes.painPoints.map(x=>`<li>${x}</li>`).join("")}</ul></div>
+          <div class="sn"><h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>Likely objections &amp; rebuttals</h4><ul>${notes.objections.map(x=>`<li>${x}</li>`).join("")}</ul></div>
+          <div class="sn"><h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12" y2="17"/></svg>Questions to ask</h4><ul>${notes.questions.map(x=>`<li>${x}</li>`).join("")}</ul></div>
+          <div class="sn">
+            <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>Deal shape</h4>
+            <p class="oneline"><b style="color:var(--ink)">Suggested angle:</b> ${notes.angle}</p>
+            <p class="oneline" style="margin-top:8px"><b style="color:var(--ink)">Recommended package:</b> ${esc(notes.pkg)}</p>
+            <p class="oneline" style="margin-top:8px"><b style="color:var(--ink)">Cross-sell:</b> ${notes.crosssell.join(" · ")}</p>
+            <p class="oneline" style="margin-top:10px"><b style="color:var(--ink)">Estimated buying intent</b></p>
+            <div class="intent-meter"><div class="intent-bar"><i style="width:${notes.buying}%"></i></div><span class="intent-val" style="color:${notes.buying>65?'#4ade80':notes.buying>45?'#fbbf24':'#fb7185'}">${notes.buying}%</span></div>
+            <p class="oneline" style="margin-top:10px"><b style="color:var(--ink)">Closing strategy:</b> ${notes.closing}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- NEXT STEPS -->
+    <section class="blk" id="next">
+      <div class="sec-head"><div><span class="eyebrow">Next Steps</span><h2>How ${esc(d.name)} gets from leaking to leading</h2></div></div>
+      <div class="steps">
+        <div class="step"><div class="sn">1</div><h4>15-minute demo</h4><p>We show the AI Office Team answering a live enquiry for ${esc(d.name)} — no commitment.</p></div>
+        <div class="step"><div class="sn">2</div><h4>30-day pilot</h4><p>We deploy the top 2–3 AI Employees on your real enquiries and measure the lift in captured leads.</p></div>
+        <div class="step"><div class="sn">3</div><h4>Scale the office</h4><p>Add follow-up, booking and reporting as the results compound — a full AI office for a fraction of a hire.</p></div>
+      </div>
+      <div class="disclaimer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="8"/></svg>
+        <span>This report combines automated analysis with AI-generated recommendations. Some findings are estimates and should be used as guidance rather than definitive technical conclusions.</span>
+      </div>
+    </section>
+
+    <div class="rep-foot">
+      <img src="https://icshqgpsehddcqwydjxc.supabase.co/functions/v1/logo" alt="LeadaLine" onerror="this.style.display='none'"><br>
+      LeadaLine AI Website Auditor · Report for ${esc(d.host)} · Generated ${R.generated.toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"})}
+    </div>
+  </div>`;
+
+  // scroll-spy
+  setupSpy();
+}
+
+function kpi(label,v){
+  return `<div class="kpi" data-gv="${v}">
+    <div class="gauge">${gaugeSVG("k-"+label.replace(/\W/g,''),112,9)}
+      <div class="num"><b data-count style="color:${scoreColor(v)}">0</b><s>/100</s></div></div>
+    <div class="klab">${label}</div>
+    <div class="ktag" style="color:${scoreColor(v)}">${v>=75?"Strong":v>=55?"Fair":v>=40?"Weak":"Critical"}</div>
+  </div>`;
+}
+function rateRow(c){
+  const r=c.rating; const iconMap={excellent:"✓",good:"✓",needs:"!",poor:"✕"};
+  const bg={excellent:"rgba(34,197,94,.14)",good:"rgba(0,180,255,.14)",needs:"rgba(245,158,11,.14)",poor:"rgba(240,77,106,.16)"}[r.k];
+  const col={excellent:"#4ade80",good:"#38bdf8",needs:"#fbbf24",poor:"#fb7185"}[r.k];
+  return `<div class="rate">
+    <div class="ri" style="background:${bg};color:${col};font-weight:800">${iconMap[r.k]}</div>
+    <div class="rmid"><b>${esc(c.name)}</b><span>${esc(c.note)}</span></div>
+    <div class="rpill b-${r.cls}">${r.label}</div>
+  </div>`;
+}
+function revCard(k,icon,v,unit,note){
+  const ic={users:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.9"/><path d="M16 3.1a4 4 0 0 1 0 7.8"/>',
+    phoneMissed:ICONS.phoneMissed, repeat:ICONS.repeat, clock:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>'}[icon]||ICONS.chart;
+  return `<div class="rev">
+    <div class="rk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ic}</svg>${esc(k)}</div>
+    <div class="rv">${typeof v==="number"?v.toLocaleString("en-GB"):esc(v)}<span class="u"> ${esc(unit)}</span></div>
+    <div class="rs">${esc(note)}</div>
+  </div>`;
+}
+function funnelRow(label,pct,drop){
+  return `<div class="fn-row">
+    <div class="fl">${esc(label)}</div>
+    <div class="fn-track"><div class="fn-fill" data-w="${pct}" style="width:0">${pct}%</div></div>
+    <div class="fn-drop">${drop?("−"+drop+"%"):"—"}</div>
+  </div>`;
+}
+function recIcon(name){
+  if(/reception/i.test(name))return ICONS.phone;
+  if(/follow/i.test(name))return ICONS.repeat;
+  if(/sales/i.test(name))return ICONS.chat;
+  if(/book/i.test(name))return ICONS.calendar;
+  if(/report/i.test(name))return ICONS.chart;
+  return ICONS.bot;
+}
+function weakest(sc){
+  const m={"website performance":sc.websitePerf,"lead capture":sc.leadCapture,"customer experience":sc.custExp,"lead response":sc.leadResponse,"AI readiness":sc.aiReadiness};
+  return Object.entries(m).sort((a,b)=>a[1]-b[1])[0][0];
+}
+
+/* nav */
+function jumpTo(id,btn){
+  document.querySelectorAll(".rep-nav button").forEach(b=>b.classList.remove("on"));
+  if(btn)btn.classList.add("on");
+  const t=document.getElementById(id); if(t){ const y=t.getBoundingClientRect().top+window.scrollY-110; window.scrollTo({top:y,behavior:"smooth"}); }
+}
+let spyObs=null;
+function setupSpy(){
+  if(spyObs)spyObs.disconnect();
+  const map={};
+  document.querySelectorAll(".rep-nav button").forEach(b=>{ const id=b.getAttribute("onclick").match(/'([^']+)'/)[1]; map[id]=b; });
+  spyObs=new IntersectionObserver(es=>{
+    es.forEach(e=>{ if(e.isIntersecting && map[e.target.id]){ document.querySelectorAll(".rep-nav button").forEach(b=>b.classList.remove("on")); map[e.target.id].classList.add("on");
+      map[e.target.id].scrollIntoView({block:"nearest",inline:"center",behavior:"smooth"}); } });
+  },{rootMargin:"-45% 0px -50% 0px"});
+  document.querySelectorAll("section.blk").forEach(s=>{ if(map[s.id])spyObs.observe(s); });
+}
+
+/* =================================================================
+   SCREENSHOTS
+   ================================================================= */
+function loadScreenshots(R){
+  const d=R.data, grid=$("#shot-grid"); if(!grid)return;
+  const shots=[
+    {title:"Homepage", tag:"Desktop", url:R.url, mobile:false,
+     annos:[ d.chat?null:{x:70,y:74,w:22,h:14,txt:"No live chat",warn:false},
+             d.ctas.length?null:{x:8,y:30,w:36,h:12,txt:"Weak CTA",warn:true} ].filter(Boolean),
+     note: d.chat?"Live chat present, but no after-hours capture.":"No website assistant to catch visitors before they bounce."},
+    {title:"Contact / Enquiry", tag:"Desktop", url:R.url, mobile:false,
+     annos:[ {x:10,y:40,w:44,h:26,txt: d.hasForm?(d.formFields<4?"No qualification":"No instant response"):"No enquiry form",warn:d.hasForm} ],
+     note: d.hasForm?`Form captures ~${d.formFields||"few"} fields and gives no confirmation.`:"No contact form — enquiries rely on a manual call/email."},
+    {title:"Mobile View", tag:"iPhone", url:R.url, mobile:true,
+     annos:[ d.telLinks?null:{x:14,y:8,w:70,h:10,txt:"No tap-to-call",warn:true} ].filter(Boolean),
+     note: d.telLinks?"Tap-to-call works — good.":"Phone isn't tap-to-call; adds friction on mobile."},
+    {title:"Navigation", tag:"Header", url:R.url, mobile:false, crop:420,
+     annos:[ {x:60,y:20,w:34,h:40,txt:"Slow enquiry path",warn:true} ],
+     note:`${d.navCount} nav items — the path to enquire could be more direct.`},
+  ];
+  grid.innerHTML = shots.map((s,i)=>`
+    <div class="shot">
+      <div class="shd"><b>${esc(s.title)}</b><span class="stag">${esc(s.tag)}</span></div>
+      <div class="simg" id="simg-${i}" style="${s.mobile?'max-width:300px;margin:0 auto':''}">
+        <div class="ld"><div class="spin"></div>Capturing…</div>
+      </div>
+      <div class="snote">${esc(s.note)}</div>
+    </div>`).join("");
+
+  shots.forEach((s,i)=>{
+    const box=$("#simg-"+i);
+    const clean=R.url.replace(/^https?:\/\//,"");
+    const src = s.mobile
+      ? "https://image.thum.io/get/iphone6/width/500/"+R.url
+      : "https://image.thum.io/get/width/900/crop/"+(s.crop||700)+"/"+R.url;
+    const img=new Image();
+    img.onload=()=>{
+      box.innerHTML="";
+      img.style.width="100%"; img.style.display="block"; box.appendChild(img);
+      s.annos.forEach(a=>{
+        const an=el("div","anno"+(a.warn?" warn":""));
+        an.style.cssText=`left:${a.x}%;top:${a.y}%;width:${a.w}%;height:${a.h}%`;
+        an.appendChild(el("div","lbl",esc(a.txt)));
+        box.appendChild(an);
+      });
+    };
+    img.onerror=()=>{ tryFallback(box,clean,s); };
+    img.src=src;
+  });
+}
+function tryFallback(box,clean,s){
+  // WordPress mShots fallback
+  const img=new Image();
+  img.onload=()=>{ box.innerHTML=""; img.style.width="100%"; img.style.display="block"; box.appendChild(img);
+    (s.annos||[]).forEach(a=>{ const an=el("div","anno"+(a.warn?" warn":"")); an.style.cssText=`left:${a.x}%;top:${a.y}%;width:${a.w}%;height:${a.h}%`; an.appendChild(el("div","lbl",esc(a.txt))); box.appendChild(an); }); };
+  img.onerror=()=>{ box.innerHTML="<div class='ld'>Screenshot unavailable for this site</div>"; };
+  img.src="https://s.wordpress.com/mshots/v1/https://"+clean+"?w=900";
+}
+
+/* =================================================================
+   UI: sales toggle, export
+   ================================================================= */
+function toggleSales(){
+  SALES_VISIBLE=!SALES_VISIBLE;
+  $("#sales-sec").style.display=SALES_VISIBLE?"block":"none";
+  $("#sales-toggle").classList.toggle("on",SALES_VISIBLE);
+  $("#sales-toggle-txt").textContent=SALES_VISIBLE?"Hide Sales Notes":"Show Sales Notes";
+  if(SALES_VISIBLE) $("#sales-sec").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function toggleExport(e){ e.stopPropagation(); $("#exp-menu").classList.toggle("open"); }
+document.addEventListener("click",e=>{ if(!e.target.closest("#exp-wrap")) $("#exp-menu").classList.remove("open"); });
+
+function toast(msg){ const t=$("#toast"); $("#toast-msg").textContent=msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),2200); }
+
+function exportPDF(){ $("#exp-menu").classList.remove("open");
+  const wasSales=SALES_VISIBLE; if(SALES_VISIBLE){ /* keep as-is; user chose */ }
+  window.print();
+}
+function exportInteractive(){ $("#exp-menu").classList.remove("open");
+  const html="<!DOCTYPE html>"+document.documentElement.outerHTML;
+  dl(html,(REPORT.data.host||"audit")+"-leadaline-audit.html","text/html"); toast("Interactive report downloaded");
+}
+function exportPPT(){ $("#exp-menu").classList.remove("open");
+  const R=REPORT,d=R.data,sc=R.scored.scores,rev=R.rev;
+  let t=`LEADALINE WEBSITE AUDIT — POWERPOINT OUTLINE\n${d.name} · ${d.host}\n${"=".repeat(50)}\n\n`;
+  t+=`SLIDE 1 — TITLE\n  ${d.name}: Website Audit & AI Opportunity\n  Prepared by LeadaLine · ${R.generated.toLocaleDateString("en-GB")}\n\n`;
+  t+=`SLIDE 2 — EXECUTIVE SUMMARY\n  Overall score: ${sc.overall}/100 (Opportunity: ${R.scored.scores.oppLevel})\n  Weakest area: ${weakest(sc)}\n  Est. revenue at risk: ${money(rev.leakageMonth)}/mo (${money(rev.leakageYear)}/yr)\n\n`;
+  t+=`SLIDE 3 — BUSINESS IMPACT SCORES\n  Website: ${sc.websitePerf}/100\n  Lead Capture: ${sc.leadCapture}/100\n  Customer Experience: ${sc.custExp}/100\n  Lead Response: ${sc.leadResponse}/100\n  AI Readiness: ${sc.aiReadiness}/100\n\n`;
+  t+=`SLIDE 4 — TOP OPPORTUNITIES\n`+R.tops.map((o,i)=>`  ${i+1}. ${o.title} [${o.impact}] → ${o.rec}`).join("\n")+"\n\n";
+  t+=`SLIDE 5 — REVENUE OPPORTUNITY\n  Lost enquiries: ${rev.lostEnq}/mo · Missed calls: ${rev.missedCalls}/mo · Missed follow-ups: ${rev.lostFollowups}/mo\n  Leakage: ${money(rev.leakageMonth)}/mo\n\n`;
+  t+=`SLIDE 6 — RECOMMENDED AI EMPLOYEES\n`+R.recs.map(r=>`  ${"★".repeat(r.stars)}${"☆".repeat(5-r.stars)} ${r.name}`).join("\n")+"\n\n";
+  t+=`SLIDE 7 — NEXT STEPS\n  1. 15-minute live demo\n  2. 30-day pilot on real enquiries\n  3. Scale the AI Office Team\n\n`;
+  t+=`(This is a text outline — paste into PowerPoint/Google Slides or use as speaker notes.)\n`;
+  dl(t,(d.host||"audit")+"-ppt-outline.txt","text/plain"); toast("PowerPoint outline downloaded");
+}
+function exportProposal(){ $("#exp-menu").classList.remove("open");
+  const R=REPORT,d=R.data,sc=R.scored.scores,rev=R.rev;
+  const t=`WEBSITE AUDIT — KEY FINDINGS FOR ${d.name.toUpperCase()}\n\n`+
+    `Overall opportunity: ${R.scored.scores.oppLevel} (score ${sc.overall}/100)\n`+
+    `Estimated revenue currently at risk: ${money(rev.leakageMonth)} per month (~${money(rev.leakageYear)}/year).\n\n`+
+    `Biggest opportunities:\n`+R.tops.slice(0,5).map((o,i)=>`  ${i+1}. ${o.title} — recommended fix: ${o.rec} (impact: ${o.impact})`).join("\n")+
+    `\n\nRecommended LeadaLine AI Employees:\n`+R.recs.slice(0,3).map(r=>`  • ${r.name} (${"★".repeat(r.stars)}) — ${r.why}`).join("\n")+
+    `\n\nWith LeadaLine's AI Office Team, ${d.name} could answer every enquiry instantly 24/7, qualify leads automatically, and follow up without lifting a finger — recovering the enquiries that are currently slipping through.\n\n`+
+    `Note: figures are informed estimates based on industry benchmarks and the information available.`;
+  navigator.clipboard.writeText(t).then(()=>toast("Proposal insert copied to clipboard")).catch(()=>{dl(t,(d.host||"audit")+"-proposal-insert.txt","text/plain");toast("Proposal insert downloaded");});
+}
+function exportScreens(){ $("#exp-menu").classList.remove("open");
+  const R=REPORT;
+  const urls=[
+    ["Homepage (desktop)","https://image.thum.io/get/width/1400/crop/900/"+R.url],
+    ["Mobile view","https://image.thum.io/get/iphone6/width/600/"+R.url],
+    ["Full page","https://image.thum.io/get/width/1400/"+R.url],
+  ];
+  const t=`SCREENSHOT PACK — ${R.data.host}\n\nOpen each link to view/save the capture:\n\n`+urls.map(u=>`${u[0]}:\n${u[1]}\n`).join("\n");
+  navigator.clipboard.writeText(t).then(()=>toast("Screenshot links copied")).catch(()=>{});
+  urls.forEach(u=>window.open(u[1],"_blank"));
+}
+function dl(content,name,mime){
+  const b=new Blob([content],{type:mime}); const a=document.createElement("a");
+  a.href=URL.createObjectURL(b); a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1500);
+}
+</script>
+</body>
+</html>
