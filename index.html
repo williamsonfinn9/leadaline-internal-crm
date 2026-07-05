@@ -254,6 +254,10 @@ button:active{opacity:.85}
 .btn-grad{border:none;background:var(--grad);color:#fff}
 .btn-grad:hover{filter:brightness(1.08)}
 .scroll{overflow:auto;padding:22px 26px 60px;flex:1;min-height:0}
+/* Revenue calculator lives in an isolated iframe so its styles/scripts never
+   collide with the CRM. calc-mode strips padding so it fills edge-to-edge. */
+#view.calc-mode{padding:0;overflow:hidden}
+.calc-frame{width:100%;height:100%;min-height:520px;border:0;display:block;background:var(--bg)}
 
 /* ---------- CARDS / STATS ---------- */
 .grid-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:8px}
@@ -497,6 +501,8 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
   /* Tab bar height derives scroll padding + toast position (defined in :root)
      so they can never drift apart (browser or installed-app). */
   .scroll{padding:12px 14px calc(var(--tabbar) + 18px + env(safe-area-inset-bottom))}
+  /* calc iframe must clear the fixed mobile tab bar */
+  #view.calc-mode{padding:0 0 calc(var(--tabbar) + env(safe-area-inset-bottom)) 0}
   /* clear the notch / Dynamic Island, but keep it tight */
   .topbar{padding:calc(6px + env(safe-area-inset-top)) 14px 10px;gap:8px}
   .topbar .sub{font-size:12px}
@@ -576,6 +582,7 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
         <button data-tab="callsheet"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.4-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Call sheet<span class="pill" id="pill-call">0</span></button>
         <button data-tab="callbacks"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 2v6h6"/><path d="M3.5 8a9 9 0 1 1-1 4"/></svg>Callbacks<span class="pill" id="pill-callback">0</span></button>
         <button data-tab="lost"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Lost &amp; parked<span class="pill" id="pill-lost">0</span></button>
+        <button data-tab="calculator"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8"/><path d="M8 10h2M12 10h2M16 10h.01M8 14h2M12 14h2M16 14v4M8 18h6"/></svg>Revenue calc</button>
       </nav>
       <div class="side-foot">
         <div class="who">
@@ -618,6 +625,7 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
     <button data-tab="callsheet"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.4-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>Calls</button>
     <button data-tab="callbacks"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 2v6h6"/><path d="M3.5 8a9 9 0 1 1-1 4"/></svg>Callback</button>
     <button data-tab="lost"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>Lost</button>
+    <button data-tab="calculator"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8"/><path d="M8 10h2M12 10h2M16 10h.01M8 14h2M12 14h2M16 14v4M8 18h6"/></svg>Calc</button>
   </nav>
 </div>
 
@@ -923,7 +931,8 @@ const TITLES = {
   leads:["All leads","Click any row to open the full record"],
   callsheet:["Call sheet","First-attempt worklist — log the outcome, it moves the lead"],
   callbacks:["Callbacks","No answers, callbacks and voicemails — nothing gets forgotten"],
-  lost:["Lost & parked","Dumped leads — nothing deleted, restore any time"]
+  lost:["Lost & parked","Dumped leads — nothing deleted, restore any time"],
+  calculator:["Additional Revenue Calculator","Estimate the extra revenue LeadaLine could unlock — for discovery, demos & proposals"]
 };
 function render(){
   refreshPills();
@@ -931,16 +940,29 @@ function render(){
   document.querySelectorAll("#nav button,#mtabs button").forEach(b=>b.classList.toggle("active",b.dataset.tab===TAB));
   document.querySelectorAll("#segbar button").forEach(b=>b.classList.toggle("on",b.dataset.view===VIEW));
   $("#t-title").textContent=TITLES[TAB][0]; $("#t-sub").textContent=TITLES[TAB][1];
-  const listActions = TAB!=="overview";
+  const isCalc = TAB==="calculator";
+  const listActions = TAB!=="overview" && !isCalc;
   const be=$("#btn-export"), ba=$("#btn-add");
   if(be) be.style.display=listActions?"":"none";
   if(ba) ba.style.display=listActions?"":"none";
+  // the calculator is a standalone tool — hide the pipeline-only header controls
+  const seg=$("#segbar"); if(seg) seg.style.display=isCalc?"none":"";
+  const ta=document.querySelector(".top-actions"); if(ta) ta.style.display=isCalc?"none":"";
+  $("#view").classList.toggle("calc-mode", isCalc);
   if(TAB==="overview") renderOverview();
   else if(TAB==="pipeline") renderPipeline();
   else if(TAB==="leads") renderLeads();
   else if(TAB==="callsheet") renderCallsheet();
   else if(TAB==="callbacks") renderCallbacks();
   else if(TAB==="lost") renderLost();
+  else if(TAB==="calculator") renderCalculator();
+}
+/* ---- REVENUE CALCULATOR (isolated iframe tool) ---- */
+function renderCalculator(){
+  const v=$("#view");
+  // keep the user's entered figures if they flick between tabs and back
+  if(v.querySelector("iframe.calc-frame")) return;
+  v.innerHTML='<iframe class="calc-frame" src="revenue-calculator.html" title="Additional Revenue Calculator" loading="lazy"></iframe>';
 }
 
 /* ---- OVERVIEW (reporting dashboard) ---- */
