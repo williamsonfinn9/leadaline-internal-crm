@@ -1,0 +1,464 @@
+{
+  "slug": "ashworth-plumbing",
+  "name": "Ashworth Plumbing & Heating",
+  "shortName": "APH",
+  "industry": "plumbing & heating engineer",
+  "registration": "Gas Safe registered",
+  "location": "Manchester",
+  "website": "ashworthplumbing.co.uk",
+  "email": "hello@ashworthplumbing.co.uk",
+  "phone": "0161 000 0000",
+  "contactFirstName": "James",
+  "brand": {
+    "primary": "#2E8BFF",
+    "primaryHi": "#6FB0FF",
+    "accent": "#12C2C2",
+    "primaryRgb": "46,139,255",
+    "accentRgb": "18,194,194",
+    "bg": "#060B12",
+    "bg2": "#070D16",
+    "surface": "#0B131E",
+    "surface2": "#101A28",
+    "line": "#1B2A3A"
+  },
+  "serviceCategories": [
+    "domestic",
+    "landlord",
+    "commercial"
+  ],
+  "services": [
+    {
+      "name": "Boiler Installation",
+      "detail": "combi & system, finance available"
+    },
+    {
+      "name": "Boiler Repair & Servicing",
+      "detail": "annual service, breakdowns"
+    },
+    {
+      "name": "Emergency Plumbing",
+      "detail": "leaks, burst pipes, no heating"
+    },
+    {
+      "name": "Bathroom Installation",
+      "detail": "full fit, tiling, design"
+    },
+    {
+      "name": "Landlord Gas Certificates",
+      "detail": "CP12, portfolio cover"
+    }
+  ],
+  "areas": [
+    "Manchester · M20",
+    "Stockport · SK4",
+    "Sale · M33",
+    "Didsbury · M20"
+  ],
+  "hours": {
+    "weekdays": "Mon–Fri 8:00–17:30",
+    "saturday": "Sat 9:00–13:00",
+    "sunday": "Closed",
+    "emergency": "24/7 emergency call-out line"
+  },
+  "reviews": {
+    "rating": 4.8,
+    "count": 143,
+    "source": "Google"
+  },
+  "strengths": [
+    {
+      "title": "Gas Safe & 4.8★",
+      "detail": "Strong review base, clear trust signals."
+    },
+    {
+      "title": "Emergency call-out offered",
+      "detail": "Already positioned for urgent work."
+    }
+  ],
+  "weaknesses": [
+    {
+      "title": "Long contact form",
+      "detail": "9-field form on mobile kills conversion."
+    },
+    {
+      "title": "No instant response",
+      "detail": "Emergency leaks at night hit voicemail."
+    },
+    {
+      "title": "No online booking",
+      "detail": "Every service booked by phone tag."
+    },
+    {
+      "title": "No qualification",
+      "detail": "Owner triages every call manually."
+    }
+  ],
+  "painPoints": [
+    "Emergency calls missed overnight and weekends",
+    "Owner on the tools can't answer mid-job",
+    "Boiler quotes go cold without follow-up",
+    "Admin overload booking services around jobs"
+  ],
+  "roi": {
+    "enquiriesPerMonth": 85,
+    "missedPct": 34,
+    "missedPerMonth": 29,
+    "avgJobValue": 950,
+    "recoveryRate": 0.35,
+    "recoveredJobs": 10,
+    "extraMonthlyRevenue": 9500,
+    "extraAnnualRevenue": 114000
+  },
+  "aiReceptionist": {
+    "greeting": "Thanks for calling Ashworth Plumbing & Heating, how can I help?",
+    "tone": "Calm, reassuring Mancunian tradesman. Especially steady with panicked emergency callers.",
+    "emergencyRule": "If the caller has a burst pipe, major leak, or no heating/hot water in winter, treat as EMERGENCY: reassure, give immediate stop-tap guidance, capture address, and alert the on-call engineer instantly.",
+    "qualifyingQuestions": [
+      "What's the plumbing or heating issue?",
+      "Is water actively leaking right now?",
+      "What's the postcode?",
+      "Owner-occupier or landlord?",
+      "Best number to call straight back?"
+    ]
+  },
+  "faqs": [
+    {
+      "q": "Do you offer emergency call-outs?",
+      "a": "Yes — 24/7 for leaks, bursts and no-heating emergencies across Greater Manchester."
+    },
+    {
+      "q": "Are you Gas Safe registered?",
+      "a": "Yes, fully Gas Safe registered and insured. We issue certificates on completion."
+    },
+    {
+      "q": "Do you do landlord gas certificates?",
+      "a": "Yes — CP12s for single properties and portfolios, with reminders before renewal."
+    }
+  ],
+  "dashboard": {
+    "metrics": {
+      "leadsWk": 19,
+      "qualified": 15,
+      "booked": 9,
+      "answered": 94
+    },
+    "pipelineValue": "£31,200",
+    "sources": [
+      {
+        "label": "AI Voice",
+        "pct": 44
+      },
+      {
+        "label": "Website",
+        "pct": 30
+      },
+      {
+        "label": "WhatsApp",
+        "pct": 18
+      },
+      {
+        "label": "Referral",
+        "pct": 8
+      }
+    ],
+    "leads": [
+      {
+        "id": "L1",
+        "name": "Sarah T.",
+        "initials": "ST",
+        "job": "New combi boiler",
+        "status": "New",
+        "scls": "new",
+        "area": "Didsbury · M20",
+        "phone": "07700 900301",
+        "email": "sarah.t@email.com",
+        "service": "Boiler Installation",
+        "product": "Combi swap · 3-bed",
+        "property": "Semi · owner-occupier",
+        "urgency": "Within 2 weeks",
+        "callback": "After 6pm",
+        "source": "AI Voice Assistant",
+        "quality": "High",
+        "value": "£2,400–3,200",
+        "summary": "Old boiler unreliable, wants a combi replacement in a 3-bed semi. Ready to book a survey — strong intent.",
+        "activity": [
+          [
+            "Enquiry captured",
+            "AI Receptionist · 19:14"
+          ],
+          [
+            "Owner alerted",
+            "AI Admin · 19:14"
+          ],
+          [
+            "Logged as New",
+            "System"
+          ]
+        ]
+      },
+      {
+        "id": "L2",
+        "name": "Miller Lettings",
+        "initials": "ML",
+        "job": "6× CP12 certificates",
+        "status": "Booked",
+        "scls": "book",
+        "area": "Stockport · SK4",
+        "phone": "0161 900222",
+        "email": "ops@millerlettings.co.uk",
+        "service": "Landlord Gas Certificates",
+        "product": "6 properties · CP12",
+        "property": "Letting portfolio",
+        "urgency": "This month",
+        "callback": "Office hours",
+        "source": "Website",
+        "quality": "High",
+        "value": "£540 + recurring",
+        "summary": "Letting agent needs CP12s across 6 properties with annual renewals. Recurring contract opportunity.",
+        "activity": [
+          [
+            "Enquiry captured",
+            "AI Receptionist"
+          ],
+          [
+            "Owner alerted",
+            "AI Admin"
+          ],
+          [
+            "Batch booked · Wed",
+            "AI Booking"
+          ]
+        ]
+      },
+      {
+        "id": "L3",
+        "name": "G. Owens",
+        "initials": "GO",
+        "job": "Full bathroom fit",
+        "status": "Quoted",
+        "scls": "",
+        "area": "Sale · M33",
+        "phone": "07700 900288",
+        "email": "g.owens@email.com",
+        "service": "Bathroom Installation",
+        "product": "Full refit · tiling",
+        "property": "Detached",
+        "urgency": "Flexible",
+        "callback": "Evenings",
+        "source": "AI Voice Assistant",
+        "quality": "Medium",
+        "value": "£5k–8k",
+        "summary": "Homeowner wants a full bathroom refit including tiling. High-value job, comparing quotes.",
+        "activity": [
+          [
+            "Enquiry captured",
+            "AI Receptionist"
+          ],
+          [
+            "Owner alerted",
+            "AI Admin"
+          ],
+          [
+            "Quote sent · £6,900",
+            "Owner"
+          ]
+        ]
+      },
+      {
+        "id": "L4",
+        "name": "D. Price",
+        "initials": "DP",
+        "job": "Burst pipe — kitchen",
+        "status": "Urgent",
+        "scls": "urgent",
+        "area": "Manchester · M20",
+        "phone": "07700 900299",
+        "email": "d.price@email.com",
+        "service": "Emergency Plumbing",
+        "product": "Burst pipe · flooding",
+        "property": "Terraced house",
+        "urgency": "Emergency — now",
+        "callback": "ASAP",
+        "source": "AI Voice Assistant",
+        "quality": "High",
+        "value": "£180–450",
+        "summary": "Burst pipe under the kitchen sink, water spreading. AI gave stop-tap guidance and dispatched on-call engineer.",
+        "activity": [
+          [
+            "Emergency captured",
+            "AI Receptionist · 22:47"
+          ],
+          [
+            "Stop-tap guidance given",
+            "AI · 22:47"
+          ],
+          [
+            "On-call engineer alerted",
+            "AI Admin · 22:48"
+          ]
+        ]
+      }
+    ]
+  },
+  "demo": {
+    "phoneIcon": "🔧",
+    "offDay": "Sunday",
+    "channels": [
+      "📞 Calls",
+      "🌐 Website",
+      "💬 WhatsApp",
+      "📝 Forms"
+    ],
+    "urgentLine": "Burst pipes and no-heating calls jump the queue with instant stop-tap guidance + on-call alert.",
+    "reviewQuote": "Boiler died on the coldest night — Ashworth answered at 11pm and had us warm again by lunch. Superb.",
+    "report": {
+      "hoursSaved": 13,
+      "weeks": [
+        {
+          "label": "Week 1",
+          "w": 58,
+          "v": 12
+        },
+        {
+          "label": "Week 2",
+          "w": 70,
+          "v": 15
+        },
+        {
+          "label": "Week 3",
+          "w": 66,
+          "v": 14
+        },
+        {
+          "label": "Week 4",
+          "w": 88,
+          "v": 19
+        }
+      ]
+    },
+    "sampleLead": {
+      "name": "Sarah T.",
+      "service": "Boiler Installation",
+      "product": "Combi swap · 3-bed",
+      "area": "Didsbury · M20",
+      "property": "Semi · owner-occupier",
+      "callback": "After 6pm",
+      "quality": "High",
+      "value": "£2,400–3,200",
+      "summary": "Old boiler unreliable, wants a combi replacement in a 3-bed semi. Ready to book a survey — strong buying intent.",
+      "recommendedAction": "Call back after 6pm to book a survey; quote combi swap with finance option — strong close."
+    },
+    "calendar": {
+      "monthLabel": "June 2026",
+      "dateLabel": "Thursday 19 June",
+      "offDayDate": "Sunday 22 June",
+      "days": [
+        {
+          "dn": "Mon",
+          "dd": 16
+        },
+        {
+          "dn": "Tue",
+          "dd": 17
+        },
+        {
+          "dn": "Wed",
+          "dd": 18
+        },
+        {
+          "dn": "Thu",
+          "dd": 19,
+          "sel": true
+        },
+        {
+          "dn": "Fri",
+          "dd": 20
+        },
+        {
+          "dn": "Sat",
+          "dd": 21
+        }
+      ],
+      "ghostEvents": [
+        {
+          "time": "09:00",
+          "label": "Boiler service · Sale"
+        },
+        {
+          "time": "13:00",
+          "label": "Leak repair · Stockport"
+        }
+      ],
+      "newEvent": {
+        "time": "17:30",
+        "label": "Boiler survey — Sarah T.",
+        "tag": "✓ Booked",
+        "timeLabel": "Thu 5:30pm"
+      }
+    },
+    "messages": [
+      {
+        "who": "me",
+        "text": "Hi Sarah, it's Ashworth Plumbing 🔧 We can survey your new boiler <b>Thu 5–6pm</b> or Sat AM — which suits?",
+        "time": "19:22"
+      },
+      {
+        "who": "them",
+        "text": "Thursday evening is perfect, cheers!"
+      },
+      {
+        "who": "me",
+        "text": "Booked for <b>Thursday 5:30pm</b>. I'll text a reminder that morning 👍",
+        "time": "19:29"
+      }
+    ]
+  },
+  "meetingBrief": {
+    "summary": "Ashworth Plumbing & Heating — Gas Safe, Manchester, 4.8★ (143 reviews). Already offers emergency call-out but misses overnight calls. Est. £27k/mo recoverable.",
+    "decisionMaker": "James Ashworth (owner) — hands-on engineer, likely values time-saved over tech.",
+    "bestAngle": "Overnight/weekend emergency capture + boiler-quote follow-up. They already sell \"24/7\" but can't answer 24/7 — close that gap.",
+    "objections": [
+      "\"We already do emergencies\" → but who answers at 2am mid-job? AI does, every time.",
+      "\"Customers want to talk to a person\" → AI reassures and books the engineer faster.",
+      "\"Another monthly bill\" → one recovered boiler install covers a year."
+    ],
+    "discoveryQuestions": [
+      "How many emergency calls come in out-of-hours?",
+      "What happens to a call at 10pm?",
+      "How many boiler quotes go cold?",
+      "Who does the CP12 admin and reminders?"
+    ],
+    "upsells": [
+      "Landlord CP12 recurring-renewal automation",
+      "Reviews automation for Manchester ranking",
+      "Finance-option prompts on boiler quotes"
+    ],
+    "mention": [
+      "9-field mobile form is losing enquiries",
+      "They advertise 24/7 but miss overnight calls",
+      "Founding pilot pricing"
+    ],
+    "avoid": [
+      "Don't undersell the emergency angle",
+      "Don't promise exact revenue",
+      "Don't discount below pilot rate"
+    ]
+  },
+  "opportunities": [
+    {
+      "title": "24/7 AI reception",
+      "detail": "Answer every call, form and message instantly — including nights and weekends."
+    },
+    {
+      "title": "Instant qualification",
+      "detail": "Score and scope every job before it reaches the owner."
+    },
+    {
+      "title": "Automated quote chasing",
+      "detail": "Recover work that currently goes quiet after the first quote."
+    }
+  ],
+  "meta": {
+    "generatedFor": "Ashworth Plumbing & Heating"
+  }
+}

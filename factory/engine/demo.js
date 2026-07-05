@@ -1,0 +1,346 @@
+/* ============================================================
+   LeadaLine Demo Factory — the personalised split-reference demo.
+   This is a faithful, fully data-driven clone of the reference demo.
+   Everything client-specific is a profile field, so the same template
+   renders natively for an electrician, a plumber, a dentist or a law firm.
+   Exposes global `LL_DEMO`.
+   ============================================================ */
+(function (root, factory) {
+  if (typeof module !== 'undefined' && module.exports) module.exports = factory(require('./helpers.js'));
+  else root.LL_DEMO = factory(root.LL_HELPERS);
+})(typeof self !== 'undefined' ? self : this, function (H) {
+  'use strict';
+  var esc = H.esc, rich = H.rich;
+  function pick(a, b) { return (a === undefined || a === null || a === '') ? b : a; }
+
+  function demoCss(p) {
+    var b = p.brand;
+    return '' +
+    ':root{' +
+      '--bg:' + b.bg + '; --bg-2:' + b.bg2 + '; --surface:' + b.surface + '; --surface-2:' + b.surface2 + '; --line:' + b.line + ';' +
+      '--green:' + b.primary + '; --green-hi:' + b.primaryHi + '; --teal:' + b.accent + ';' +
+      '--text:#EAF1F4; --muted:#8595A2; --muted-2:#5C6B77; --danger:#FF8A8A; --amber:#FFB454;' +
+      '--shadow:0 24px 60px rgba(0,0,0,.55);' +
+      '--brand-rgb:' + b.primaryRgb + '; --accent-rgb:' + b.accentRgb + ';}' +
+    '*{box-sizing:border-box;margin:0;padding:0}html,body{height:100%}' +
+    'body{background:radial-gradient(1000px 700px at 82% -10%, rgba(var(--brand-rgb),.10), transparent 60%),radial-gradient(800px 600px at 6% 110%, rgba(var(--accent-rgb),.08), transparent 55%),var(--bg);color:var(--text);font-family:\'Inter\',system-ui,sans-serif;overflow:hidden;-webkit-font-smoothing:antialiased}' +
+    '.stage{position:relative;height:100vh;width:100vw;display:grid;grid-template-columns:1.15fr .85fr;align-items:center;gap:2vw;padding:70px 4vw 84px}' +
+    '.left-stage{position:relative;height:100%}' +
+    '.scene{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-start;padding-top:6px;opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .45s ease,transform .45s ease}' +
+    '.scene.active{opacity:1;transform:none;pointer-events:auto}' +
+    '.l-eyebrow{font-family:\'Space Grotesk\';text-transform:uppercase;letter-spacing:.2em;font-size:11px;font-weight:600;color:var(--green);margin-bottom:12px;display:flex;align-items:center;gap:10px}' +
+    '.l-eyebrow .sn{min-width:22px;height:22px;padding:0 5px;border-radius:6px;display:grid;place-items:center;background:rgba(var(--brand-rgb),.12);border:1px solid rgba(var(--brand-rgb),.3);font-size:11px}' +
+    '.l-h{font-family:\'Space Grotesk\';font-weight:700;font-size:clamp(26px,3vw,38px);line-height:1.08;letter-spacing:-.02em;margin-bottom:12px}' +
+    '.l-h .grad{background:linear-gradient(100deg,var(--green-hi),var(--teal));-webkit-background-clip:text;background-clip:text;color:transparent}' +
+    '.l-sub{color:var(--muted);font-size:15px;line-height:1.5;max-width:520px;margin-bottom:18px}' +
+    '.scene.active .u{animation:rise .5s ease both}.scene.active .u2{animation:rise .5s ease .1s both}.scene.active .u3{animation:rise .5s ease .2s both}.scene.active .u4{animation:rise .5s ease .3s both}' +
+    '@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}@keyframes pop{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:none}}' +
+    '.ilist{display:flex;flex-direction:column;gap:10px;max-width:520px}' +
+    '.irow{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;opacity:0}' +
+    '.scene.active .irow{animation:rise .45s ease both}.scene.active .irow:nth-child(1){animation-delay:.1s}.scene.active .irow:nth-child(2){animation-delay:.22s}.scene.active .irow:nth-child(3){animation-delay:.34s}.scene.active .irow:nth-child(4){animation-delay:.46s}' +
+    '.irow .ii{width:30px;height:30px;flex:0 0 30px;border-radius:8px;display:grid;place-items:center;font-size:15px;background:linear-gradient(140deg,rgba(var(--brand-rgb),.16),rgba(var(--accent-rgb),.1));border:1px solid rgba(var(--brand-rgb),.22)}' +
+    '.irow h4{font-family:\'Space Grotesk\';font-size:14px;font-weight:600;margin-bottom:2px}.irow p{color:var(--muted);font-size:12.5px;line-height:1.4}.irow p b{color:var(--green-hi)}' +
+    '.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}.chips span{font-size:12px;color:var(--muted);padding:6px 12px;border-radius:100px;border:1px solid var(--line);background:rgba(255,255,255,.015)}.chips span.on{color:var(--green-hi);border-color:rgba(var(--brand-rgb),.3);background:rgba(var(--brand-rgb),.08)}' +
+    '.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;max-width:520px}.fcell{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:11px 13px;opacity:0}' +
+    '.scene.active .fcell{animation:rise .4s ease both}.scene.active .fcell:nth-child(1){animation-delay:.15s}.scene.active .fcell:nth-child(2){animation-delay:.28s}.scene.active .fcell:nth-child(3){animation-delay:.41s}.scene.active .fcell:nth-child(4){animation-delay:.54s}.scene.active .fcell:nth-child(5){animation-delay:.67s}.scene.active .fcell:nth-child(6){animation-delay:.8s}' +
+    '.fcell .k{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-2);margin-bottom:3px;display:flex;align-items:center;gap:5px}.fcell .k::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green)}.fcell .v{font-family:\'Space Grotesk\';font-weight:500;font-size:14px}' +
+    '.assess{max-width:520px;display:grid;grid-template-columns:1fr 1fr;gap:10px}.acell{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 15px}.acell .al{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-2);margin-bottom:6px}.acell .av{font-family:\'Space Grotesk\';font-weight:500;font-size:14px;line-height:1.3}.acell.wide{grid-column:1/3}' +
+    '.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:100px;font-size:12px;font-weight:600;background:rgba(var(--brand-rgb),.14);color:var(--green-hi);border:1px solid rgba(var(--brand-rgb),.3)}.pill .d{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green)}' +
+    '.dash{max-width:540px;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}.dbar{display:flex;align-items:center;gap:9px;padding:11px 14px;border-bottom:1px solid var(--line);background:var(--bg-2)}.dbar .dot{width:8px;height:8px;border-radius:50%}.dbar .dt{font-family:\'Space Grotesk\';font-weight:600;font-size:13px;margin-left:3px}.dbar .dt b{color:var(--green)}.dbar .dl{margin-left:auto;font-size:10px;color:var(--green);text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:5px}' +
+    '.dmet{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line)}.dmet .m{background:var(--surface);padding:14px 12px}.dmet .mn{font-family:\'Space Grotesk\';font-weight:700;font-size:22px}.dmet .mn.g{color:var(--green)}.dmet .ml{font-size:10.5px;color:var(--muted);margin-top:2px}' +
+    '.drow{display:grid;grid-template-columns:1.05fr 1.25fr .7fr 14px;gap:8px;padding:11px 14px;border-top:1px solid var(--line);align-items:center;font-size:12.5px}.drow.fresh{background:rgba(var(--brand-rgb),.05)}' +
+    '.dtag{font-size:10.5px;padding:2px 8px;border-radius:100px;border:1px solid var(--line);color:var(--muted)}.dtag.new{color:var(--green-hi);border-color:rgba(var(--brand-rgb),.3);background:rgba(var(--brand-rgb),.08)}.dtag.book{color:var(--teal);border-color:rgba(var(--accent-rgb),.3)}.dtag.urgent{color:var(--amber);border-color:rgba(255,180,84,.35);background:rgba(255,180,84,.08)}' +
+    '.drow.clickable{cursor:pointer;transition:background .15s}.drow.clickable:hover{background:rgba(var(--brand-rgb),.08)}.drow .dchev{color:var(--muted-2);text-align:right;font-size:15px}.drow.clickable:hover .dchev{color:var(--green)}' +
+    '.cdetail{padding:12px 14px;animation:rise .3s ease}.cd-back{display:inline-flex;align-items:center;gap:6px;font-family:\'Space Grotesk\';font-size:12px;font-weight:500;color:var(--text);background:var(--surface-2);border:1px solid var(--line);border-radius:100px;padding:6px 12px;cursor:pointer;margin-bottom:11px}.cd-back:hover{border-color:var(--green);color:var(--green)}' +
+    '.cd-head{display:flex;align-items:center;gap:10px;margin-bottom:11px}.cd-av{width:34px;height:34px;flex:0 0 34px;border-radius:50%;display:grid;place-items:center;font-family:\'Space Grotesk\';font-weight:600;font-size:12px;background:linear-gradient(140deg,rgba(var(--brand-rgb),.22),rgba(var(--accent-rgb),.12));border:1px solid rgba(var(--brand-rgb),.3);color:var(--green-hi)}.cd-name{font-family:\'Space Grotesk\';font-weight:600;font-size:14px}.cd-meta{font-size:10.5px;color:var(--muted)}.cd-badges{margin-left:auto;display:flex;gap:6px;align-items:center}.cd-val{font-family:\'Space Grotesk\';font-weight:600;font-size:12.5px;color:var(--green-hi)}' +
+    '.cd-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:9px}.cd-c{background:var(--bg-2);border:1px solid var(--line);border-radius:8px;padding:7px 10px}.cd-c .k{font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted-2);margin-bottom:2px}.cd-c .v{font-size:12px;font-weight:500}' +
+    '.cd-ai{background:rgba(var(--brand-rgb),.05);border:1px solid rgba(var(--brand-rgb),.2);border-radius:8px;padding:9px 11px;margin-bottom:9px}.cd-ai .k{font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--green);margin-bottom:4px;font-weight:600}.cd-ai .v{font-size:11.5px;color:var(--muted);line-height:1.4}' +
+    '.cd-act{display:flex;flex-direction:column;gap:6px}.cd-act .a2{display:flex;gap:8px;font-size:11px;color:var(--muted);align-items:baseline}.cd-act .a2 .d2{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 5px var(--green);flex:0 0 6px;position:relative;top:4px}.cd-act .a2 b{color:var(--text);font-weight:500}' +
+    '.pk .pcyl{display:flex;gap:3px;margin-bottom:8px}.pk .pcyl span{width:11px;height:11px;border-radius:3px;background:var(--surface-2);border:1px solid var(--line)}.pk .pcyl span.on{background:var(--green);border-color:var(--green)}.pk.s .pcyl span.on{background:var(--teal);border-color:var(--teal)}' +
+    '.pk .pf{list-style:none;display:flex;flex-direction:column;gap:5px;margin-top:10px}.pk .pf li{display:flex;gap:6px;font-size:11px;color:var(--muted);line-height:1.3}.pk .pf li::before{content:"\\2713";color:var(--green);font-weight:700;flex:0 0 auto}.pk.s .pf li::before{color:var(--teal)}.scene.tall{justify-content:flex-start;overflow-y:auto;padding-top:2px}' +
+    '.bars{max-width:520px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 20px}.bar{display:flex;align-items:center;gap:12px;margin-bottom:11px}.bar .bl{width:74px;font-size:12px;color:var(--muted)}.bar .trk{flex:1;height:9px;border-radius:9px;background:var(--surface-2);overflow:hidden}.bar .fl{height:100%;border-radius:9px;background:linear-gradient(90deg,var(--green),var(--teal));width:0;transition:width 1s ease}.bar .bv{width:44px;text-align:right;font-family:\'Space Grotesk\';font-weight:600;font-size:12.5px}' +
+    '.pk3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:540px;margin-bottom:14px}.pk{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:15px 14px;position:relative}.pk.pop{border-color:rgba(var(--brand-rgb),.45)}.pk.ult{border:1px solid transparent;background:linear-gradient(var(--surface),var(--surface)) padding-box,linear-gradient(135deg,var(--green),var(--teal)) border-box}' +
+    '.pk .pe{font-family:\'Space Grotesk\';font-size:10px;font-weight:600;color:var(--muted);margin-bottom:3px}.pk .pn{font-family:\'Space Grotesk\';font-weight:600;font-size:14px;margin-bottom:6px}.pk .pp{font-family:\'Space Grotesk\';font-weight:700;font-size:22px}.pk .pp span{font-size:11px;color:var(--muted);font-weight:500}.pk.pop .pp,.pk.ult .pp{color:var(--green-hi)}' +
+    '.offerline{display:flex;align-items:baseline;gap:12px;background:var(--surface);border:1px solid rgba(var(--brand-rgb),.3);border-radius:12px;padding:12px 16px;max-width:540px;margin-bottom:12px}.offerline .ol{font-size:12.5px;color:var(--muted)}.offerline .ol b{color:var(--green-hi)}.offerline .oold{font-family:\'Space Grotesk\';text-decoration:line-through;color:var(--muted-2);font-size:16px;margin-left:auto}.offerline .onew{font-family:\'Space Grotesk\';font-weight:700;font-size:24px;color:var(--green-hi)}' +
+    '.cta{display:inline-block;font-family:\'Space Grotesk\';font-weight:600;font-size:15px;padding:12px 26px;border-radius:100px;background:linear-gradient(100deg,var(--green),var(--teal));color:#04140a}' +
+    '.kv{display:flex;gap:26px;flex-wrap:wrap;margin-top:6px}.kv .k{font-family:\'Space Grotesk\';font-weight:700;font-size:30px}.kv .k.red{color:var(--danger)}.kv .k.g{color:var(--green)}.kv .kl{font-size:12px;color:var(--muted);margin-top:2px}' +
+    '.journey{max-width:520px;display:flex;flex-wrap:wrap;gap:7px;margin-top:6px}.jn{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:100px;padding:6px 13px}.jn .jd{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green)}' +
+    '.hwrap{position:relative;min-height:220px;display:flex;align-items:center;justify-content:flex-start;margin-top:20px;max-width:520px}.hcard,.acard{position:absolute;left:0;transition:opacity .55s ease,transform .55s ease}.hcard{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px 30px;min-width:320px;box-shadow:var(--shadow)}.hcard.gone{opacity:0;transform:scale(.93)}' +
+    '.hcard .hh{font-family:\'Space Grotesk\';font-weight:700;color:var(--green);font-size:16px;margin-bottom:14px}.hrow{display:flex;justify-content:space-between;gap:40px;font-size:16px;padding:7px 0}.hrow .d{color:var(--muted)}.hrow .t{font-family:\'Space Grotesk\';font-weight:500}.hrow.closed .t{color:var(--danger)}.hgap{margin-top:14px;padding-top:13px;border-top:1px solid var(--line);color:var(--danger);font-size:12.5px;max-width:300px;opacity:0;transform:translateY(6px);transition:all .5s ease}.hgap.show{opacity:1;transform:none}' +
+    '.acard{opacity:0;transform:scale(.9)}.acard.show{opacity:1;transform:none}.abig{font-family:\'Space Grotesk\';font-weight:700;font-size:clamp(58px,9vw,92px);line-height:1;letter-spacing:-.02em;background:linear-gradient(120deg,var(--green-hi),var(--teal));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 40px rgba(var(--brand-rgb),.3))}.asub{font-family:\'Space Grotesk\';font-weight:600;font-size:16px;margin-top:2px}' +
+    '.right-stage{display:flex;align-items:center;justify-content:center;height:100%}.device{position:relative;width:300px;height:612px;border-radius:48px;background:#0a0a0c;box-shadow:0 0 0 10px #050506,0 0 0 12px #16181d,0 30px 70px rgba(0,0,0,.6);flex:0 0 auto}.screen{position:absolute;inset:10px;border-radius:39px;overflow:hidden;background:#000}.island{position:absolute;top:13px;left:50%;transform:translateX(-50%);width:104px;height:30px;background:#000;border-radius:18px;z-index:40}' +
+    '.statusbar{position:absolute;top:0;left:0;right:0;height:48px;display:flex;align-items:center;justify-content:space-between;padding:18px 24px 0;font-family:\'Space Grotesk\';font-size:13px;font-weight:600;z-index:35;color:#fff}.sb-right{display:flex;align-items:center;gap:6px;font-size:11px}.sb-bars{display:flex;align-items:flex-end;gap:2px;height:10px}.sb-bars i{width:3px;background:#fff;border-radius:1px}.sb-bars i:nth-child(1){height:4px}.sb-bars i:nth-child(2){height:6px}.sb-bars i:nth-child(3){height:8px}.sb-bars i:nth-child(4){height:10px}.sb-batt{width:21px;height:11px;border:1px solid rgba(255,255,255,.6);border-radius:3px;padding:1px;position:relative}.sb-batt::after{content:"";position:absolute;right:-3px;top:3px;width:2px;height:5px;background:rgba(255,255,255,.6);border-radius:0 1px 1px 0}.sb-batt i{display:block;height:100%;width:72%;background:#fff;border-radius:1px}' +
+    '.view{position:absolute;inset:0;opacity:0;pointer-events:none;transition:opacity .4s ease}.view.on{opacity:1;pointer-events:auto}.wall{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 8%,#0f1a24,#05080c 60%),radial-gradient(80% 50% at 50% 100%,rgba(var(--brand-rgb),.16),transparent 70%)}' +
+    '.lock-time{position:absolute;top:88px;left:0;right:0;text-align:center;color:#fff}.lock-date{font-size:14px;color:rgba(255,255,255,.75)}.lock-clock{font-family:\'Space Grotesk\';font-weight:600;font-size:66px;line-height:1}.lock-foot{position:absolute;bottom:20px;left:0;right:0;text-align:center;color:rgba(255,255,255,.5);font-size:11px}.lock-foot .b{width:110px;height:4px;border-radius:3px;background:rgba(255,255,255,.5);margin:10px auto 0}' +
+    '.notifs{position:absolute;top:180px;left:11px;right:11px;display:flex;flex-direction:column;gap:8px}.notif{background:rgba(30,38,48,.62);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:11px 13px;opacity:0;transform:translateY(-14px) scale(.96);transition:all .5s cubic-bezier(.2,.8,.2,1)}.notif.in{opacity:1;transform:none}.notif .nt{display:flex;align-items:center;gap:8px;margin-bottom:4px}.nicon{width:24px;height:24px;border-radius:6px;display:grid;place-items:center;font-size:12px;flex:0 0 24px}.nicon.djm{background:linear-gradient(140deg,var(--green),var(--teal))}.nicon.cal{background:#fff;color:#e53}.nicon.star{background:linear-gradient(140deg,#f5b301,#ff8a00)}.nicon.rep{background:linear-gradient(140deg,#3b82f6,var(--teal))}.napp{font-size:10px;font-weight:600;text-transform:uppercase;color:rgba(255,255,255,.7)}.ntime{margin-left:auto;font-size:10px;color:rgba(255,255,255,.5)}.ntitle{font-size:12.5px;font-weight:600;color:#fff;margin-bottom:2px}.nbody{font-size:11.5px;color:rgba(255,255,255,.8);line-height:1.35}.nbody b{color:var(--green-hi)}' +
+    '.callview{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 20%,#10201a,#05080c 65%);display:flex;flex-direction:column;align-items:center;color:#fff}.call-top{margin-top:104px;text-align:center}.call-sub{font-size:13px;color:rgba(255,255,255,.65)}.call-name{font-family:\'Space Grotesk\';font-weight:600;font-size:26px;margin-top:4px}.call-av{width:92px;height:92px;border-radius:50%;margin:22px auto 0;display:grid;place-items:center;font-size:38px;background:linear-gradient(140deg,rgba(var(--brand-rgb),.25),rgba(var(--accent-rgb),.14));border:1px solid rgba(var(--brand-rgb),.35)}.call-ai{margin-top:22px;display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:100px;background:rgba(var(--brand-rgb),.14);border:1px solid rgba(var(--brand-rgb),.32);color:var(--green-hi);font-size:12px}.cwave{display:flex;gap:3px;align-items:flex-end;height:22px}.cwave i{width:3px;background:var(--green);border-radius:3px;animation:wv 1s infinite ease-in-out}.cwave i:nth-child(2){animation-delay:.12s}.cwave i:nth-child(3){animation-delay:.24s}.cwave i:nth-child(4){animation-delay:.36s}.cwave i:nth-child(5){animation-delay:.18s}@keyframes wv{0%,100%{height:5px}50%{height:22px}}.call-actions{margin-top:auto;margin-bottom:40px;display:flex;gap:54px}.cbtn{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font-size:22px}.cbtn.red{background:#ff453a}.cbtn.green{background:#34c759}' +
+    '.calview{position:absolute;inset:0;background:#0a0f14;padding:56px 0 0}.cal-h{padding:6px 18px 10px;border-bottom:1px solid rgba(255,255,255,.07)}.cal-mon{font-family:\'Space Grotesk\';font-weight:600;font-size:18px;color:#fff}.cal-s{font-size:11px;color:var(--muted)}.cstrip{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;padding:12px 12px 4px}.cd{text-align:center;padding:6px 0 8px;border-radius:9px;border:1px solid transparent;position:relative}.cd .dn{display:block;font-size:9px;text-transform:uppercase;color:var(--muted-2)}.cd .dd{display:block;font-family:\'Space Grotesk\';font-weight:600;font-size:13px;color:#fff}.cd.sel{border-color:rgba(var(--brand-rgb),.5);background:rgba(var(--brand-rgb),.1)}.cd.sel .dd{color:var(--green)}.cal-body{padding:6px 14px}.cal-lab{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-2);margin:6px 0 8px}.cev{display:block;padding:10px 12px;border-radius:10px;font-size:12.5px;margin-bottom:7px;border:1px solid rgba(255,255,255,.08);color:#fff}.cev .ct{font-family:\'Space Grotesk\';font-weight:600;color:var(--muted);margin-right:7px}.cev.ghost{background:rgba(255,255,255,.04);color:var(--muted)}.cev.new{background:rgba(var(--brand-rgb),.12);border-color:rgba(var(--brand-rgb),.4);opacity:0;transform:translateY(-10px) scale(.96)}.cev.new.show{opacity:1;transform:none;transition:all .55s cubic-bezier(.2,.8,.2,1)}.cev.new .ct{color:var(--green)}.ctag{float:right;font-size:10px;color:var(--green);font-weight:600}' +
+    '.msgview{position:absolute;inset:0;background:#0a0f14;padding:56px 0 0;display:flex;flex-direction:column}.msg-h{text-align:center;padding:4px 0 12px;border-bottom:1px solid rgba(255,255,255,.07)}.msg-av{width:40px;height:40px;border-radius:50%;margin:0 auto 5px;display:grid;place-items:center;font-size:15px;background:linear-gradient(140deg,rgba(var(--brand-rgb),.22),rgba(var(--accent-rgb),.12));border:1px solid rgba(var(--brand-rgb),.3);color:var(--green-hi);font-family:\'Space Grotesk\';font-weight:600}.msg-name{font-family:\'Space Grotesk\';font-weight:600;font-size:14px;color:#fff}.msg-list{flex:1;padding:14px 12px;display:flex;flex-direction:column;gap:8px}.bub{max-width:82%;padding:9px 12px;font-size:12.5px;line-height:1.4;border-radius:16px;opacity:0;transform:translateY(8px)}.bub.in{opacity:1;transform:none;transition:all .4s ease}.bub.them{align-self:flex-start;background:#20262e;color:#fff;border-bottom-left-radius:5px}.bub.me{align-self:flex-end;background:linear-gradient(140deg,var(--green),var(--teal));color:#04140a;border-bottom-right-radius:5px;font-weight:500}.bub .bt{display:block;font-size:9px;color:rgba(255,255,255,.4);margin-top:2px;text-align:right}' +
+    '.endview{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 20%,#0f1a24,#05080c 65%);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:36px 24px}.end-logo{min-width:58px;height:58px;padding:0 14px;border-radius:50%;display:grid;place-items:center;margin-bottom:16px;background:radial-gradient(circle at 50% 40%,#0d1620,#05080c 70%);border:1px solid rgba(255,255,255,.1);box-shadow:0 0 30px rgba(var(--brand-rgb),.2);font-family:\'Space Grotesk\';font-weight:700;font-size:12px;color:#fff}.end-h{font-family:\'Space Grotesk\';font-weight:600;font-size:20px;line-height:1.2;margin-bottom:8px;color:#fff}.end-h .grad{background:linear-gradient(100deg,var(--green-hi),var(--teal));-webkit-background-clip:text;background-clip:text;color:transparent}.end-p{color:rgba(255,255,255,.7);font-size:12.5px;line-height:1.5;max-width:230px;margin-bottom:18px}.end-cta{font-family:\'Space Grotesk\';font-weight:600;font-size:13px;padding:11px 22px;border-radius:100px;background:linear-gradient(100deg,var(--green),var(--teal));color:#04140a}.end-url{margin-top:12px;font-size:11.5px;color:rgba(255,255,255,.5)}.end-url b{color:#fff}' +
+    '.pipeline{position:fixed;top:20px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:6px;z-index:50;padding:8px 14px;border-radius:100px;background:rgba(8,13,19,.7);border:1px solid var(--line);backdrop-filter:blur(8px)}.pl{display:flex;align-items:center;gap:6px}.pl .pd{width:7px;height:7px;border-radius:50%;background:var(--muted-2);transition:all .3s}.pl.done .pd{background:var(--green)}.pl.active .pd{background:var(--green);box-shadow:0 0 10px var(--green);transform:scale(1.4)}.pl .plab{font-size:11px;color:var(--muted-2);display:none;letter-spacing:.03em}.pl.active .plab{display:inline;color:var(--green);font-weight:600}.plsep{width:12px;height:1px;background:var(--line)}' +
+    '.nav{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:50;display:flex;align-items:center;gap:14px}.nav button{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:rgba(8,13,19,.8);color:var(--text);font-size:17px;cursor:pointer;display:grid;place-items:center;backdrop-filter:blur(8px)}.nav button:hover{border-color:var(--green);color:var(--green)}.nav button:disabled{opacity:.3;cursor:default}.counter{font-family:\'Space Grotesk\';font-size:13px;color:var(--muted);min-width:56px;text-align:center}' +
+    '.brand-tag{position:fixed;bottom:26px;left:22px;z-index:50;font-size:12px;color:var(--muted-2)}.brand-tag b{color:var(--muted)}.hint{position:fixed;bottom:26px;right:22px;z-index:50;font-size:11.5px;color:var(--muted-2)}.hint kbd{font-family:\'Space Grotesk\';border:1px solid var(--line);border-radius:6px;padding:1px 6px;color:var(--muted)}body.recording .pipeline,body.recording .nav,body.recording .brand-tag,body.recording .hint{opacity:0;pointer-events:none}' +
+    '@media(max-width:960px){.stage{grid-template-columns:1fr;padding:64px 6vw 90px;overflow-y:auto;align-items:start}.right-stage{order:-1;margin-bottom:10px}.device{transform:scale(.8)}.scene{position:relative;inset:auto}.left-stage{height:auto}}@media(max-height:760px) and (min-width:961px){.device{transform:scale(.86)}}@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.15s!important}}';
+  }
+
+  function fcell(k, v) { return '<div class="fcell"><div class="k">' + esc(k) + '</div><div class="v">' + esc(v) + '</div></div>'; }
+
+  function render(p) {
+    var d = p.demo || {};
+    var lead = d.sampleLead || {};
+    var cats = (p.serviceCategories && p.serviceCategories.length) ? p.serviceCategories : ['domestic', 'commercial', 'industrial'];
+    var chips = (d.channels && d.channels.length) ? d.channels : ['📞 Calls', '🌐 Website', '💬 WhatsApp', '📝 Forms'];
+    var hours = p.hours || {};
+    var offDay = d.offDay || 'Sunday';
+    var report = d.report || {};
+    var weeks = report.weeks || [{ label: 'Week 1', w: 55, v: 9 }, { label: 'Week 2', w: 68, v: 12 }, { label: 'Week 3', w: 62, v: 11 }, { label: 'Week 4', w: 82, v: 14 }];
+    var cal = d.calendar || {};
+    var msgs = d.messages || [];
+    var reviewQuote = d.reviewQuote || 'Fantastic service from start to finish — professional, tidy and finished ahead of schedule.';
+    var dashMetrics = (p.dashboard && p.dashboard.metrics) || { leadsWk: 14, qualified: 11, booked: 6, answered: 92 };
+    var leads = (p.dashboard && p.dashboard.leads) || [];
+
+    // ---- phone lead JSON for the CRM interactive ----
+    var leadsJson = JSON.stringify(leads.map(function (l) {
+      return {
+        id: l.id, name: l.name, ini: l.initials || H.initials(l.name), job: l.job, status: l.status, scls: l.scls || '',
+        area: l.area, phone: l.phone, email: l.email, service: l.service, product: l.product, property: l.property,
+        urgency: l.urgency, callback: l.callback, consent: l.consent || '✓ Given', source: l.source || 'AI Voice Assistant',
+        quality: l.quality, value: l.value, summary: l.summary, activity: l.activity || []
+      };
+    }));
+
+    var catText = cats.join(', ').replace(/, ([^,]*)$/, ' and $1');
+
+    var head =
+      '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>' +
+      '<meta name="viewport" content="width=device-width, initial-scale=1.0"/>' +
+      '<title>' + esc(p.name) + ' — AI Office Team · Powered by LeadaLine</title>' +
+      '<link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>' +
+      '<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>' +
+      '<style>' + demoCss(p) + '</style></head><body>';
+
+    var body =
+      '<div class="pipeline" id="pipeline"></div><div class="stage"><div class="left-stage" id="leftStage">' +
+
+      // 1 OVERVIEW
+      '<section class="scene active" data-stage="Overview" data-phone="lock">' +
+        '<div class="l-eyebrow u"><span class="sn">' + esc(p.shortName) + '</span> ' + esc(p.name) + (p.registration ? ' · ' + esc(p.registration) : '') + (p.location ? ' · ' + esc(p.location) : '') + '</div>' +
+        '<h1 class="l-h u2">' + pick(d.overviewHeading, 'One system that catches <span class="grad">every job</span> — while you\'re on the tools.') + '</h1>' +
+        '<p class="l-sub u3">' + esc(pick(d.overviewSub, 'It answers, qualifies, alerts you, books the work and chases every quote — across ' + catText + '. Here\'s the exact journey every enquiry takes, and what lands on your phone at each step.')) + '</p>' +
+        '<div class="journey u4">' +
+          ['Enquiry', 'Capture', 'Qualify', 'Owner summary', 'CRM', 'Follow-up', 'Reporting'].map(function (j) { return '<span class="jn"><span class="jd"></span>' + j + '</span>'; }).join('') +
+        '</div>' +
+      '</section>' +
+
+      // 1b ALWAYS ON
+      '<section class="scene" data-stage="Always on" data-phone="offday">' +
+        '<div class="l-eyebrow u"><span class="sn">★</span> Always on · the ' + esc(offDay) + ' gap</div>' +
+        '<h1 class="l-h u2">You\'re closed ' + esc(offDay) + 's. <span class="grad">That\'s when the quotes come in.</span></h1>' +
+        '<p class="l-sub u3">' + esc(pick(d.alwaysOnSub, 'Weekends are when customers sit down and plan jobs. Right now every ' + offDay + ' enquiry goes to voicemail — or the next ' + (p.industry || 'business') + ' in ' + (p.location || 'town') + '. Your AI answers all of them.')) + '</p>' +
+        '<div class="hwrap"><div class="hcard" id="hcard"><div class="hh">Your week</div>' +
+          '<div class="hrow"><span class="d">Mon – Sat</span><span class="t">Open</span></div>' +
+          '<div class="hrow closed"><span class="d">' + esc(offDay) + '</span><span class="t">Closed</span></div>' +
+          '<div class="hgap" id="hgap">The one day you\'re shut is the day customers request quotes.</div></div>' +
+          '<div class="acard" id="acard"><div class="abig">24/7</div><div class="asub">Now answering — ' + esc(offDay) + 's included</div></div>' +
+        '</div>' +
+      '</section>' +
+
+      // 2 CAPTURE
+      '<section class="scene" data-stage="Capture" data-phone="call">' +
+        '<div class="l-eyebrow u"><span class="sn">1</span> Capture · AI Receptionist</div>' +
+        '<h1 class="l-h u2">A customer calls. The AI answers — you don\'t stop working.</h1>' +
+        '<p class="l-sub u3">Across phone, website, WhatsApp and web forms, every enquiry is answered instantly, 24/7, and turned into clean structured data. On the phone (right) it\'s simply handled for you.</p>' +
+        '<div class="chips u3">' + chips.map(function (c) { return '<span class="on">' + esc(c) + '</span>'; }).join('') + '</div>' +
+        '<div class="fgrid">' +
+          fcell('Customer', lead.name || 'New customer') +
+          fcell('Service', lead.service || (p.services[0] && p.services[0].name) || '—') +
+          fcell('Detail', lead.product || '—') +
+          fcell('Area', lead.area || (p.areas[0] || p.location) || '—') +
+          fcell('Property', lead.property || '—') +
+          fcell('Callback', lead.callback || 'After 5pm') +
+        '</div>' +
+      '</section>' +
+
+      // 3 QUALIFY
+      '<section class="scene" data-stage="Qualify" data-phone="call">' +
+        '<div class="l-eyebrow u"><span class="sn">2</span> Qualify · AI Sales Assistant</div>' +
+        '<h1 class="l-h u2">Scored and scoped — before you\'ve seen it.</h1>' +
+        '<p class="l-sub u3">Every enquiry is judged against what a good job looks like: right work, right area, real intent. You only spend attention on the ones worth the trip.</p>' +
+        '<div class="assess">' +
+          '<div class="acell wide"><div class="al">Summary</div><div class="av">' + esc(lead.summary || 'Qualified enquiry in ' + (p.location || 'area') + '.') + '</div></div>' +
+          '<div class="acell"><div class="al">Lead quality</div><div class="av"><span class="pill"><span class="d"></span>' + esc(lead.quality || 'High') + '</span></div></div>' +
+          '<div class="acell"><div class="al">Est. value</div><div class="av" style="color:var(--green-hi)">' + esc(lead.value || '—') + '</div></div>' +
+          '<div class="acell wide"><div class="al">Recommended next action</div><div class="av">' + esc(lead.recommendedAction || 'Call back to book a survey and quote at standard rate.') + '</div></div>' +
+        '</div>' +
+      '</section>' +
+
+      // 4 OWNER SUMMARY
+      '<section class="scene" data-stage="Owner summary" data-phone="lead">' +
+        '<div class="l-eyebrow u"><span class="sn">3</span> Owner Summary · AI Admin</div>' +
+        '<h1 class="l-h u2">The whole lead, in your pocket — in seconds.</h1>' +
+        '<p class="l-sub u3">No listening back to voicemails. The moment the call ends, the full summary lands on your phone (right) by SMS, WhatsApp or email — your choice.</p>' +
+        '<div class="ilist">' +
+          '<div class="irow"><div class="ii">⚡</div><div><h4>Instant, not end-of-day</h4><p>Delivered the second the call ends — <b>speed-to-lead</b> is what wins the job.</p></div></div>' +
+          '<div class="irow"><div class="ii">📋</div><div><h4>Everything you need</h4><p>Name, job, area, quality and value band — decide in one glance.</p></div></div>' +
+          '<div class="irow"><div class="ii">🔔</div><div><h4>Urgent flagged</h4><p>' + esc(pick(d.urgentLine, 'Emergencies jump the queue with a priority alert.')) + '</p></div></div>' +
+        '</div>' +
+      '</section>' +
+
+      // 5 CRM
+      '<section class="scene" data-stage="CRM" data-phone="lead">' +
+        '<div class="l-eyebrow u"><span class="sn">4</span> CRM Tracking · Your portal</div>' +
+        '<h1 class="l-h u2">Every lead in one place — premium, not a spreadsheet.</h1>' +
+        '<p class="l-sub u3">A clean dashboard shows new leads, status, and live performance. Click any lead for the full record and activity trail. This is where nothing gets forgotten.</p>' +
+        '<div class="dash"><div class="dbar"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span><span class="dt"><b>' + esc(p.shortName) + '</b> · Lead Dashboard</span><span class="dl"><span class="jd" style="width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green)"></span>Live</span></div>' +
+          '<div class="dmet">' +
+            '<div class="m"><div class="mn g" data-count="' + dashMetrics.leadsWk + '">0</div><div class="ml">Leads / wk</div></div>' +
+            '<div class="m"><div class="mn" data-count="' + dashMetrics.qualified + '">0</div><div class="ml">Qualified</div></div>' +
+            '<div class="m"><div class="mn" data-count="' + dashMetrics.booked + '">0</div><div class="ml">Booked</div></div>' +
+            '<div class="m"><div class="mn g" data-count="' + dashMetrics.answered + '" data-suffix="%">0</div><div class="ml">Answered</div></div>' +
+          '</div><div id="crmRows"></div></div>' +
+      '</section>' +
+
+      // 6 BOOKING
+      '<section class="scene" data-stage="Booking" data-phone="cal">' +
+        '<div class="l-eyebrow u"><span class="sn">5</span> Booking · AI Booking Assistant</div>' +
+        '<h1 class="l-h u2">It books the next step — no phone tag.</h1>' +
+        '<p class="l-sub u3">Once you give the go-ahead, the customer\'s offered a slot and it drops straight into your calendar (right), around the jobs you already have on.</p>' +
+        '<div class="ilist">' +
+          '<div class="irow"><div class="ii">📅</div><div><h4>Straight into your diary</h4><p>Survey or job slotted in automatically — <b>' + esc((cal.newEvent && cal.newEvent.timeLabel) || 'Thu 4:30pm') + '</b>.</p></div></div>' +
+          '<div class="irow"><div class="ii">💬</div><div><h4>Offers real times</h4><p>Two options texted to the customer; they pick, it confirms.</p></div></div>' +
+          '<div class="irow"><div class="ii">⏰</div><div><h4>Reminders handled</h4><p>Morning-of reminder sent — fewer no-shows, no admin.</p></div></div>' +
+        '</div>' +
+      '</section>' +
+
+      // 7 FOLLOW-UP
+      '<section class="scene" data-stage="Follow-up" data-phone="msg">' +
+        '<div class="l-eyebrow u"><span class="sn">6</span> Follow-Up · AI Follow-Up Assistant</div>' +
+        '<h1 class="l-h u2">Quiet quotes get chased — automatically.</h1>' +
+        '<p class="l-sub u3">This is where most lost revenue hides. The follow-ups you never get to when you\'re on site happen on their own — and the customer\'s kept in the loop (right).</p>' +
+        '<div class="ilist">' +
+          '<div class="irow"><div class="ii">🔁</div><div><h4>Day 3 &amp; Day 7 nudges</h4><p>Gentle, on-brand chases on every unanswered quote.</p></div></div>' +
+          '<div class="irow"><div class="ii">💷</div><div><h4>Recovers real jobs</h4><p>A slice of "maybe" quotes become booked work — <b>hands-off</b>.</p></div></div>' +
+          '<div class="irow"><div class="ii">🤝</div><div><h4>Confirms &amp; reminds</h4><p>Every message on-brand as ' + esc(p.shortName) + ' — the customer never feels chased by a bot.</p></div></div>' +
+        '</div>' +
+      '</section>' +
+
+      // 8 REVIEW
+      '<section class="scene" data-stage="Review" data-phone="review">' +
+        '<div class="l-eyebrow u"><span class="sn">7</span> Reviews · AI Review Assistant</div>' +
+        '<h1 class="l-h u2">Every finished job becomes a 5-star review.</h1>' +
+        '<p class="l-sub u3">Once the job\'s signed off, the customer gets a friendly nudge with your Google link — and a review notification lands on your phone (right).</p>' +
+        '<div class="ilist">' +
+          '<div class="irow"><div class="ii">⭐</div><div><h4>Asks at the right moment</h4><p>Sent on completion, when the customer\'s happiest.</p></div></div>' +
+          '<div class="irow"><div class="ii">📈</div><div><h4>Builds your ranking</h4><p>A steady stream of reviews lifts you up local ' + esc(p.location || '') + ' search.</p></div></div>' +
+          '<div class="irow"><div class="ii">✅</div><div><h4>A real customer review</h4><p>"' + esc(reviewQuote) + '" — earned automatically.</p></div></div>' +
+        '</div>' +
+      '</section>' +
+
+      // 9 REPORTING
+      '<section class="scene" data-stage="Reporting" data-phone="report">' +
+        '<div class="l-eyebrow u"><span class="sn">8</span> Reporting · AI Reporting Assistant</div>' +
+        '<h1 class="l-h u2">You see exactly what it brings in.</h1>' +
+        '<p class="l-sub u3">One weekly summary to your phone (right) — leads, bookings, response time and hours saved. Proof, not guesswork.</p>' +
+        '<div class="bars">' + weeks.map(function (w) { return '<div class="bar"><div class="bl">' + esc(w.label) + '</div><div class="trk"><div class="fl" data-w="' + w.w + '"></div></div><div class="bv">' + esc(w.v) + '</div></div>'; }).join('') + '</div>' +
+        '<div class="kv"><div><div class="k g">~' + esc(report.hoursSaved || 11) + '</div><div class="kl">hrs saved / week</div></div><div><div class="k g">' + esc(dashMetrics.answered) + '%</div><div class="kl">answer rate</div></div><div><div class="k g">' + esc(dashMetrics.booked) + '</div><div class="kl">jobs booked</div></div></div>' +
+      '</section>' +
+
+      // 10 GET STARTED
+      '<section class="scene tall" data-stage="Get started" data-phone="end">' +
+        '<div class="l-eyebrow u"><span class="sn">▶</span> Get started · Pilot Programme</div>' +
+        '<h1 class="l-h u2">The full AI office — <span class="grad">2 founding spots left.</span></h1>' +
+        '<p class="l-sub u3">Plans start at £349/mo, and one extra job a month covers any of them. Right now, founding clients get the complete Full Office at a steep discount.</p>' +
+        '<div class="pk3">' +
+          '<div class="pk s"><div class="pcyl"><span class="on"></span><span class="on"></span><span class="on"></span><span></span><span></span><span></span></div><div class="pe">Starter · 3/6 team</div><div class="pn">Capture &amp; Chase</div><div class="pp">£349<span>/mo</span></div><ul class="pf"><li>Answers every call &amp; enquiry</li><li>Qualifies the job</li><li>Instant SMS + email alerts</li><li>Auto follow-up on quotes</li></ul></div>' +
+          '<div class="pk pop"><div class="pcyl"><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span></span><span></span></div><div class="pe">Connected · 4/6 team</div><div class="pn">Connected</div><div class="pp">£549<span>/mo</span></div><ul class="pf"><li>Everything in Starter</li><li>Pushes leads to your quoting</li><li>Books into your calendar</li><li>SMS confirmations &amp; reminders</li></ul></div>' +
+          '<div class="pk ult"><div class="pcyl"><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span><span class="on"></span></div><div class="pe">Full Office · 6/6 team</div><div class="pn">Full Office</div><div class="pp">£749<span>/mo</span></div><ul class="pf"><li>Everything in Connected</li><li>Full CRM &amp; pipeline</li><li>AI Admin — no data entry</li><li>Reporting + founder support</li></ul></div>' +
+        '</div>' +
+        '<div class="offerline"><div class="ol"><b>Pilot · Full Office</b><br>8 of 10 spots taken</div><span class="oold">£749</span><span class="onew">£249<span style="font-size:12px;color:var(--muted)">/mo</span></span></div>' +
+        '<a class="cta" href="https://leadaline.com">Book a 15-min call →</a>' +
+      '</section>' +
+
+      '</div>' + phoneMarkup(p, lead, cal, msgs) + '</div>' +
+
+      '<div class="nav"><button id="prev">‹</button><span class="counter" id="counter">01 / 10</span><button id="next">›</button></div>' +
+      '<div class="brand-tag"><b>' + esc(p.name) + '</b> · powered by LeadaLine</div>' +
+      '<div class="hint"><kbd>←</kbd> <kbd>→</kbd> move · <kbd>R</kbd> hide chrome</div>';
+
+    return head + body + demoScript(p, leadsJson, cal, offDay) + '</body></html>';
+  }
+
+  function phoneMarkup(p, lead, cal, msgs) {
+    var days = cal.days || [{ dn: 'Mon', dd: 16 }, { dn: 'Tue', dd: 17 }, { dn: 'Wed', dd: 18 }, { dn: 'Thu', dd: 19, sel: true }, { dn: 'Fri', dd: 20 }, { dn: 'Sat', dd: 21 }];
+    var ghost = cal.ghostEvents || [{ time: '09:00', label: 'Job · site A' }, { time: '12:30', label: 'Job · site B' }];
+    var ne = cal.newEvent || { time: '16:30', label: 'Survey — ' + (lead.name || 'new customer'), tag: '✓ Booked' };
+    var messages = msgs.length ? msgs : [
+      { who: 'me', text: 'Hi, it\'s ' + esc(p.name) + ' 👋 We can visit <b>Thu 4–6pm</b> or Sat AM — which suits?', time: '14:48' },
+      { who: 'them', text: 'Thursday works great, thanks!' },
+      { who: 'me', text: 'Booked for <b>Thursday 4:30pm</b>. Reminder the morning of 👍', time: '15:02' }
+    ];
+    return '<div class="right-stage"><div class="device"><div class="island"></div><div class="screen">' +
+      '<div class="statusbar"><span>14:32</span><span class="sb-right"><span class="sb-bars"><i></i><i></i><i></i><i></i></span> 5G <span class="sb-batt"><i></i></span></span></div>' +
+      '<div class="view on" id="v-lock"><div class="wall"></div><div class="lock-time"><div class="lock-date" id="lockDate">Thursday 19 June</div><div class="lock-clock">14:32</div></div><div class="notifs" id="notifs"></div><div class="lock-foot">' + esc(p.name) + '<div class="b"></div></div></div>' +
+      '<div class="view" id="v-call"><div class="callview"><div class="call-top"><div class="call-sub">mobile · incoming</div><div class="call-name">New customer</div></div><div class="call-av">' + esc((p.demo && p.demo.phoneIcon) || '⚡') + '</div><div class="call-ai"><span class="cwave"><i></i><i></i><i></i><i></i><i></i></span> Answered by your AI</div><div class="call-actions"><div class="cbtn red">✕</div><div class="cbtn green">✓</div></div></div></div>' +
+      '<div class="view" id="v-cal"><div class="calview"><div class="cal-h"><div class="cal-mon">' + esc(cal.monthLabel || 'June 2026') + '</div><div class="cal-s">' + esc(p.shortName) + ' · Calendar</div></div><div class="cstrip">' +
+        days.map(function (dy, idx) { return '<div class="cd"' + (dy.sel ? ' id="pcThu"' : (idx === 3 ? ' id="pcThu"' : '')) + '><span class="dn">' + esc(dy.dn) + '</span><span class="dd">' + esc(dy.dd) + '</span></div>'; }).join('') +
+        '</div><div class="cal-body"><div class="cal-lab">' + esc(cal.dateLabel || 'Thursday 19 June') + '</div>' +
+        ghost.map(function (g) { return '<div class="cev ghost"><span class="ct">' + esc(g.time) + '</span>' + esc(g.label) + '</div>'; }).join('') +
+        '<div class="cev new" id="pcEv"><span class="ct">' + esc(ne.time) + '</span><b>' + esc(ne.label) + '</b><span class="ctag">' + esc(ne.tag || '✓ Booked') + '</span></div>' +
+        '</div></div></div>' +
+      '<div class="view" id="v-msg"><div class="msgview"><div class="msg-h"><div class="msg-av">' + esc(H.initials(lead.name || p.name)) + '</div><div class="msg-name">' + esc(lead.name || 'Customer') + '</div></div><div class="msg-list" id="msgList">' +
+        messages.map(function (m) { return '<div class="bub ' + (m.who === 'them' ? 'them' : 'me') + '">' + rich(m.text) + (m.time ? '<span class="bt">' + esc(m.time) + '</span>' : '') + '</div>'; }).join('') +
+        '</div></div></div>' +
+      '<div class="view" id="v-end"><div class="endview"><div class="end-logo">' + esc(p.shortName) + '</div><div class="end-h">Your phone, <span class="grad">working while you do.</span></div><div class="end-p">Every call answered, every lead captured, every job booked — without stopping.</div><div class="end-cta">Book a 15-min call →</div><div class="end-url"><b>leadaline.com</b></div></div></div>' +
+      '</div></div></div>';
+  }
+
+  function demoScript(p, leadsJson, cal, offDay) {
+    var lead = (p.demo && p.demo.sampleLead) || {};
+    var reviewQuote = (p.demo && p.demo.reviewQuote) || 'Great work, tidy and on time.';
+    var dm = (p.dashboard && p.dashboard.metrics) || { leadsWk: 14, booked: 6, answered: 92 };
+    var report = (p.demo && p.demo.report) || {};
+    var offDate = (cal && cal.offDayDate) || 'Sunday 22 June';
+    var notif = {
+      lead: { icon: (p.demo && p.demo.phoneIcon) || '⚡', app: esc(p.shortName) + ' · New Lead', title: esc((lead.name || 'New customer') + ' — ' + (lead.product || lead.service || 'enquiry')), body: esc((lead.area || p.location || '') + ' · ') + '<b>' + esc(lead.quality || 'High') + '</b> · ' + esc(lead.value || '') },
+      review: { app: esc(p.shortName) + ' · Reviews', title: 'New 5-star review ⭐', body: '"' + esc(reviewQuote.slice(0, 70)) + '"' },
+      report: { app: esc(p.shortName) + ' · Weekly Report', title: 'This week: ' + esc(dm.leadsWk) + ' leads captured', body: '<b>' + esc(dm.booked) + ' booked</b> · ' + esc(dm.answered) + '% answered · ~' + esc(report.hoursSaved || 11) + ' hrs saved' },
+      offday: { icon: (p.demo && p.demo.phoneIcon) || '⚡', app: esc(p.shortName) + ' · New Lead', title: esc('Weekend enquiry — ' + (lead.service || 'quote')), body: esc((lead.area || p.location || '') + ' · ') + '<b>' + esc(offDay) + '</b> · answered by AI' }
+    };
+    return '<script>(function(){' +
+      'var scenes=[].slice.call(document.querySelectorAll(".scene")),total=scenes.length,i=0;' +
+      'var prev=document.getElementById("prev"),next=document.getElementById("next"),counter=document.getElementById("counter"),pipeline=document.getElementById("pipeline");' +
+      'var stages=scenes.map(function(s){return s.getAttribute("data-stage");});' +
+      'stages.forEach(function(st,idx){if(idx>0){var sep=document.createElement("div");sep.className="plsep";pipeline.appendChild(sep);}var n=document.createElement("div");n.className="pl";n.innerHTML=\'<span class="pd"></span><span class="plab">\'+st+\'</span>\';pipeline.appendChild(n);});' +
+      'var plNodes=[].slice.call(pipeline.querySelectorAll(".pl"));' +
+      'var NOTIF=' + JSON.stringify(notif) + ';' +
+      'var notifs=document.getElementById("notifs");' +
+      'function pushNotif(d){var el=document.createElement("div");el.className="notif";el.innerHTML=\'<div class="nt"><span class="nicon djm">\'+(d.icon||"⚡")+\'</span><span class="napp">\'+d.app+\'</span><span class="ntime">\'+(d.time||"now")+\'</span></div><div class="ntitle">\'+d.title+\'</div><div class="nbody">\'+d.body+\'</div>\';notifs.appendChild(el);requestAnimationFrame(function(){requestAnimationFrame(function(){el.classList.add("in");});});}' +
+      'var views={lock:"v-lock",call:"v-call",cal:"v-cal",msg:"v-msg",end:"v-end"};' +
+      'function showView(name){Object.keys(views).forEach(function(k){document.getElementById(views[k]).classList.toggle("on",k===name);});}' +
+      'function countUp(el){var t=parseInt(el.getAttribute("data-count"),10),suf=el.getAttribute("data-suffix")||"",t0=performance.now(),dur=1100;el.textContent="0"+suf;(function tick(now){var pr=Math.min((now-t0)/dur,1),e=1-Math.pow(1-pr,3);el.textContent=Math.round(e*t)+suf;if(pr<1)requestAnimationFrame(tick);})(performance.now());}' +
+      'function phoneFor(key){var ld=document.getElementById("lockDate");if(ld)ld.textContent=(key==="offday")?' + JSON.stringify(offDate) + ':"Thursday 19 June";' +
+        'if(key==="offday"){showView("lock");notifs.innerHTML="";setTimeout(function(){pushNotif({icon:NOTIF.offday.icon,app:NOTIF.offday.app,time:"11:20",title:NOTIF.offday.title,body:NOTIF.offday.body});},500);return;}' +
+        'if(key==="lead"||key==="review"||key==="report"){showView("lock");notifs.innerHTML="";if(key==="lead")pushNotif(NOTIF.lead);if(key==="review")pushNotif(NOTIF.review);if(key==="report"){pushNotif(NOTIF.lead);setTimeout(function(){pushNotif(NOTIF.report);},350);}return;}' +
+        'if(key==="cal"){showView("cal");var ev=document.getElementById("pcEv"),thu=document.getElementById("pcThu");ev.classList.remove("show");if(thu)thu.classList.remove("sel");setTimeout(function(){ev.classList.add("show");if(thu)thu.classList.add("sel");},700);return;}' +
+        'if(key==="msg"){showView("msg");var bubs=document.querySelectorAll("#msgList .bub");bubs.forEach(function(b){b.classList.remove("in");});bubs.forEach(function(b,k){setTimeout(function(){b.classList.add("in");},350+k*1000);});return;}' +
+        'showView(key);if(key==="lock")notifs.innerHTML="";}' +
+      'function runHoursFlip(){var hc=document.getElementById("hcard"),ac=document.getElementById("acard"),hg=document.getElementById("hgap");if(!hc)return;hc.classList.remove("gone");ac.classList.remove("show");hg.classList.remove("show");clearTimeout(window.__hf1);clearTimeout(window.__hf2);window.__hf1=setTimeout(function(){hg.classList.add("show");},1100);window.__hf2=setTimeout(function(){hc.classList.add("gone");ac.classList.add("show");},2600);}' +
+      'function runLeft(scene){scene.querySelectorAll("[data-count]").forEach(countUp);scene.querySelectorAll(".fl").forEach(function(f,idx){f.style.width="0";setTimeout(function(){f.style.width=f.getAttribute("data-w")+"%";},200+idx*120);});}' +
+      'function updatePipeline(){plNodes.forEach(function(n,idx){n.classList.remove("active","done");if(idx<i)n.classList.add("done");if(idx===i)n.classList.add("active");});}' +
+      'function pad(n){return(n<10?"0":"")+n;}' +
+      'function show(n){i=Math.max(0,Math.min(total-1,n));scenes.forEach(function(s,k){s.classList.toggle("active",k===i);});counter.textContent=pad(i+1)+" / "+pad(total);prev.disabled=(i===0);next.disabled=(i===total-1);updatePipeline();runLeft(scenes[i]);if(scenes[i].getAttribute("data-stage")==="CRM"&&window.resetCRM)window.resetCRM();if(scenes[i].getAttribute("data-stage")==="Always on")runHoursFlip();phoneFor(scenes[i].getAttribute("data-phone"));}' +
+      'prev.addEventListener("click",function(){show(i-1);});next.addEventListener("click",function(){show(i+1);});' +
+      'document.addEventListener("keydown",function(e){if(e.key==="ArrowRight"||e.key===" "){e.preventDefault();show(i+1);}else if(e.key==="ArrowLeft"){e.preventDefault();show(i-1);}else if(e.key==="r"||e.key==="R"){document.body.classList.toggle("recording");}});' +
+      '(function(){var host=document.getElementById("crmRows");if(!host)return;var leads=' + leadsJson + ';' +
+        'function tag(l){var map={New:"new",Booked:"book",Urgent:"urgent",Quoted:""};return \'<span class="dtag \'+(l.scls||map[l.status]||"")+\'">\'+l.status+\'</span>\';}' +
+        'function cell(k,v){return \'<div class="cd-c"><div class="k">\'+k+\'</div><div class="v">\'+(v||"—")+\'</div></div>\';}' +
+        'function renderList(){host.innerHTML=leads.map(function(l){return \'<div class="drow\'+(l.status==="New"?" fresh":"")+\' clickable" data-id="\'+l.id+\'"><div><b>\'+l.name+\'</b></div><div>\'+l.job+\'</div><div>\'+tag(l)+\'</div><div class="dchev">›</div></div>\';}).join("");host.querySelectorAll(".drow.clickable").forEach(function(r){r.addEventListener("click",function(){openLead(r.getAttribute("data-id"));});});}' +
+        'function renderDetail(l){host.innerHTML=\'<div class="cdetail"><button class="cd-back" id="crmBack">‹ All leads</button><div class="cd-head"><div class="cd-av">\'+l.ini+\'</div><div><div class="cd-name">\'+l.name+\'</div><div class="cd-meta">\'+l.source+\' · \'+l.id+\'</div></div><div class="cd-badges">\'+tag(l)+\'<span class="cd-val">\'+(l.value||"")+\'</span></div></div><div class="cd-grid">\'+cell("Phone",l.phone)+cell("Email",l.email)+cell("Area",l.area)+cell("Service",l.service)+cell("Detail",l.product)+cell("Property",l.property)+cell("Urgency",l.urgency)+cell("Callback",l.callback)+cell("Consent",l.consent)+cell("Quality",l.quality)+\'</div><div class="cd-ai"><div class="k">⚡ AI assessment</div><div class="v">\'+(l.summary||"")+\'</div></div><div class="cd-act">\'+(l.activity||[]).map(function(a){return \'<div class="a2"><span class="d2"></span><span><b>\'+a[0]+\'</b> · \'+a[1]+\'</span></div>\';}).join("")+\'</div></div>\';document.getElementById("crmBack").addEventListener("click",renderList);}' +
+        'function openLead(id){var l=leads.filter(function(x){return x.id===id;})[0];if(l)renderDetail(l);}' +
+        'window.resetCRM=renderList;renderList();})();' +
+      'show(0);})();</scr' + 'ipt>';
+  }
+
+  return { render: render, demoCss: demoCss };
+});

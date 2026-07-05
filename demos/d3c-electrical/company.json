@@ -1,0 +1,460 @@
+{
+  "slug": "d3c-electrical",
+  "name": "D3C Electrical",
+  "shortName": "D3C",
+  "industry": "electrical contractor",
+  "registration": "NICEIC registered",
+  "location": "Leicester",
+  "website": "d3celectrical.co.uk",
+  "email": "info@d3celectrical.co.uk",
+  "phone": "0116 000 0000",
+  "contactFirstName": "Dan",
+  "brand": {
+    "primary": "#F5A623",
+    "primaryHi": "#FFC24B",
+    "accent": "#FF7A1A",
+    "primaryRgb": "245,166,35",
+    "accentRgb": "255,122,26",
+    "bg": "#0A0705",
+    "bg2": "#080D13",
+    "surface": "#0C131B",
+    "surface2": "#111A24",
+    "line": "#1C2A36"
+  },
+  "serviceCategories": [
+    "domestic",
+    "commercial",
+    "industrial"
+  ],
+  "services": [
+    {
+      "name": "EV Charger Installation",
+      "detail": "7kW home & workplace chargers, DNO handled"
+    },
+    {
+      "name": "EICR & Testing",
+      "detail": "domestic & commercial certification"
+    },
+    {
+      "name": "Full Rewires",
+      "detail": "consumer units, new circuits"
+    },
+    {
+      "name": "Fault Finding",
+      "detail": "tripping, power loss, urgent"
+    },
+    {
+      "name": "Commercial & Industrial",
+      "detail": "fit-out, maintenance, testing"
+    }
+  ],
+  "areas": [
+    "Leicester · LE3",
+    "Oadby · LE2",
+    "Wigston · LE18",
+    "Leicester · LE4"
+  ],
+  "hours": {
+    "weekdays": "Mon–Sat 8:00–18:00",
+    "saturday": "Sat 8:00–18:00",
+    "sunday": "Closed",
+    "emergency": "Urgent fault line — priority triage"
+  },
+  "reviews": {
+    "rating": 4.9,
+    "count": 87,
+    "source": "Google"
+  },
+  "strengths": [
+    {
+      "title": "NICEIC registered & trusted",
+      "detail": "Strong local reputation, clear accreditation."
+    },
+    {
+      "title": "Broad service range",
+      "detail": "Domestic, commercial and industrial covered."
+    }
+  ],
+  "weaknesses": [
+    {
+      "title": "No instant response",
+      "detail": "Calls missed while on the tools go to voicemail."
+    },
+    {
+      "title": "Closed Sundays",
+      "detail": "Weekend quote requests go unanswered."
+    },
+    {
+      "title": "No online booking",
+      "detail": "Every survey needs a manual phone call to arrange."
+    },
+    {
+      "title": "No quote follow-up",
+      "detail": "Quiet quotes are never chased automatically."
+    }
+  ],
+  "painPoints": [
+    "Owner answering the phone while on jobs",
+    "Missed calls become missed jobs",
+    "Weekend enquiries lost to competitors",
+    "Quotes not chased — revenue leaks"
+  ],
+  "roi": {
+    "enquiriesPerMonth": 62,
+    "missedPct": 32,
+    "missedPerMonth": 20,
+    "avgJobValue": 1100,
+    "recoveryRate": 0.35,
+    "recoveredJobs": 7,
+    "extraMonthlyRevenue": 7700,
+    "extraAnnualRevenue": 92400
+  },
+  "aiReceptionist": {
+    "greeting": "Thanks for calling D3C Electrical, how can I help today?",
+    "tone": "Warm, local Leicester tradesman. Confident, reassuring, plain-spoken — never salesy.",
+    "emergencyRule": "If the caller has lost power, smells burning, or sees sparks, treat as URGENT: reassure, get address fast, and send a priority alert to the owner immediately.",
+    "qualifyingQuestions": [
+      "What electrical work do you need?",
+      "What's the address / postcode?",
+      "Domestic, commercial or industrial?",
+      "Is it urgent or can we schedule a survey?",
+      "Best number and time to call you back?"
+    ]
+  },
+  "faqs": [
+    {
+      "q": "Are you NICEIC registered?",
+      "a": "Yes — fully NICEIC registered and insured, certificates issued on completion."
+    },
+    {
+      "q": "Do you install EV chargers?",
+      "a": "Yes, 7kW home and workplace chargers. We handle the DNO notification for you."
+    },
+    {
+      "q": "Do you cover commercial work?",
+      "a": "Yes — EICRs, fit-outs and maintenance across Leicestershire."
+    }
+  ],
+  "dashboard": {
+    "metrics": {
+      "leadsWk": 14,
+      "qualified": 11,
+      "booked": 6,
+      "answered": 92
+    },
+    "pipelineValue": "£24,800",
+    "sources": [
+      {
+        "label": "AI Voice",
+        "pct": 48
+      },
+      {
+        "label": "Website",
+        "pct": 26
+      },
+      {
+        "label": "WhatsApp",
+        "pct": 16
+      },
+      {
+        "label": "Referral",
+        "pct": 10
+      }
+    ],
+    "leads": [
+      {
+        "id": "L1",
+        "name": "Chris M.",
+        "initials": "CM",
+        "job": "EV charger install",
+        "status": "New",
+        "scls": "new",
+        "area": "Leicester · LE3",
+        "phone": "07700 900123",
+        "email": "chris.m@email.com",
+        "service": "EV Charger Install",
+        "product": "7kW home charger",
+        "property": "Semi · driveway",
+        "urgency": "Within 2 weeks",
+        "callback": "After 5pm",
+        "source": "AI Voice Assistant",
+        "quality": "High",
+        "value": "£800–1,400",
+        "summary": "Homeowner in Leicester wants a 7kW EV charger fitted on the driveway for a new EV. Clean standard domestic install.",
+        "activity": [
+          [
+            "Enquiry captured",
+            "AI Receptionist · 14:32"
+          ],
+          [
+            "Owner alerted",
+            "AI Admin · 14:32"
+          ],
+          [
+            "Logged as New",
+            "System · 14:32"
+          ]
+        ]
+      },
+      {
+        "id": "L2",
+        "name": "Oadby Dental",
+        "initials": "OD",
+        "job": "Commercial EICR",
+        "status": "Booked",
+        "scls": "book",
+        "area": "Oadby · LE2",
+        "phone": "0116 900044",
+        "email": "practice@oadbydental.co.uk",
+        "service": "EICR & Testing",
+        "product": "Commercial · full report",
+        "property": "Dental practice",
+        "urgency": "This month",
+        "callback": "Office hours",
+        "source": "AI Voice Assistant",
+        "quality": "High",
+        "value": "£2k–6k",
+        "summary": "Practice manager needs a commercial EICR with certification for insurance. Recurring testing relationship potential.",
+        "activity": [
+          [
+            "Enquiry captured",
+            "AI Receptionist"
+          ],
+          [
+            "Owner alerted",
+            "AI Admin"
+          ],
+          [
+            "Survey booked · Thu 10:00",
+            "AI Booking"
+          ]
+        ]
+      },
+      {
+        "id": "L3",
+        "name": "D. Barnes",
+        "initials": "DB",
+        "job": "Full house rewire",
+        "status": "Quoted",
+        "scls": "",
+        "area": "Wigston · LE18",
+        "phone": "07700 900177",
+        "email": "d.barnes@email.com",
+        "service": "Full Rewire",
+        "product": "4-bed · new consumer unit",
+        "property": "Detached · renovation",
+        "urgency": "Flexible",
+        "callback": "Evenings",
+        "source": "AI Voice Assistant",
+        "quality": "Medium",
+        "value": "£6k–10k",
+        "summary": "Homeowner renovating a 4-bed wants a full rewire and new consumer unit. High-value domestic project.",
+        "activity": [
+          [
+            "Enquiry captured",
+            "AI Receptionist"
+          ],
+          [
+            "Owner alerted",
+            "AI Admin"
+          ],
+          [
+            "Quote sent · £7,400",
+            "Owner"
+          ]
+        ]
+      },
+      {
+        "id": "L4",
+        "name": "P. Shah",
+        "initials": "PS",
+        "job": "Tripping consumer unit",
+        "status": "Urgent",
+        "scls": "urgent",
+        "area": "Leicester · LE4",
+        "phone": "07700 900210",
+        "email": "p.shah@email.com",
+        "service": "Fault Finding",
+        "product": "RCD keeps tripping",
+        "property": "Terraced house",
+        "urgency": "Urgent — today",
+        "callback": "ASAP",
+        "source": "AI Voice Assistant",
+        "quality": "High",
+        "value": "£150–500",
+        "summary": "Consumer unit keeps tripping and part of the house has lost power. Time-sensitive fault call.",
+        "activity": [
+          [
+            "Enquiry captured",
+            "AI Receptionist · 08:05"
+          ],
+          [
+            "Urgent owner alert",
+            "AI Admin · 08:05"
+          ]
+        ]
+      }
+    ]
+  },
+  "demo": {
+    "phoneIcon": "⚡",
+    "offDay": "Sunday",
+    "channels": [
+      "📞 Calls",
+      "🌐 Website",
+      "💬 WhatsApp",
+      "📝 Forms"
+    ],
+    "urgentLine": "Emergencies (sparks, power loss) jump the queue with a priority alert.",
+    "reviewQuote": "Completely rewired our house — professional, tidy, and finished ahead of schedule.",
+    "report": {
+      "hoursSaved": 11,
+      "weeks": [
+        {
+          "label": "Week 1",
+          "w": 55,
+          "v": 9
+        },
+        {
+          "label": "Week 2",
+          "w": 68,
+          "v": 12
+        },
+        {
+          "label": "Week 3",
+          "w": 62,
+          "v": 11
+        },
+        {
+          "label": "Week 4",
+          "w": 82,
+          "v": 14
+        }
+      ]
+    },
+    "sampleLead": {
+      "name": "Chris M.",
+      "service": "EV Charger Install",
+      "product": "7kW home charger",
+      "area": "Leicester · LE3",
+      "property": "Semi · driveway",
+      "callback": "After 5pm",
+      "quality": "High",
+      "value": "£800–1,400",
+      "summary": "Homeowner in Leicester wants a 7kW EV charger fitted on the driveway for a new EV. Clean standard domestic install.",
+      "recommendedAction": "Call back after 5pm to book a survey; quote at standard EV rate — DNO notification handled."
+    },
+    "calendar": {
+      "monthLabel": "June 2026",
+      "dateLabel": "Thursday 19 June",
+      "offDayDate": "Sunday 22 June",
+      "days": [
+        {
+          "dn": "Mon",
+          "dd": 16
+        },
+        {
+          "dn": "Tue",
+          "dd": 17
+        },
+        {
+          "dn": "Wed",
+          "dd": 18
+        },
+        {
+          "dn": "Thu",
+          "dd": 19,
+          "sel": true
+        },
+        {
+          "dn": "Fri",
+          "dd": 20
+        },
+        {
+          "dn": "Sat",
+          "dd": 21
+        }
+      ],
+      "ghostEvents": [
+        {
+          "time": "09:00",
+          "label": "EICR · Oadby"
+        },
+        {
+          "time": "12:30",
+          "label": "Fault find · Wigston"
+        }
+      ],
+      "newEvent": {
+        "time": "16:30",
+        "label": "Survey — Chris M.",
+        "tag": "✓ Booked",
+        "timeLabel": "Thu 4:30pm"
+      }
+    },
+    "messages": [
+      {
+        "who": "me",
+        "text": "Hi Chris, it's D3C Electrical ⚡ We can survey your EV charger install <b>Thu 4–6pm</b> or Sat AM — which suits?",
+        "time": "14:48"
+      },
+      {
+        "who": "them",
+        "text": "Thursday works great, thanks!"
+      },
+      {
+        "who": "me",
+        "text": "Booked for <b>Thursday 4:30pm</b>. Reminder the morning of 👍",
+        "time": "15:02"
+      }
+    ]
+  },
+  "meetingBrief": {
+    "summary": "D3C Electrical — NICEIC electrician in Leicester, 4.9★ (87 reviews). Broad domestic/commercial/industrial range. Est. £23k/mo recoverable from missed & un-chased enquiries.",
+    "decisionMaker": "Dan (owner/electrician) — likely answering the phone himself on jobs.",
+    "bestAngle": "Missed-call revenue while on the tools + Sunday quote gap. Frame as money already walking out the door.",
+    "objections": [
+      "\"I answer my own phone\" → not from up a ladder or on Sundays; AI never misses.",
+      "\"People want a real electrician\" → AI books the human call faster, doesn't replace you.",
+      "\"Sounds expensive\" → one recovered EICR or EV job covers a month."
+    ],
+    "discoveryQuestions": [
+      "Roughly how many enquiries a week?",
+      "What happens to a call when you're mid-job?",
+      "How do you chase quotes now?",
+      "Average job value across domestic vs commercial?"
+    ],
+    "upsells": [
+      "Reviews automation to climb Leicester Google rankings",
+      "Commercial EICR recurring-testing pipeline",
+      "Second number for commercial line"
+    ],
+    "mention": [
+      "No online booking on current site",
+      "Closed Sundays = lost weekend quotes",
+      "Founding-client pilot: 2 spots left"
+    ],
+    "avoid": [
+      "Don't over-promise exact £ — estimates only",
+      "Don't drift into deep electrical tech talk",
+      "Don't discount below £249 pilot"
+    ]
+  },
+  "opportunities": [
+    {
+      "title": "24/7 AI reception",
+      "detail": "Answer every call, form and message instantly — including nights and weekends."
+    },
+    {
+      "title": "Instant qualification",
+      "detail": "Score and scope every job before it reaches the owner."
+    },
+    {
+      "title": "Automated quote chasing",
+      "detail": "Recover work that currently goes quiet after the first quote."
+    }
+  ],
+  "meta": {
+    "generatedFor": "D3C Electrical"
+  }
+}

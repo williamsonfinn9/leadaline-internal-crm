@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>LeadaLine Demo Factory</title>
+<meta name="theme-color" content="#05080F" />
+<link rel="icon" href="../favicon-64.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#05080F; --panel:#0A0F1C; --panel2:#0D1424; --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.14);
+    --ink:#EAF0FF; --muted:#AEB9D4; --faint:#7C88A8;
+    --blue:#3B82F6; --cyan:#00D4C8; --purple:#7C3AED; --sky:#00B4FF;
+    --good:#22C55E; --warn:#F59E0B; --bad:#F04D6A;
+    --grad:linear-gradient(100deg,var(--sky),var(--blue) 45%,var(--purple));
+    --radius:16px; --shadow:0 24px 60px rgba(0,0,0,.55);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{background:var(--bg);scroll-behavior:smooth}
+  body{background:radial-gradient(1200px 700px at 82% -10%,rgba(59,130,246,.14),transparent 60%),radial-gradient(900px 600px at 0% 110%,rgba(124,58,237,.12),transparent 55%),var(--bg);color:var(--ink);font-family:"Manrope",system-ui,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.5;min-height:100vh}
+  h1,h2,h3,.gk{font-family:"Space Grotesk",system-ui,sans-serif;letter-spacing:-.01em;margin:0}
+  a{color:inherit}
+  .mono{font-family:"JetBrains Mono",monospace}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px 100px}
+
+  .top{display:flex;align-items:center;gap:12px;padding:20px 24px;max-width:1080px;margin:0 auto}
+  .logo{display:flex;align-items:center;gap:10px;font-family:"Space Grotesk";font-weight:700;font-size:15px}
+  .logo .mk{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-size:13px;color:#fff;background:var(--grad)}
+  .top .badge{margin-left:auto;font-family:"JetBrains Mono";font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);border:1px solid var(--line);border-radius:100px;padding:5px 12px}
+
+  .hero{text-align:center;padding:44px 0 8px}
+  .eyebrow{font-family:"JetBrains Mono";font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--sky);margin-bottom:16px}
+  .hero h1{font-size:clamp(30px,5vw,50px);line-height:1.04;font-weight:700;margin-bottom:14px}
+  .grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero p{color:var(--muted);font-size:16.5px;max-width:600px;margin:0 auto}
+
+  .panel{background:linear-gradient(180deg,var(--panel),#070B14);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}
+  .gen{max-width:720px;margin:34px auto 0;padding:28px 30px}
+  .gen .row{display:grid;grid-template-columns:1fr;gap:14px}
+  .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:7px;letter-spacing:.02em}
+  .field label .opt{color:var(--faint);font-weight:400}
+  .input{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:12px;color:var(--ink);padding:14px 15px;font-size:15px;font-family:inherit;transition:border-color .15s,box-shadow .15s}
+  .input:focus{border-color:var(--blue);outline:none;box-shadow:0 0 0 4px rgba(59,130,246,.14)}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:620px){.two{grid-template-columns:1fr}}
+  .gen-actions{display:flex;align-items:center;gap:14px;margin-top:20px;flex-wrap:wrap}
+  .btn{font-family:"Space Grotesk";font-weight:700;font-size:15px;border:none;border-radius:12px;padding:14px 26px;cursor:pointer;transition:transform .1s,filter .15s;display:inline-flex;align-items:center;gap:9px}
+  .btn.primary{background:var(--grad);color:#fff}
+  .btn.primary:hover{filter:brightness(1.08)}.btn.primary:active{transform:translateY(1px)}
+  .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line2)}
+  .btn:disabled{opacity:.5;cursor:default}
+  .samples{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;color:var(--faint)}
+  .schip{font-size:12.5px;color:var(--muted);background:var(--panel2);border:1px solid var(--line);border-radius:100px;padding:6px 13px;cursor:pointer;transition:.15s}
+  .schip:hover{border-color:var(--blue);color:var(--ink)}
+
+  /* generation pipeline */
+  .stagearea{max-width:720px;margin:22px auto 0}
+  .steps{display:flex;flex-direction:column;gap:8px}
+  .stp{display:flex;align-items:center;gap:13px;padding:13px 16px;border:1px solid var(--line);border-radius:13px;background:var(--panel);opacity:.5;transition:.3s}
+  .stp.active{opacity:1;border-color:rgba(59,130,246,.4);background:linear-gradient(100deg,rgba(59,130,246,.08),transparent)}
+  .stp.done{opacity:1}
+  .stp .dot{width:20px;height:20px;flex:0 0 20px;border-radius:50%;border:2px solid var(--faint);display:grid;place-items:center;font-size:11px;color:var(--faint);transition:.3s}
+  .stp.active .dot{border-color:var(--sky);color:var(--sky);animation:spin 1s linear infinite}
+  .stp.done .dot{border-color:var(--good);background:var(--good);color:#04140a;animation:none}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .stp .st{flex:1}.stp .st b{font-family:"Space Grotesk";font-weight:600;font-size:14px;display:block}.stp .st span{font-size:12px;color:var(--muted)}
+  .stp .stat{font-size:11px;color:var(--faint);font-family:"JetBrains Mono"}
+
+  /* result */
+  .result{display:none;margin-top:36px}
+  .result.show{display:block;animation:fade .5s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .rhead{display:flex;align-items:center;gap:16px;padding:22px 26px;margin-bottom:18px}
+  .rhead .swatch{width:52px;height:52px;border-radius:14px;flex:0 0 52px;display:grid;place-items:center;font-family:"Space Grotesk";font-weight:700;color:#0A0705;font-size:16px}
+  .rhead h2{font-size:22px}.rhead .sub{color:var(--muted);font-size:13.5px;margin-top:2px}
+  .rhead .ractions{margin-left:auto;display:flex;gap:10px;flex-wrap:wrap}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+  @media(max-width:720px){.stats{grid-template-columns:1fr 1fr}}
+  .stat-c{padding:16px 18px}.stat-c .v{font-family:"Space Grotesk";font-weight:700;font-size:26px}.stat-c .v.g{color:var(--cyan)}.stat-c .v.r{color:var(--bad)}.stat-c .l{font-size:11.5px;color:var(--muted);margin-top:4px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:720px){.grid{grid-template-columns:1fr}}
+  .pcard{padding:16px 18px;display:flex;align-items:center;gap:14px}
+  .pcard .ic{width:38px;height:38px;flex:0 0 38px;border-radius:11px;display:grid;place-items:center;font-size:19px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25)}
+  .pcard .pt{flex:1}.pcard .pt b{font-family:"Space Grotesk";font-weight:600;font-size:14.5px;display:block}.pcard .pt span{font-size:12px;color:var(--muted)}
+  .pcard .go{display:flex;gap:7px}
+  .mini{font-size:12px;font-family:"Space Grotesk";font-weight:600;border-radius:100px;padding:6px 12px;cursor:pointer;border:1px solid var(--line);background:var(--panel2);color:var(--muted)}
+  .mini:hover{border-color:var(--blue);color:var(--ink)}
+  .mini.p{background:rgba(59,130,246,.12);border-color:rgba(59,130,246,.35);color:#9EC5FF}
+  .tag{font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:100px;border:1px solid var(--line);color:var(--muted);margin-left:7px}
+  .tag.int{color:var(--warn);border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.08)}
+  .tag.found{color:var(--bad);border-color:rgba(240,77,106,.3);background:rgba(240,77,106,.08)}
+  .sectitle{font-family:"Space Grotesk";font-weight:600;font-size:13px;color:var(--faint);text-transform:uppercase;letter-spacing:.08em;margin:24px 0 12px}
+
+  /* preview modal */
+  .modal{position:fixed;inset:0;z-index:100;background:rgba(3,5,10,.8);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:24px}
+  .modal.show{display:flex}
+  .modal .mbox{width:min(1200px,96vw);height:min(860px,92vh);background:#000;border:1px solid var(--line2);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow)}
+  .modal .mbar{display:flex;align-items:center;gap:12px;padding:11px 16px;background:var(--panel);border-bottom:1px solid var(--line)}
+  .modal .mbar b{font-family:"Space Grotesk";font-size:13px}
+  .modal .mbar .x{margin-left:auto;width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);cursor:pointer;font-size:15px}
+  .modal iframe{flex:1;border:none;background:#000;width:100%}
+
+  .note{color:var(--faint);font-size:12px;margin-top:14px;text-align:center}
+  .footer{max-width:1080px;margin:60px auto 0;padding:22px 24px;border-top:1px solid var(--line);color:var(--faint);font-size:12.5px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .footer a{color:var(--muted);text-decoration:none;border-bottom:1px dotted var(--line2)}
+  .err{color:var(--bad);font-size:13px;margin-top:12px;min-height:16px}
+</style>
+</head>
+<body>
+  <div class="top">
+    <div class="logo"><span class="mk">LL</span> LeadaLine <span style="color:var(--faint);font-weight:500">Demo Factory</span></div>
+    <span class="badge">Internal · Finn &amp; Cam</span>
+  </div>
+
+  <div class="wrap">
+    <div class="hero">
+      <div class="eyebrow">Enter a website · press generate · walk into the call ready</div>
+      <h1>Turn a website into a<br /><span class="grad">bespoke LeadaLine demo</span></h1>
+      <p>Paste a prospect's site. The Factory researches the business, finds the gaps, and clones our demo — logo, colours, services, AI receptionist, dashboard, proposal and a founder brief — personalised end to end.</p>
+    </div>
+
+    <div class="panel gen" id="genPanel">
+      <div class="two">
+        <div class="field"><label>Company website</label><input class="input" id="fWebsite" placeholder="https://companywebsite.co.uk" autocomplete="off" /></div>
+        <div class="field"><label>Business name <span class="opt">· optional</span></label><input class="input" id="fName" placeholder="Auto-detected if blank" autocomplete="off" /></div>
+      </div>
+      <div class="field" style="margin-top:14px"><label>Industry <span class="opt">· optional — sharpens the research</span></label><input class="input" id="fIndustry" placeholder="e.g. electrician, plumber, dentist, garage" autocomplete="off" /></div>
+      <div class="gen-actions">
+        <button class="btn primary" id="genBtn">⚡ Generate Demo</button>
+        <div class="samples">Try:
+          <span class="schip" data-site="d3celectrical.co.uk" data-name="D3C Electrical" data-ind="electrician">D3C Electrical</span>
+          <span class="schip" data-site="ashworthplumbing.co.uk" data-name="Ashworth Plumbing &amp; Heating" data-ind="plumber">Ashworth Plumbing</span>
+        </div>
+      </div>
+      <div class="err" id="genErr"></div>
+    </div>
+
+    <div class="stagearea" id="stageArea" style="display:none">
+      <div class="steps" id="steps"></div>
+    </div>
+
+    <div class="result" id="result"></div>
+
+    <div class="note">All generation runs locally in your browser — nothing is sent anywhere. Research uses bundled data + heuristics today; the Claude/OpenAI research seam is documented in <span class="mono">factory/research.js</span>.</div>
+  </div>
+
+  <div class="footer">
+    <span class="mono">LeadaLine Demo Factory</span> · duplicates &amp; personalises the existing demo · packages saved to <span class="mono">/demos/&lt;company&gt;/</span> ·
+    <a href="../DEMO-FACTORY.md">architecture &amp; roadmap</a>
+  </div>
+
+  <div class="modal" id="modal"><div class="mbox"><div class="mbar"><b id="mTitle">Preview</b><span style="color:var(--faint);font-size:12px" id="mSub"></span><button class="x" id="mClose">✕</button></div><iframe id="mFrame" sandbox="allow-scripts allow-same-origin"></iframe></div></div>
+
+  <!-- engine (UMD globals — file:// friendly, no build step) -->
+  <script src="engine/helpers.js"></script>
+  <script src="engine/derive.js"></script>
+  <script src="engine/demo.js"></script>
+  <script src="engine/pages.js"></script>
+  <script src="engine/index.js"></script>
+  <script src="profiles.js"></script>
+  <script src="research.js"></script>
+  <script src="zip.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
