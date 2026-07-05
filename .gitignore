@@ -1,0 +1,12 @@
+# Keep a single canonical root index.html.
+# Block browser "duplicate download" copies so additions update index.html
+# instead of piling up new numbered index files.
+index (*).html
+index [0-9]*.html
+index-copy*.html
+index copy*.html
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
