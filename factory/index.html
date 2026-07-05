@@ -89,7 +89,8 @@
   .stat-c{padding:16px 18px}.stat-c .v{font-family:"Space Grotesk";font-weight:700;font-size:26px}.stat-c .v.g{color:var(--cyan)}.stat-c .v.r{color:var(--bad)}.stat-c .l{font-size:11.5px;color:var(--muted);margin-top:4px}
   .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
   @media(max-width:720px){.grid{grid-template-columns:1fr}}
-  .pcard{padding:16px 18px;display:flex;align-items:center;gap:14px}
+  .pcard{padding:16px 18px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:border-color .15s,transform .1s}
+  .pcard:hover{border-color:var(--line2)}.pcard:active{transform:translateY(1px)}
   .pcard .ic{width:38px;height:38px;flex:0 0 38px;border-radius:11px;display:grid;place-items:center;font-size:19px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25)}
   .pcard .pt{flex:1}.pcard .pt b{font-family:"Space Grotesk";font-weight:600;font-size:14.5px;display:block}.pcard .pt span{font-size:12px;color:var(--muted)}
   .pcard .go{display:flex;gap:7px}
@@ -159,7 +160,7 @@
     <a href="../DEMO-FACTORY.md">architecture &amp; roadmap</a>
   </div>
 
-  <div class="modal" id="modal"><div class="mbox"><div class="mbar"><b id="mTitle">Preview</b><span style="color:var(--faint);font-size:12px" id="mSub"></span><button class="x" id="mClose">✕</button></div><iframe id="mFrame" sandbox="allow-scripts allow-same-origin"></iframe></div></div>
+  <div class="modal" id="modal"><div class="mbox"><div class="mbar"><b id="mTitle">Preview</b><span style="color:var(--faint);font-size:12px" id="mSub"></span><button class="x" id="mClose">✕</button></div><iframe id="mFrame" title="Preview"></iframe></div></div>
 
   <!-- engine (UMD globals — file:// friendly, no build step) -->
   <script data-inlined="engine/helpers.js">
@@ -1605,7 +1606,7 @@
   function pageCard(path, files) {
     var m = PAGE_META[path]; if (!m) return '';
     var tag = m.tag === 'int' ? '<span class="tag int">Internal</span>' : (m.tag === 'found' ? '<span class="tag found">Founder only</span>' : '');
-    return '<div class="panel pcard"><div class="ic">' + m.ic + '</div><div class="pt"><b>' + esc(m.t) + tag + '</b><span>' + esc(m.s) + '</span></div>' +
+    return '<div class="panel pcard" data-card="' + path + '" title="Click to preview"><div class="ic">' + m.ic + '</div><div class="pt"><b>' + esc(m.t) + tag + '</b><span>' + esc(m.s) + '</span></div>' +
       '<div class="go"><button class="mini p" data-preview="' + path + '">Preview</button><button class="mini" data-open="' + path + '">Open ↗</button></div></div>';
   }
 
@@ -1627,24 +1628,50 @@
 
     el.classList.add('show');
 
-    el.querySelectorAll('[data-preview]').forEach(function (btn) {
-      btn.addEventListener('click', function () { openPreview(btn.getAttribute('data-preview'), files, p); });
+    // Whole card opens the inline preview — reliable everywhere (no popup needed).
+    el.querySelectorAll('[data-card]').forEach(function (c) {
+      c.addEventListener('click', function () { openPreview(c.getAttribute('data-card'), files, p); });
     });
+    el.querySelectorAll('[data-preview]').forEach(function (btn) {
+      btn.addEventListener('click', function (e) { e.stopPropagation(); openPreview(btn.getAttribute('data-preview'), files, p); });
+    });
+    // "Open in new tab": try a real tab; if the popup is blocked, fall back to inline preview.
     el.querySelectorAll('[data-open]').forEach(function (btn) {
-      btn.addEventListener('click', function () { window.open(toBlobUrl(files[btn.getAttribute('data-open')]), '_blank'); });
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var path = btn.getAttribute('data-open');
+        var w = window.open('', '_blank');
+        if (w && w.document) { w.document.open(); w.document.write(files[path]); w.document.close(); }
+        else { openPreview(path, files, p); } // blocked/sandboxed -> show inline instead
+      });
     });
     $('dlZip').addEventListener('click', function () { downloadZip(pkg); });
-    $('openFounder').addEventListener('click', function () { window.open(toBlobUrl(files['_founder.html']), '_blank'); });
+    $('openFounder').addEventListener('click', function () {
+      var w = window.open('', '_blank');
+      if (w && w.document) { w.document.open(); w.document.write(files['_founder.html']); w.document.close(); }
+      else { openPreview('_founder.html', files, p); }
+    });
   }
 
   function openPreview(path, files, p) {
     var m = PAGE_META[path] || { t: 'Preview' };
     $('mTitle').textContent = m.t;
     $('mSub').textContent = p.name + ' · ' + path;
-    $('mFrame').srcdoc = files[path];
     $('modal').classList.add('show');
+    // Write straight into the iframe's document. Unlike srcdoc (which can paint
+    // blank in some engines), a written same-origin document renders reliably.
+    var f = $('mFrame');
+    try {
+      var doc = f.contentWindow.document;
+      doc.open(); doc.write(files[path]); doc.close();
+    } catch (e) {
+      f.srcdoc = files[path]; // last-ditch fallback
+    }
   }
-  function closePreview() { $('modal').classList.remove('show'); $('mFrame').srcdoc = ''; }
+  function closePreview() {
+    $('modal').classList.remove('show');
+    try { var d = $('mFrame').contentWindow.document; d.open(); d.write(''); d.close(); } catch (e) { $('mFrame').removeAttribute('srcdoc'); }
+  }
 
   function downloadZip(pkg) {
     var files = {};
