@@ -55,7 +55,7 @@ a{color:inherit}
   text-transform:uppercase;color:var(--faint);border-left:1px solid var(--line2);padding-left:11px}
 .appbar .spacer{flex:1}
 .appbar .ab-btn{display:inline-flex;align-items:center;gap:7px;background:var(--panel2);border:1px solid var(--line);
-  color:var(--muted);padding:8px 13px;border-radius:10px;font-size:12.5px;font-weight:600;transition:.15s}
+  color:var(--muted);padding:8px 13px;border-radius:10px;font-size:12.5px;font-weight:600;transition:.15s;text-decoration:none}
 .appbar .ab-btn:hover{color:var(--ink);border-color:var(--line2)}
 .appbar .ab-btn.on{background:rgba(59,130,246,.14);border-color:rgba(59,130,246,.4);color:#fff}
 .appbar .ab-btn svg{width:15px;height:15px}
@@ -409,6 +409,10 @@ section.blk{margin-bottom:30px;scroll-margin-top:120px}
     <img src="https://icshqgpsehddcqwydjxc.supabase.co/functions/v1/logo" alt="LeadaLine"
       onerror="this.replaceWith(Object.assign(document.createElement('b'),{textContent:'LeadaLine',style:'font-family:Space Grotesk;font-size:17px'}))">
     <span class="tag">AI Website Auditor</span>
+  </a>
+  <a class="ab-btn" href="index.html" title="Back to the CRM dashboard">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+    Back to CRM
   </a>
   <div class="spacer"></div>
   <button class="ab-btn" id="sales-toggle" onclick="toggleSales()" style="display:none">
