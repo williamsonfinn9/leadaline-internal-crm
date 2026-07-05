@@ -595,6 +595,7 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
         <div class="nav-div"></div>
         <div class="nav-lab">Tools</div>
         <button data-tab="demo" class="nav-tool"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg>Demo Generator<span class="pill new">NEW</span></button>
+        <button data-tab="calculator" class="nav-tool"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8"/><path d="M8 10h2M12 10h2M16 10h.01M8 14h2M12 14h2M16 14v4M8 18h6"/></svg>Revenue Calculator<span class="pill new">NEW</span></button>
       </nav>
       <a class="nav-ext" href="auditor.html" title="Open the LeadaLine AI Website Auditor"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>AI Auditor<span class="new">NEW</span></a>
       <div class="side-foot">
@@ -640,6 +641,7 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
     <button data-tab="lost"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>Lost</button>
     <button data-tab="demo"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg>Demo</button>
     <a class="m-ext" href="auditor.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>Auditor</a>
+    <button data-tab="calculator"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8"/><path d="M8 10h2M12 10h2M16 10h.01M8 14h2M12 14h2M16 14v4M8 18h6"/></svg>Calc</button>
   </nav>
 </div>
 
@@ -914,7 +916,7 @@ function updateWho(){
 async function boot(){
   // On the Demo Generator tab, refresh lead data quietly without tearing down
   // the embedded tool (which would reload an in-progress generation).
-  if(TAB==="demo"){
+  if(TAB==="demo" || TAB==="calculator"){
     try{ LEADS = await apiGet(); refreshPills(); }catch(e){}
     return;
   }
@@ -923,9 +925,9 @@ async function boot(){
     LEADS = await apiGet();
     render();
   }catch(e){
-    // If the user switched to the Demo Generator while this was in flight,
-    // don't clobber the embedded tool with the pipeline error.
-    if(TAB!=="demo"){
+    // If the user switched to an embedded tool while this was in flight,
+    // don't clobber it with the pipeline error.
+    if(TAB!=="demo" && TAB!=="calculator"){
       $("#view").innerHTML='<div class="empty"><h3>Couldn\'t reach the pipeline</h3><p>'+esc(e.message)+'. Check the Supabase key in CONFIG, then hit Refresh.</p></div>';
     }
     toast(e.message,"err");
@@ -956,7 +958,8 @@ const TITLES = {
   callsheet:["Call sheet","First-attempt worklist — log the outcome, it moves the lead"],
   callbacks:["Callbacks","No answers, callbacks and voicemails — nothing gets forgotten"],
   lost:["Lost & parked","Dumped leads — nothing deleted, restore any time"],
-  demo:["Demo Generator","Turn a prospect's website into a personalised LeadaLine demo package"]
+  demo:["Demo Generator","Turn a prospect's website into a personalised LeadaLine demo package"],
+  calculator:["Additional Revenue Calculator","Estimate the extra revenue LeadaLine could unlock — for discovery, demos & proposals"]
 };
 function render(){
   refreshPills();
@@ -964,7 +967,7 @@ function render(){
   document.querySelectorAll("#nav button,#mtabs button").forEach(b=>b.classList.toggle("active",b.dataset.tab===TAB));
   document.querySelectorAll("#segbar button").forEach(b=>b.classList.toggle("on",b.dataset.view===VIEW));
   $("#t-title").textContent=TITLES[TAB][0]; $("#t-sub").textContent=TITLES[TAB][1];
-  const isTool = TAB==="demo";
+  const isTool = TAB==="demo" || TAB==="calculator";
   const listActions = TAB!=="overview" && !isTool;
   const be=$("#btn-export"), ba=$("#btn-add"), sb=$("#segbar");
   if(be) be.style.display=listActions?"":"none";
@@ -978,6 +981,7 @@ function render(){
   else if(TAB==="callbacks") renderCallbacks();
   else if(TAB==="lost") renderLost();
   else if(TAB==="demo") renderDemo();
+  else if(TAB==="calculator") renderCalculator();
 }
 
 /* ---- DEMO GENERATOR (embedded Factory tool) ---- */
@@ -986,6 +990,13 @@ function renderDemo(){
   // leave it alone so an in-progress generation isn't reloaded.
   if($("#view").querySelector(".demo-embed")) return;
   $("#view").innerHTML='<div class="demo-embed"><iframe src="factory/index.html" title="Demo Generator" allow="clipboard-write"></iframe></div>';
+}
+
+/* ---- REVENUE CALCULATOR (embedded standalone tool) ---- */
+function renderCalculator(){
+  // Preserve entered figures if render() re-runs while on this tab.
+  if($("#view").querySelector(".calc-embed")) return;
+  $("#view").innerHTML='<div class="demo-embed calc-embed"><iframe src="revenue-calculator.html" title="Additional Revenue Calculator" allow="clipboard-write"></iframe></div>';
 }
 
 /* ---- OVERVIEW (reporting dashboard) ---- */

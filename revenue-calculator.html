@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>LeadaLine · Additional Revenue Calculator</title>
+<link rel="icon" href="favicon-64.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#05080F">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#05080F; --panel:#0A0F1C; --panel2:#0D1424; --panel3:#111a2e;
+  --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.14);
+  --ink:#EAF0FF; --muted:#AEB9D4; --faint:#7C88A8;
+  --blue:#3B82F6; --cyan:#00D4C8; --purple:#7C3AED; --sky:#00B4FF;
+  --good:#22C55E; --warn:#F59E0B; --bad:#F04D6A;
+  --grad:linear-gradient(100deg,var(--sky),var(--blue) 45%,var(--purple));
+  --grad-good:linear-gradient(100deg,#0fd39a,#22C55E);
+  --grad-warm:linear-gradient(100deg,#F59E0B,#F04D6A);
+  --radius:14px; --shadow:0 10px 40px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box}
+html{background:var(--bg);scroll-behavior:smooth}
+html,body{margin:0}
+body{background:
+    radial-gradient(1200px 620px at 82% -8%,rgba(124,58,237,.14),transparent 60%),
+    radial-gradient(1100px 560px at 8% 4%,rgba(0,180,255,.12),transparent 58%),
+    var(--bg);
+  color:var(--ink);font-family:"Manrope",system-ui,-apple-system,sans-serif;
+  font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh}
+h1,h2,h3,h4{font-family:"Space Grotesk",system-ui,sans-serif;margin:0;letter-spacing:-.015em}
+button{font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:active{opacity:.9}
+a{color:var(--sky);text-decoration:none}
+.mono{font-family:"JetBrains Mono",monospace}
+.eyebrow{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:10px}
+:focus-visible{outline:2px solid var(--sky);outline-offset:2px;border-radius:6px}
+.wrap{max-width:1280px;margin:0 auto;padding:22px 26px 80px}
+
+/* ---------- TOP BAR ---------- */
+.topbar{display:flex;align-items:center;gap:14px;padding:14px 0 20px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.brand img{height:26px;display:block}
+.brand .bfallback{font-family:"Space Grotesk";font-weight:700;font-size:18px;letter-spacing:-.02em}
+.brand .div{width:1px;height:26px;background:var(--line2);margin:0 2px}
+.brand .ttl{display:flex;flex-direction:column;line-height:1.15}
+.brand .ttl b{font-family:"Space Grotesk";font-weight:600;font-size:15px}
+.brand .ttl span{font-size:11px;color:var(--faint)}
+.topbar .spacer{flex:1}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;color:var(--muted);
+  border:1px solid var(--line);background:var(--panel);border-radius:20px;padding:5px 11px;
+  font-family:"JetBrains Mono",monospace;letter-spacing:.04em}
+.badge .dot{width:7px;height:7px;border-radius:50%;background:var(--good);box-shadow:0 0 0 3px rgba(34,197,94,.18)}
+
+/* ---------- HERO ---------- */
+.hero{margin:6px 0 26px}
+.hero .eyebrow{margin-bottom:10px;display:block}
+.hero h1{font-size:34px;font-weight:700;line-height:1.06;max-width:760px}
+.hero h1 .g{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{color:var(--muted);font-size:14.5px;max-width:620px;margin:12px 0 0}
+
+/* ---------- BUTTONS ---------- */
+.btn{border:1px solid var(--line2);background:var(--panel2);color:var(--ink);border-radius:9px;
+  padding:9px 14px;font-size:12.5px;font-weight:600;display:inline-flex;align-items:center;gap:7px;transition:.14s;white-space:nowrap}
+.btn:hover{border-color:var(--blue);background:rgba(59,130,246,.08)}
+.btn.ghost{background:transparent}
+.btn-grad{border:none;background:var(--grad);color:#fff}
+.btn-grad:hover{filter:brightness(1.08)}
+.btn svg{width:15px;height:15px;flex:none}
+.btn.sm{padding:7px 11px;font-size:11.5px}
+
+/* ---------- LAYOUT ---------- */
+.grid{display:grid;grid-template-columns:380px 1fr;gap:22px;align-items:start}
+@media(max-width:1080px){.grid{grid-template-columns:1fr}}
+.card{background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,0));
+  border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);
+  backdrop-filter:blur(8px)}
+.glass{background:linear-gradient(180deg,rgba(19,26,46,.72),rgba(10,15,28,.72));
+  border:1px solid var(--line);border-radius:var(--radius);backdrop-filter:blur(10px)}
+
+/* ---------- INPUT PANEL ---------- */
+.panel{position:sticky;top:16px;padding:20px 20px 22px}
+@media(max-width:1080px){.panel{position:static}}
+.panel-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.panel-h h3{font-size:15px;font-weight:600}
+.panel-sub{font-size:11.5px;color:var(--faint);margin-bottom:16px}
+.field{margin-bottom:13px}
+.field label{display:flex;align-items:center;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-bottom:6px;letter-spacing:.01em;font-weight:600}
+.field label .req{color:var(--faint);font-weight:500;font-size:10px}
+.input,select{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:10px;color:var(--ink);
+  padding:10px 12px;font-size:13.5px;font-family:inherit;transition:border-color .15s}
+.input:focus,select:focus{border-color:var(--blue);outline:none}
+select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237C88A8' stroke-width='2'><path d='M6 9l6 6 6-6'/></svg>");
+  background-repeat:no-repeat;background-position:right 11px center;padding-right:34px}
+.input.est{border-color:rgba(124,58,237,.4);background:rgba(124,58,237,.06)}
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.hint-est{display:flex;align-items:center;gap:6px;font-size:10.5px;color:var(--purple);margin-top:5px;font-weight:600}
+.hint-est .cc{font-family:"JetBrains Mono",monospace;padding:1px 6px;border-radius:20px;font-size:9.5px;letter-spacing:.04em}
+.cc.high{background:rgba(34,197,94,.16);color:#7ee2a8}
+.cc.med{background:rgba(245,158,11,.16);color:#f6c672}
+.cc.low{background:rgba(240,77,106,.16);color:#f4a0b0}
+.assist-row{display:flex;align-items:center;gap:9px;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.24);
+  border-radius:11px;padding:11px 12px;margin-bottom:16px}
+.assist-row .txt{flex:1;min-width:0}
+.assist-row b{font-size:12.5px;display:block}
+.assist-row small{font-size:10.5px;color:var(--muted)}
+.sw{width:42px;height:24px;border-radius:20px;background:var(--panel3);border:1px solid var(--line2);position:relative;flex:none;transition:.18s;cursor:pointer}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:var(--faint);transition:.18s}
+.sw.on{background:var(--grad);border-color:transparent}
+.sw.on::after{left:20px;background:#fff}
+.sect-label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);font-family:"JetBrains Mono",monospace;
+  margin:18px 0 11px;padding-top:14px;border-top:1px solid var(--line);font-weight:600}
+.sect-label:first-of-type{border-top:none;padding-top:0;margin-top:2px}
+.gen-btn{width:100%;border:none;border-radius:11px;background:var(--grad);color:#fff;font-weight:800;font-size:14px;
+  padding:14px;margin-top:18px;letter-spacing:.01em;transition:transform .1s,filter .15s;box-shadow:0 8px 26px rgba(59,130,246,.28)}
+.gen-btn:hover{filter:brightness(1.08)}
+.gen-btn:active{transform:translateY(1px)}
+
+/* ---------- RESULTS ---------- */
+.results{min-width:0;display:flex;flex-direction:column;gap:22px}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  padding:80px 30px;color:var(--faint)}
+.empty svg{width:54px;height:54px;color:var(--line2);margin-bottom:18px}
+.empty b{color:var(--muted);font-size:15px;font-family:"Space Grotesk";font-weight:600}
+.empty p{font-size:13px;max-width:340px;margin:8px 0 0}
+
+.report-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.report-head .rh-l h2{font-size:22px;font-weight:700}
+.report-head .rh-l .sub{color:var(--faint);font-size:12.5px;margin-top:3px}
+.report-head .rh-l .sub b{color:var(--muted);font-weight:600}
+.scen{display:inline-flex;background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:3px;gap:2px}
+.scen button{border:none;background:transparent;color:var(--muted);font-size:12px;font-weight:600;padding:8px 14px;border-radius:8px;transition:.14s}
+.scen button.on{color:#fff}
+.scen button.on[data-s=conservative]{background:rgba(148,163,184,.24)}
+.scen button.on[data-s=expected]{background:var(--grad)}
+.scen button.on[data-s=optimistic]{background:var(--grad-good)}
+
+/* KPI CARDS */
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:720px){.kpis{grid-template-columns:1fr 1fr}}
+@media(max-width:440px){.kpis{grid-template-columns:1fr 1fr}}
+.kpi{position:relative;overflow:hidden;padding:18px 18px 16px;border-radius:var(--radius);
+  background:linear-gradient(180deg,rgba(19,26,46,.6),rgba(10,15,28,.6));border:1px solid var(--line)}
+.kpi::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--grad)}
+.kpi.hero-kpi{grid-column:span 1}
+.kpi.good::before{background:var(--grad-good)}
+.kpi.warm::before{background:var(--grad-warm)}
+.kpi .k{font-size:11.5px;color:var(--muted);font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.kpi .v{font-family:"Space Grotesk";font-size:30px;font-weight:700;line-height:1;letter-spacing:-.02em}
+.kpi .v .u{font-size:16px;color:var(--muted);margin-left:2px;font-weight:600}
+.kpi .s{font-size:11px;color:var(--faint);margin-top:7px}
+.kpi .s.up{color:#7ee2a8}
+.kpi-lg{background:linear-gradient(120deg,rgba(0,180,255,.14),rgba(124,58,237,.14));border-color:rgba(59,130,246,.3)}
+.kpi-lg .v{font-size:38px}
+
+/* SECTION CARD */
+.sc{padding:20px 22px}
+.sc-h{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.sc-h h3{font-size:15.5px;font-weight:600;display:flex;align-items:center;gap:9px}
+.sc-h h3 .ico{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:rgba(59,130,246,.14);color:var(--sky);flex:none}
+.sc-h h3 .ico svg{width:16px;height:16px}
+.sc-h .sc-sub{font-size:11.5px;color:var(--faint)}
+
+/* IMPACT ROWS */
+.impact{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.impact{grid-template-columns:1fr}}
+.imp{display:flex;align-items:center;gap:14px;background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:13px 15px}
+.imp .il{flex:1;min-width:0}
+.imp .il .lab{font-size:11.5px;color:var(--muted);font-weight:600;margin-bottom:7px}
+.imp .il .vals{display:flex;align-items:center;gap:9px}
+.imp .cur{font-size:14px;color:var(--faint);text-decoration:line-through;text-decoration-color:rgba(240,77,106,.6)}
+.imp .arr{color:var(--faint)}
+.imp .new{font-family:"Space Grotesk";font-size:17px;font-weight:700;color:#7ee2a8}
+.imp . picon{width:34px;height:34px;border-radius:10px;background:rgba(34,197,94,.1);color:var(--good);display:grid;place-items:center;flex:none}
+.imp . picon svg{width:17px;height:17px}
+
+/* CHARTS */
+.chart-grid{display:grid;grid-template-columns:1.35fr 1fr;gap:16px}
+@media(max-width:820px){.chart-grid{grid-template-columns:1fr}}
+.chartbox{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:16px 16px 12px}
+.chartbox .ch-t{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:14px;display:flex;justify-content:space-between}
+.bars{display:flex;flex-direction:column;gap:14px}
+.bar-row .bl{display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:6px}
+.bar-row .bl .bn{color:var(--muted);font-weight:600}
+.bar-row .bl .bv{font-family:"Space Grotesk";font-weight:700;font-size:13px}
+.bar-track{height:14px;background:var(--panel3);border-radius:8px;overflow:hidden}
+.bar-fill{height:100%;border-radius:8px;width:0;transition:width 1s cubic-bezier(.2,.7,.3,1);
+  background-image:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,0) 55%)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;font-size:11px;color:var(--muted)}
+.legend .lg{display:flex;align-items:center;gap:6px}
+.legend .sw2{width:11px;height:11px;border-radius:3px}
+.donut-wrap{display:flex;align-items:center;gap:18px}
+.donut-wrap svg{flex:none}
+.donut-center{font-family:"Space Grotesk";font-weight:700}
+.annualsvg{width:100%;height:auto;display:block}
+
+/* INSIGHT / SUMMARY */
+.summary{background:linear-gradient(120deg,rgba(0,180,255,.07),rgba(124,58,237,.07));
+  border:1px solid rgba(59,130,246,.22);border-radius:12px;padding:18px 20px}
+.summary p{margin:0 0 12px;font-size:13.5px;color:var(--ink);line-height:1.65}
+.summary p:last-child{margin-bottom:0}
+.summary .big{color:#7ee2a8;font-weight:700}
+.summary .warm{color:#f6b45c;font-weight:700}
+
+/* AI EMPLOYEES */
+.emps{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:640px){.emps{grid-template-columns:1fr}}
+.emp{display:flex;gap:13px;background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:14px 15px}
+.emp .eic{width:38px;height:38px;border-radius:10px;background:var(--grad);display:grid;place-items:center;color:#fff;flex:none}
+.emp .eic svg{width:19px;height:19px}
+.emp .em{flex:1;min-width:0}
+.emp .em .stars{color:var(--warn);font-size:13px;letter-spacing:1px;margin-bottom:3px}
+.emp .em .stars .off{color:var(--line2)}
+.emp .em b{font-size:13.5px;font-weight:700;display:block}
+.emp .em small{font-size:11.5px;color:var(--muted)}
+.emp.top{border-color:rgba(59,130,246,.35);background:linear-gradient(180deg,rgba(59,130,246,.08),var(--panel2))}
+
+/* PACKAGE */
+.pkgs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:640px){.pkgs{grid-template-columns:1fr}}
+.pkg{border:1px solid var(--line);background:var(--panel2);border-radius:12px;padding:16px;position:relative;transition:.15s}
+.pkg.rec{border-color:var(--blue);background:linear-gradient(180deg,rgba(59,130,246,.12),var(--panel2));box-shadow:0 8px 30px rgba(59,130,246,.18)}
+.pkg .tag{position:absolute;top:-9px;left:16px;font-size:9.5px;font-family:"JetBrains Mono",monospace;letter-spacing:.08em;
+  background:var(--grad);color:#fff;padding:3px 9px;border-radius:20px;font-weight:700}
+.pkg h4{font-size:15px;font-weight:700;margin-bottom:4px}
+.pkg .px{font-family:"Space Grotesk";font-size:22px;font-weight:700;margin:6px 0 2px}
+.pkg .px .u{font-size:12px;color:var(--faint);font-weight:600}
+.pkg .pd{font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.5}
+.pkg-why{margin-top:14px;font-size:12.5px;color:var(--muted);background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.18);
+  border-radius:10px;padding:12px 14px;line-height:1.55}
+.pkg-why b{color:var(--ink)}
+
+/* BONUS: ROI / breakeven / cost of nothing */
+.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:720px){.trio{grid-template-columns:1fr}}
+.tbox{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:16px}
+.tbox .tt{font-size:11.5px;color:var(--muted);font-weight:600;margin-bottom:9px}
+.tbox .tv{font-family:"Space Grotesk";font-size:26px;font-weight:700;letter-spacing:-.02em}
+.tbox .td{font-size:11px;color:var(--faint);margin-top:6px;line-height:1.5}
+.tbox.warn{border-color:rgba(240,77,106,.3);background:linear-gradient(180deg,rgba(240,77,106,.08),var(--panel2))}
+.tbox.warn .tv{color:#f4a0b0}
+.tbox.good{border-color:rgba(34,197,94,.3);background:linear-gradient(180deg,rgba(34,197,94,.08),var(--panel2))}
+.tbox.good .tv{color:#7ee2a8}
+
+/* ROI TIMELINE */
+.timeline{display:flex;gap:0;margin-top:6px;overflow-x:auto;padding-bottom:6px}
+.tl{flex:1;min-width:84px;text-align:center;position:relative;padding:0 4px}
+.tl::before{content:"";position:absolute;top:20px;left:0;right:0;height:2px;background:var(--line)}
+.tl:first-child::before{left:50%}
+.tl:last-child::before{right:50%}
+.tl .dot{width:12px;height:12px;border-radius:50%;background:var(--panel3);border:2px solid var(--line2);margin:14px auto 10px;position:relative;z-index:1}
+.tl.on .dot{background:var(--grad);border-color:transparent;box-shadow:0 0 0 4px rgba(59,130,246,.16)}
+.tl .tm{font-size:10.5px;color:var(--faint);font-weight:600}
+.tl .ta{font-family:"Space Grotesk";font-size:13.5px;font-weight:700;margin-top:3px}
+.tl.on .ta{color:#7ee2a8}
+
+/* SLIDERS */
+.sliders{display:grid;grid-template-columns:1fr 1fr;gap:16px 22px}
+@media(max-width:560px){.sliders{grid-template-columns:1fr}}
+.sl label{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);font-weight:600;margin-bottom:9px}
+.sl label b{font-family:"Space Grotesk";color:var(--ink);font-size:13px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:5px;
+  background:var(--panel3);outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;
+  background:var(--grad);border:2px solid #0A0F1C;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#3B82F6;border:2px solid #0A0F1C}
+
+/* HEATMAP */
+.heat{display:grid;grid-template-columns:auto repeat(7,1fr);gap:5px;font-size:10px}
+.heat .hh{color:var(--faint);text-align:center;padding-bottom:3px;font-family:"JetBrains Mono",monospace}
+.heat .hr{color:var(--faint);display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-family:"JetBrains Mono",monospace}
+.heat .hc{height:26px;border-radius:5px;display:grid;place-items:center;font-size:9.5px;color:rgba(255,255,255,.85);font-weight:600}
+.heat-legend{display:flex;align-items:center;gap:8px;justify-content:flex-end;margin-top:12px;font-size:10.5px;color:var(--faint)}
+.heat-legend .scale{width:120px;height:9px;border-radius:5px;background:linear-gradient(90deg,#12203a,#3B82F6,#7C3AED,#F04D6A)}
+
+/* SALES INSIGHTS (private) */
+.private{border:1px solid rgba(240,77,106,.35);border-radius:var(--radius);overflow:hidden}
+.private-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 20px;
+  background:linear-gradient(100deg,rgba(240,77,106,.14),rgba(124,58,237,.12));cursor:pointer}
+.private-h h3{font-size:15px;font-weight:600;display:flex;align-items:center;gap:9px}
+.private-h .lock{width:28px;height:28px;border-radius:8px;background:rgba(240,77,106,.18);color:#f4a0b0;display:grid;place-items:center;flex:none}
+.private-h .lock svg{width:15px;height:15px}
+.private-tag{font-size:9.5px;font-family:"JetBrains Mono",monospace;letter-spacing:.08em;color:#f4a0b0;
+  border:1px solid rgba(240,77,106,.4);border-radius:20px;padding:3px 9px}
+.private-body{padding:6px 20px 20px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.private-body{grid-template-columns:1fr}}
+.private-body.hide{display:none}
+.pi{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:13px 15px}
+.pi .pil{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-family:"JetBrains Mono",monospace;margin-bottom:8px}
+.pi .piv{font-size:13px;color:var(--ink);line-height:1.55}
+.pi .piv ul{margin:0;padding-left:16px}
+.pi .piv li{margin-bottom:4px}
+.meter{height:8px;background:var(--panel3);border-radius:6px;overflow:hidden;margin:8px 0 6px}
+.meter span{display:block;height:100%;background:var(--grad);border-radius:6px}
+.meter.good span{background:var(--grad-good)}
+
+/* DISCLAIMER */
+.disclaimer{font-size:11px;color:var(--faint);line-height:1.6;border-top:1px solid var(--line);padding-top:16px;text-align:center;max-width:760px;margin:0 auto}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;pointer-events:none;
+  background:var(--panel3);border:1px solid var(--line2);border-radius:11px;padding:12px 18px;font-size:13px;font-weight:600;
+  box-shadow:var(--shadow);transition:.25s;z-index:200;display:flex;align-items:center;gap:9px}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast svg{width:16px;height:16px;color:var(--good)}
+
+/* EXPORT BAR */
+.exportbar{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.exportbar .lbl{font-size:11px;color:var(--faint);font-family:"JetBrains Mono",monospace;letter-spacing:.06em;margin-right:2px}
+
+/* PRINT */
+@media print{
+  body{background:#fff;color:#0A0F1C}
+  .wrap{max-width:none;padding:0}
+  .noprint{display:none!important}
+  .grid{grid-template-columns:1fr}
+  .private{display:none!important}
+  .card,.glass,.kpi,.chartbox,.tbox,.imp,.emp,.pkg,.pi,.summary{
+    background:#fff!important;border-color:#dfe4ee!important;box-shadow:none!important;color:#0A0F1C!important}
+  .kpi .v,.tbox .tv,.bar-row .bl .bv,.hero h1{color:#0A0F1C!important;-webkit-text-fill-color:#0A0F1C!important}
+  .results{gap:16px}
+}
+.report-only{display:none}
+body.customer-report .private{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- TOP BAR -->
+  <div class="topbar noprint">
+    <div class="brand">
+      <img src="https://icshqgpsehddcqwydjxc.supabase.co/functions/v1/logo" alt="LeadaLine"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <span class="bfallback" style="display:none">LeadaLine</span>
+      <div class="div"></div>
+      <div class="ttl"><b>Additional Revenue Calculator</b><span>AI Office Team — value estimator</span></div>
+    </div>
+    <div class="spacer"></div>
+    <span class="badge"><span class="dot"></span>Internal · LeadaLine HQ</span>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero noprint">
+    <span class="eyebrow">Discovery · Sales · Proposals</span>
+    <h1>See the <span class="g">additional revenue</span> a business could unlock with the LeadaLine AI Office Team.</h1>
+    <p>Enter a handful of metrics — or let Smart Assist estimate from industry benchmarks — and generate a premium, consultancy-grade report in under two minutes.</p>
+  </div>
+
+  <div class="grid">
+    <!-- ============ INPUT PANEL ============ -->
+    <div class="card panel noprint">
+      <div class="panel-h"><h3>Business inputs</h3></div>
+      <div class="panel-sub">Fill what you know. Leave the rest blank — Smart Assist fills the gaps.</div>
+
+      <div class="assist-row">
+        <div class="txt">
+          <b>Smart Assist Mode</b>
+          <small>Estimate unknown values from industry benchmarks</small>
+        </div>
+        <div class="sw on" id="assistSw" role="switch" aria-checked="true" tabindex="0"></div>
+      </div>
+
+      <div class="sect-label">Business</div>
+      <div class="field">
+        <label>Business Name</label>
+        <input class="input" id="i_name" placeholder="e.g. Bright Spark Electrical">
+      </div>
+      <div class="field">
+        <label>Industry</label>
+        <select id="i_industry"></select>
+      </div>
+      <div class="field">
+        <label>Number of Employees <span class="req">optional</span></label>
+        <input class="input" id="i_employees" type="number" min="1" placeholder="Auto">
+        <div class="hint-est" data-for="employees"></div>
+      </div>
+
+      <div class="sect-label">Enquiries &amp; value</div>
+      <div class="field">
+        <label>Average Job Value (£)</label>
+        <input class="input" id="i_jobValue" type="number" min="0" placeholder="Auto">
+        <div class="hint-est" data-for="jobValue"></div>
+      </div>
+      <div class="field">
+        <label>Average Monthly Enquiries</label>
+        <input class="input" id="i_enquiries" type="number" min="0" placeholder="Auto">
+        <div class="hint-est" data-for="enquiries"></div>
+      </div>
+      <div class="field">
+        <label>Average Close Rate (%)</label>
+        <input class="input" id="i_closeRate" type="number" min="0" max="100" placeholder="Auto">
+        <div class="hint-est" data-for="closeRate"></div>
+      </div>
+      <div class="field">
+        <label>Average Monthly Revenue (£) <span class="req">optional</span></label>
+        <input class="input" id="i_monthlyRev" type="number" min="0" placeholder="Calculated">
+        <div class="hint-est" data-for="monthlyRev"></div>
+      </div>
+
+      <div class="sect-label">Missed opportunity</div>
+      <div class="field">
+        <label>Estimated Missed Calls / month</label>
+        <input class="input" id="i_missedCalls" type="number" min="0" placeholder="Auto">
+        <div class="hint-est" data-for="missedCalls"></div>
+      </div>
+      <div class="field">
+        <label>Unanswered Website Enquiries / month</label>
+        <input class="input" id="i_missedWeb" type="number" min="0" placeholder="Auto">
+        <div class="hint-est" data-for="missedWeb"></div>
+      </div>
+      <div class="field">
+        <label>Average Response Time</label>
+        <select id="i_response">
+          <option value="">Auto (industry typical)</option>
+          <option value="0.05">Instant / minutes</option>
+          <option value="0.5">Within 30 mins</option>
+          <option value="1">~1 hour</option>
+          <option value="4">~4 hours</option>
+          <option value="12">Same day (~12h)</option>
+          <option value="24">Next day (24h)</option>
+          <option value="48">2+ days</option>
+        </select>
+        <div class="hint-est" data-for="response"></div>
+      </div>
+      <div class="field">
+        <label>Business Opening Hours</label>
+        <select id="i_hours">
+          <option value="0.30">Standard 9–5, Mon–Fri</option>
+          <option value="0.42">Extended weekdays (8–6)</option>
+          <option value="0.55">6 days incl. Saturday</option>
+          <option value="1">24/7</option>
+        </select>
+        <div class="hint-est" data-for="hours"></div>
+      </div>
+
+      <div class="sect-label">Follow-up</div>
+      <div class="field-grid">
+        <div class="field">
+          <label>Lead Follow-up %</label>
+          <input class="input" id="i_leadFollow" type="number" min="0" max="100" placeholder="Auto">
+          <div class="hint-est" data-for="leadFollow"></div>
+        </div>
+        <div class="field">
+          <label>Quote Follow-up %</label>
+          <input class="input" id="i_quoteFollow" type="number" min="0" max="100" placeholder="Auto">
+          <div class="hint-est" data-for="quoteFollow"></div>
+        </div>
+      </div>
+
+      <div class="sect-label">Website <span style="color:var(--faint);font-weight:400;text-transform:none;letter-spacing:0"> · optional</span></div>
+      <div class="field-grid">
+        <div class="field">
+          <label>Monthly Visits</label>
+          <input class="input" id="i_visits" type="number" min="0" placeholder="—">
+        </div>
+        <div class="field">
+          <label>Conv. Rate %</label>
+          <input class="input" id="i_convRate" type="number" min="0" max="100" placeholder="—">
+        </div>
+      </div>
+
+      <div class="sect-label">Investment <span style="color:var(--faint);font-weight:400;text-transform:none;letter-spacing:0"> · for ROI</span></div>
+      <div class="field">
+        <label>Monthly Investment (£) <span class="req">auto from package</span></label>
+        <input class="input" id="i_invest" type="number" min="0" placeholder="Auto from recommended package">
+      </div>
+
+      <button class="gen-btn" id="genBtn">Generate Revenue Report →</button>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn ghost sm" id="demoBtn" style="flex:1;justify-content:center">Load example</button>
+        <button class="btn ghost sm" id="resetBtn" style="flex:1;justify-content:center">Reset</button>
+      </div>
+    </div>
+
+    <!-- ============ RESULTS ============ -->
+    <div class="results" id="results">
+      <div class="empty glass" id="emptyState">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 5-6"/><path d="M18 8h.01"/></svg>
+        <b>Your revenue report will appear here</b>
+        <p>Enter the business details on the left and press <b style="color:var(--sky)">Generate Revenue Report</b>. Not sure of a number? Leave it blank — Smart Assist fills it from industry benchmarks.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- DISCLAIMER (always) -->
+  <div style="margin-top:34px">
+    <p class="disclaimer">These figures are estimates based on the information provided and industry benchmarks. Actual business performance will depend on enquiry volume, conversion rates and operational processes.</p>
+  </div>
+</div>
+
+<div class="toast" id="toast"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg><span id="toastMsg">Copied</span></div>
+
+<script>
+/* =========================================================================
+   LEADALINE · ADDITIONAL REVENUE CALCULATOR
+   Self-contained estimator. No external JS deps.
+   ========================================================================= */
+const $=s=>document.querySelector(s);
+const fmt0=n=>Math.round(n).toLocaleString("en-GB");
+const gbp=n=>"£"+fmt0(n);
+const gbpK=n=>{n=Math.round(n);return n>=1000?"£"+(n/1000).toFixed(n>=10000?0:1).replace(/\.0$/,"")+"k":"£"+n;};
+const pct=n=>Math.round(n)+"%";
+const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+
+/* ---------- INDUSTRY BENCHMARK LIBRARY ----------
+   Each field: [value, confidence, reason]. Response time in hours. Rates in %. */
+const IND = {
+  "Electrician":     {jobValue:[450,"med","Typical UK electrical contractor job (repairs to small installs)."], enquiries:[38,"med","Small trade team inbound across calls & web."], closeRate:[42,"med","Quote-led trade with moderate competition."], missedCalls:[16,"med","On-the-tools engineers miss inbound while working."], missedWeb:[9,"low","Contact-form enquiries left overnight."], leadFollow:[45,"med","Manual, inconsistent chasing between jobs."], quoteFollow:[35,"med","Quotes rarely chased after sending."], response:[4,"med","Callbacks happen between jobs / end of day."], employees:[4,"low","Owner + a few engineers."]},
+  "Plumber":         {jobValue:[380,"med","Blend of emergency call-outs and installs."], enquiries:[45,"med","High inbound, urgency-driven."], closeRate:[48,"med","Urgent jobs convert well when answered fast."], missedCalls:[22,"med","Emergency calls missed while on jobs."], missedWeb:[8,"low","After-hours web enquiries."], leadFollow:[42,"med","Little follow-up capacity."], quoteFollow:[32,"med","Installs quoted then forgotten."], response:[3,"med","Often calling back hours later."], employees:[3,"low","Small plumbing outfit."]},
+  "Builder":         {jobValue:[6500,"low","Wide range — extensions, renovations, projects."], enquiries:[28,"med","Fewer, higher-value enquiries."], closeRate:[30,"med","Long consideration, competitive quotes."], missedCalls:[12,"med","Calls missed on site."], missedWeb:[10,"low","Project enquiries via website."], leadFollow:[38,"med","Follow-up drops off during projects."], quoteFollow:[30,"low","High-value quotes seldom chased."], response:[8,"med","Days can pass before a callback."], employees:[8,"low","Site teams plus office."]},
+  "Roofer":          {jobValue:[2800,"low","Repairs through full re-roofs."], enquiries:[30,"med","Weather-driven inbound spikes."], closeRate:[35,"med","Quote-and-compare buyers."], missedCalls:[15,"med","On roofs, phone unanswered."], missedWeb:[8,"low","Website contact forms."], leadFollow:[40,"med","Follow-up inconsistent."], quoteFollow:[30,"low","Quotes go cold."], response:[6,"med","Callbacks delayed by site work."], employees:[5,"low","Crew-based."]},
+  "Estate Agent":    {jobValue:[3200,"low","Avg fee per completed sale/instruction."], enquiries:[120,"med","High portal & web lead volume."], closeRate:[22,"med","Many enquiries, fewer instructions."], missedCalls:[30,"med","Viewings & valuations missed on calls."], missedWeb:[45,"med","Portal leads not responded to quickly."], leadFollow:[50,"med","Negotiators stretched across leads."], quoteFollow:[40,"med","Valuation follow-up patchy."], response:[2,"med","Speed-to-lead critical, often missed."], employees:[9,"low","Branch team."]},
+  "Roofer ":         {jobValue:[2800,"low",""]},
+  "Waste Removal":   {jobValue:[180,"med","Per collection / clearance job."], enquiries:[60,"med","High volume, low value, quick decisions."], closeRate:[52,"med","Price-and-book, converts fast when answered."], missedCalls:[26,"med","Drivers can't answer on the road."], missedWeb:[14,"low","Instant-quote web enquiries."], leadFollow:[35,"low","Little follow-up on a volume model."], quoteFollow:[30,"low","One-shot quotes."], response:[3,"med","Missed = booked with a competitor."], employees:[6,"low","Drivers + office."]},
+  "Cleaning Company":{jobValue:[240,"med","Recurring contract or one-off deep clean value."], enquiries:[55,"med","Domestic & commercial enquiries."], closeRate:[40,"med","Recurring buyers compare a few quotes."], missedCalls:[18,"med","Cleaners on site, calls missed."], missedWeb:[16,"med","Quote requests via website."], leadFollow:[38,"med","Manual chasing."], quoteFollow:[32,"med","Recurring quotes not nurtured."], response:[5,"med","Often replies next day."], employees:[12,"low","Cleaning staff pool."]},
+  "Dental Practice": {jobValue:[520,"med","Blended treatment value incl. private work."], enquiries:[90,"med","New-patient & treatment enquiries."], closeRate:[45,"med","Bookings from enquiries."], missedCalls:[40,"med","Reception overwhelmed / after hours."], missedWeb:[20,"med","Online booking enquiries."], leadFollow:[48,"med","Treatment plans not followed up."], quoteFollow:[42,"med","High-value plans lapse."], response:[2,"med","Front desk busy with patients."], employees:[10,"low","Clinicians + reception."]},
+  "Clinic":          {jobValue:[420,"med","Private consultation / treatment value."], enquiries:[80,"med","Appointment & treatment enquiries."], closeRate:[44,"med","Enquiry to booked appointment."], missedCalls:[34,"med","Reception can't catch every call."], missedWeb:[22,"med","Web & form appointment requests."], leadFollow:[46,"med","Follow-up limited by admin load."], quoteFollow:[40,"med","Treatment plans lapse."], response:[3,"med","Callbacks queue behind patients."], employees:[9,"low","Practitioners + admin."]},
+  "Property Maintenance":{jobValue:[320,"med","Repairs & planned maintenance jobs."], enquiries:[48,"med","Landlord & facilities inbound."], closeRate:[46,"med","Contract & reactive work."], missedCalls:[20,"med","Engineers on site."], missedWeb:[12,"low","Portal & email enquiries."], leadFollow:[40,"med","Reactive, little nurture."], quoteFollow:[34,"med","Quotes not chased."], response:[5,"med","Delayed callbacks."], employees:[7,"low","Mobile engineers + office."]},
+  "Landscaper / Gardener":{jobValue:[850,"low","One-off projects to seasonal contracts."], enquiries:[34,"med","Seasonal inbound."], closeRate:[38,"med","Quote-led, seasonal."], missedCalls:[14,"med","Outdoors, calls missed."], missedWeb:[9,"low","Web enquiries."], leadFollow:[36,"low","Inconsistent."], quoteFollow:[30,"low","Quotes go cold."], response:[7,"med","Delayed callbacks."], employees:[4,"low","Small crew."]},
+  "HVAC / Heating":  {jobValue:[1400,"low","Servicing to full system installs."], enquiries:[40,"med","Seasonal demand spikes."], closeRate:[40,"med","Install quotes compared."], missedCalls:[18,"med","Engineers on jobs."], missedWeb:[10,"low","Web enquiries."], leadFollow:[42,"med","Follow-up patchy."], quoteFollow:[32,"med","Install quotes not chased."], response:[5,"med","Delayed callbacks."], employees:[6,"low","Engineers + office."]},
+  "Other / General": {jobValue:[600,"low","General service business benchmark."], enquiries:[45,"low","Typical SME inbound volume."], closeRate:[40,"low","Average service-business close rate."], missedCalls:[18,"low","Typical missed-call rate."], missedWeb:[10,"low","Typical unanswered web enquiries."], leadFollow:[42,"low","Average manual follow-up."], quoteFollow:[34,"low","Average quote follow-up."], response:[5,"low","Typical response delay."], employees:[6,"low","Typical SME headcount."]},
+};
+delete IND["Roofer "];
+const INDUSTRIES = Object.keys(IND);
+
+/* Package pricing (monthly, internal defaults — editable via Investment field) */
+const PKG = {
+  essential:{name:"Essential", price:349, blurb:"AI Receptionist to capture missed calls and after-hours enquiries."},
+  growth:   {name:"Growth",    price:649, blurb:"Receptionist + Sales Assistant + Follow-Up. Capture, qualify and chase automatically."},
+  full:     {name:"Full AI Office Team", price:999, blurb:"Complete AI team incl. Booking Assistant — every enquiry answered, qualified, followed up and booked."},
+};
+
+/* Scenario multipliers applied to recovery effectiveness */
+const SCEN = {
+  conservative:{k:0.62, label:"Conservative", recCall:0.70, recWeb:0.65},
+  expected:    {k:1.00, label:"Expected",     recCall:0.85, recWeb:0.80},
+  optimistic:  {k:1.28, label:"Optimistic",   recCall:0.94, recWeb:0.90},
+};
+
+/* ---------- STATE ---------- */
+let scenario="expected";
+let lastModel=null;
+
+/* Populate industry dropdown */
+(function(){
+  const sel=$("#i_industry");
+  INDUSTRIES.forEach(n=>{const o=document.createElement("option");o.value=n;o.textContent=n;sel.appendChild(o);});
+  sel.value="Electrician";
+})();
+
+/* ---------- READ INPUTS ---------- */
+function num(id){const v=parseFloat($(id).value);return isNaN(v)?null:v;}
+function readInputs(){
+  return {
+    name:$("#i_name").value.trim(),
+    industry:$("#i_industry").value,
+    employees:num("#i_employees"),
+    jobValue:num("#i_jobValue"),
+    enquiries:num("#i_enquiries"),
+    closeRate:num("#i_closeRate"),
+    monthlyRev:num("#i_monthlyRev"),
+    missedCalls:num("#i_missedCalls"),
+    missedWeb:num("#i_missedWeb"),
+    response:$("#i_response").value?parseFloat($("#i_response").value):null,
+    hours:parseFloat($("#i_hours").value),
+    leadFollow:num("#i_leadFollow"),
+    quoteFollow:num("#i_quoteFollow"),
+    visits:num("#i_visits"),
+    convRate:num("#i_convRate"),
+    invest:num("#i_invest"),
+  };
+}
+
+/* Resolve a value: manual if present else industry estimate (when assist on) */
+function resolve(inp, key, benchKey){
+  const b=IND[inp.industry][benchKey];
+  const manual=inp[key];
+  if(manual!==null && manual!==undefined) return {v:manual, est:false};
+  const assist=$("#assistSw").classList.contains("on");
+  if(assist && b) return {v:b[0], est:true, conf:b[1], reason:b[2]};
+  // assist off & blank -> fall back to benchmark value but flagged as assumed (report still needs a number)
+  return {v:b?b[0]:0, est:true, conf:b?b[1]:"low", reason:b?b[2]:""};
+}
+
+/* ---------- BUILD MODEL ---------- */
+function buildModel(){
+  const inp=readInputs();
+  const ind=inp.industry;
+  const R={};
+  R.jobValue   = resolve(inp,"jobValue","jobValue");
+  R.enquiries  = resolve(inp,"enquiries","enquiries");
+  R.closeRate  = resolve(inp,"closeRate","closeRate");
+  R.missedCalls= resolve(inp,"missedCalls","missedCalls");
+  R.missedWeb  = resolve(inp,"missedWeb","missedWeb");
+  R.leadFollow = resolve(inp,"leadFollow","leadFollow");
+  R.quoteFollow= resolve(inp,"quoteFollow","quoteFollow");
+  R.employees  = resolve(inp,"employees","employees");
+  const respB=IND[ind].response;
+  R.response = inp.response!==null ? {v:inp.response,est:false}
+             : {v:respB[0],est:true,conf:respB[1],reason:respB[2]};
+
+  const jobValue=R.jobValue.v;
+  const enquiries=R.enquiries.v;
+  const closeRate=R.closeRate.v/100;
+  const missedCalls=R.missedCalls.v;
+  const missedWeb=R.missedWeb.v;
+  const leadFollow=R.leadFollow.v/100;
+  const quoteFollow=R.quoteFollow.v/100;
+  const respH=R.response.v;
+
+  const S=SCEN[scenario];
+
+  /* Current position */
+  const currentLeadsWon = enquiries * closeRate;
+  const calcCurrentRev = currentLeadsWon * jobValue;
+  const currentMonthlyRevenue = inp.monthlyRev!==null ? inp.monthlyRev : calcCurrentRev;
+  R.monthlyRev = {v:currentMonthlyRevenue, est:inp.monthlyRev===null, conf:"med",
+    reason:"Calculated from enquiries × close rate × average job value."};
+
+  /* ---- Recovered lead streams (all scaled by scenario) ---- */
+  // 1. Missed calls -> recovered & converted
+  const recCalls = missedCalls * S.recCall;
+  const jobsFromCalls = recCalls * closeRate;
+  // 2. Unanswered web enquiries -> recovered & converted
+  const recWeb = missedWeb * S.recWeb;
+  const jobsFromWeb = recWeb * closeRate;
+  // 3. Follow-up uplift: raise lead follow-up toward 95%, quote follow-up to ~100%
+  const targetFollow=0.95;
+  const extraLeadFollow = Math.max(0, targetFollow-leadFollow) * enquiries;
+  const jobsFromFollow = extraLeadFollow * closeRate * 0.55 * S.k; // followed-up leads convert at reduced rate
+  const extraQuoteFollow = Math.max(0, 1-quoteFollow) * (enquiries*closeRate); // quotes not currently chased
+  const jobsFromQuotes = extraQuoteFollow * 0.22 * S.k; // % of stale quotes recoverable
+  // 4. Speed-to-lead uplift: slow response depresses conversion; instant recovers a share
+  const speedPenalty = clamp((respH-0.08)/24, 0, 0.7); // fraction of would-be conversions lost to slowness
+  const jobsFromSpeed = enquiries * closeRate * speedPenalty * 0.30 * S.k;
+
+  const jobsRecovered = jobsFromCalls + jobsFromWeb + jobsFromFollow + jobsFromQuotes + jobsFromSpeed;
+  const lostLeads = missedCalls + missedWeb + extraLeadFollow*0.5; // touchpoints currently lost
+  const monthlyRecovered = jobsRecovered * jobValue;
+  const annualRecovered = monthlyRecovered * 12;
+  const potentialMonthly = currentMonthlyRevenue + monthlyRecovered;
+  const revIncreasePct = currentMonthlyRevenue>0 ? (monthlyRecovered/currentMonthlyRevenue*100) : 0;
+
+  /* ---- Operational savings ---- */
+  const phoneCallsAutomated = Math.round(missedCalls + enquiries*0.45); // missed + share of routine calls handled
+  const followUpsAutomated = Math.round(extraLeadFollow + enquiries*closeRate); // chasing leads + quotes
+  const additionalQuotesWon = jobsFromQuotes + jobsFromFollow*0.4;
+  // admin hours: call handling 6min, follow-up 4min, qualification 3min
+  const adminHoursSaved = (phoneCallsAutomated*6 + followUpsAutomated*4 + enquiries*3)/60;
+  const timeSavedHrs = adminHoursSaved; // headline time saved / month
+
+  /* ---- With-LeadaLine impact figures ---- */
+  const newLeadFollow=95, newResponse="Instant";
+  const recoveredCallsShown=Math.round(recCalls);
+
+  /* ---- Investment / ROI ---- */
+  // recommend a package
+  const size = enquiries + (R.employees.v*4) + (currentMonthlyRevenue/2000);
+  let pkgKey = size<55 ? "essential" : size<130 ? "growth" : "full";
+  // if follow-up & booking heavy industry, nudge up
+  if(["Dental Practice","Clinic","Estate Agent"].includes(ind) && pkgKey==="essential") pkgKey="growth";
+  const investment = inp.invest!==null ? inp.invest : PKG[pkgKey].price;
+  const roiPct = investment>0 ? ((monthlyRecovered-investment)/investment*100) : 0;
+  const annualInvest = investment*12;
+  const annualNet = annualRecovered - annualInvest;
+  const breakEvenJobs = jobValue>0 ? investment/jobValue : 0; // jobs needed to cover cost
+  const breakEvenDays = monthlyRecovered>0 ? clamp((investment/monthlyRecovered)*30,0.3,60) : 60;
+  const returnMultiple = investment>0 ? monthlyRecovered/investment : 0;
+
+  return {
+    inp, ind, R, scenario, S,
+    jobValue, enquiries, closeRate, missedCalls, missedWeb, leadFollow, quoteFollow, respH,
+    currentLeadsWon, currentMonthlyRevenue, calcCurrentRev,
+    jobsFromCalls, jobsFromWeb, jobsFromFollow, jobsFromQuotes, jobsFromSpeed,
+    jobsRecovered, lostLeads, monthlyRecovered, annualRecovered, potentialMonthly, revIncreasePct,
+    phoneCallsAutomated, followUpsAutomated, additionalQuotesWon, adminHoursSaved, timeSavedHrs,
+    recoveredCallsShown, newLeadFollow,
+    pkgKey, investment, roiPct, annualInvest, annualNet, breakEvenJobs, breakEvenDays, returnMultiple,
+  };
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function stars(n){let s="";for(let i=1;i<=5;i++)s+=i<=n?"★":'<span class="off">★</span>';return s;}
+
+function recommendEmployees(m){
+  const list=[
+    {key:"receptionist",name:"AI Receptionist",desc:"Answers every call & web enquiry instantly, day or night — no more missed opportunities.",
+     score:m.missedCalls + m.missedWeb, icon:'<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.4-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/>'},
+    {key:"sales",name:"AI Sales Assistant",desc:"Qualifies and responds to enquiries in seconds so hot leads never go cold.",
+     score:(m.respH*4) + m.enquiries*0.2, icon:'<path d="M13 2 3 14h9l-1 8 10-12h-9z"/>'},
+    {key:"followup",name:"AI Follow-Up Assistant",desc:"Automatically chases quotes and unconverted leads until they book or say no.",
+     score:(100-m.R.leadFollow.v) + (100-m.R.quoteFollow.v), icon:'<path d="M3 12a9 9 0 1 0 9-9 9.7 9.7 0 0 0-6.7 2.7L3 8"/><path d="M3 3v5h5"/>'},
+    {key:"booking",name:"AI Booking Assistant",desc:"Takes bookings and manages the diary automatically, cutting scheduling admin.",
+     score:m.enquiries*0.35 + (["Dental Practice","Clinic","Estate Agent","Cleaning Company"].includes(m.ind)?40:0),
+     icon:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>'},
+  ];
+  const max=Math.max(...list.map(l=>l.score))||1;
+  list.forEach(l=>{ l.starN = clamp(Math.round(2 + (l.score/max)*3),2,5); });
+  list.sort((a,b)=>b.score-a.score);
+  return list;
+}
+
+function salesInsights(m){
+  // biggest pain
+  const pains=[
+    {k:"Missed calls",v:m.missedCalls*m.jobValue*m.closeRate},
+    {k:"Slow response time",v:m.jobsFromSpeed*m.jobValue},
+    {k:"Weak quote follow-up",v:m.jobsFromQuotes*m.jobValue},
+    {k:"Unanswered web enquiries",v:m.missedWeb*m.jobValue*m.closeRate},
+    {k:"Inconsistent lead follow-up",v:m.jobsFromFollow*m.jobValue},
+  ].sort((a,b)=>b.v-a.v);
+  const pain=pains[0];
+  const motivation=clamp(Math.round(40 + (m.revIncreasePct*0.9) + (m.missedCalls>18?15:0) + (m.respH>4?10:0)),20,97);
+  const decisionConf=clamp(Math.round(55 + (m.R.jobValue.est?-8:8) + (m.R.enquiries.est?-6:6) + (m.currentMonthlyRevenue>20000?10:0)),25,92);
+  const objections=[];
+  if(m.investment>500) objections.push("Price — “that’s a lot per month.” Anchor against "+gbp(m.monthlyRecovered)+" recovered monthly.");
+  objections.push("“We already handle our own calls.” — reframe around the "+Math.round(m.missedCalls)+" calls/month currently missed.");
+  if(m.respH>2) objections.push("“Our customers prefer a person.” — position AI as instant first response, humans close.");
+  objections.push("“Will it sound robotic / on-brand?” — offer a live demo on their own number.");
+  const questions=[
+    "When a call comes in and everyone’s on the tools, what happens to it right now?",
+    "Roughly how many quotes did you send last month that you never heard back on?",
+    "If every enquiry got an instant reply, how many more jobs a month is that worth to you?",
+    "What’s a typical job worth to you — and what’s your best month looked like?",
+  ];
+  const upsells=[];
+  if(m.pkgKey!=="full") upsells.push("Upsell to Full AI Office Team once they see receptionist ROI — add Booking + Follow-Up.");
+  if(["Dental Practice","Clinic"].includes(m.ind)) upsells.push("Recall & reactivation campaigns for dormant patients.");
+  upsells.push("Review/reputation automation to compound inbound.");
+  upsells.push("Multi-location / additional numbers as they grow.");
+  const angle = m.revIncreasePct>60
+    ? "Cost-of-inaction close: every month without this is ~"+gbp(m.monthlyRecovered)+" walking out the door. Frame the decision as urgent."
+    : m.investment>0 && m.returnMultiple>4
+    ? "ROI close: "+m.returnMultiple.toFixed(1)+"× return — “for every £1 you put in, you get roughly £"+m.returnMultiple.toFixed(1)+" back.” Make it a no-brainer."
+    : "Value-stacking close: lead on missed calls, then layer follow-up and booking savings to justify the package.";
+  return {pain,pains,motivation,decisionConf,objections,questions,upsells,angle};
+}
+
+function buildSummary(m){
+  const lost=gbp(m.monthlyRecovered);
+  const annual=gbp(m.annualRecovered);
+  const drivers=[];
+  if(m.missedCalls>0)drivers.push("missed calls");
+  if(m.respH>1)drivers.push("delayed responses");
+  if(m.R.quoteFollow.v<70||m.R.leadFollow.v<70)drivers.push("inconsistent follow-up");
+  const dtxt=drivers.length?drivers.slice(0,2).join(", ")+(drivers.length>2?" and "+drivers[2]:""):"missed opportunities";
+  const nm=m.inp.name||"This business";
+  return `<p>Based on ${nm==="This business"?"the":"<b>"+esc(nm)+"</b>’s"} current enquiry volume — around <b>${Math.round(m.currentLeadsWon)} jobs won</b> from ${Math.round(m.enquiries)} enquiries a month at an average job value of <b class="warm">${gbp(m.jobValue)}</b> — we estimate the business could be missing approximately <span class="warm">${lost}</span> of potential revenue every month — around <span class="warm">${annual}</span> a year — due to ${dtxt}.</p>
+  <p>By implementing the LeadaLine AI Office Team, many of these opportunities could be recovered through <b>instant responses</b>, <b>automated qualification</b> and <b>consistent follow-up</b> — recovering an estimated <span class="big">${Math.round(m.jobsRecovered)} extra jobs</span> per month (including ~${Math.round(m.additionalQuotesWon)} additional quotes won) and lifting revenue by roughly <span class="big">${pct(m.revIncreasePct)}</span>, while saving around <span class="big">${Math.round(m.adminHoursSaved)} admin hours</span> every month.</p>
+  <p style="color:var(--faint);font-size:12px">These figures are estimates based on the information provided.</p>`;
+}
+
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+
+/* ----- SVG chart helpers ----- */
+function donut(recovered,current){
+  const total=recovered+current||1;
+  const rFrac=recovered/total;
+  const R=52,C=2*Math.PI*R, cx=64,cy=64;
+  const off=C*(1-rFrac);
+  return `<svg width="128" height="128" viewBox="0 0 128 128">
+    <circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="#111a2e" stroke-width="16"/>
+    <circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="url(#gDon)" stroke-width="16" stroke-linecap="round"
+      stroke-dasharray="${C}" stroke-dashoffset="${C}" transform="rotate(-90 ${cx} ${cy})"
+      style="transition:stroke-dashoffset 1.1s cubic-bezier(.2,.7,.3,1)" data-off="${off}"/>
+    <defs><linearGradient id="gDon" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#00B4FF"/><stop offset="1" stop-color="#7C3AED"/></linearGradient></defs>
+    <text x="64" y="60" text-anchor="middle" class="donut-center" fill="#EAF0FF" font-size="20">+${pct(rFrac*100)}</text>
+    <text x="64" y="78" text-anchor="middle" fill="#7C88A8" font-size="9" font-family="JetBrains Mono">UPLIFT</text>
+  </svg>`;
+}
+function annualChart(m){
+  // 12-month cumulative recovered vs one-off current baseline area
+  const W=560,H=190,pad=30, months=12;
+  const maxV=m.currentMonthlyRevenue*12 + m.annualRecovered;
+  const yb=v=>H-pad-(v/(maxV||1))*(H-pad*2);
+  const xb=i=>pad+(i/(months))*(W-pad*2);
+  let cur="",pot="";
+  for(let i=0;i<=months;i++){
+    const c=m.currentMonthlyRevenue*i;
+    const p=(m.currentMonthlyRevenue+m.monthlyRecovered)*i;
+    cur+=`${i===0?"M":"L"}${xb(i).toFixed(1)},${yb(c).toFixed(1)} `;
+    pot+=`${i===0?"M":"L"}${xb(i).toFixed(1)},${yb(p).toFixed(1)} `;
+  }
+  const potArea=pot+`L${xb(months).toFixed(1)},${H-pad} L${xb(0).toFixed(1)},${H-pad} Z`;
+  let grid="";
+  for(let g=0;g<=3;g++){const y=pad+g*((H-pad*2)/3);grid+=`<line x1="${pad}" y1="${y}" x2="${W-pad}" y2="${y}" stroke="rgba(255,255,255,.05)"/>`;}
+  return `<svg class="annualsvg" viewBox="0 0 ${W} ${H}">
+    <defs><linearGradient id="gArea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7C3AED" stop-opacity=".35"/><stop offset="1" stop-color="#00B4FF" stop-opacity="0"/></linearGradient></defs>
+    ${grid}
+    <path d="${potArea}" fill="url(#gArea)"/>
+    <path d="${cur}" fill="none" stroke="#5b6684" stroke-width="2" stroke-dasharray="4 4"/>
+    <path d="${pot}" fill="none" stroke="url(#gDon)" stroke-width="3"/>
+    <circle cx="${xb(months).toFixed(1)}" cy="${yb((m.currentMonthlyRevenue+m.monthlyRecovered)*months).toFixed(1)}" r="4" fill="#7C3AED"/>
+    <text x="${pad}" y="${H-8}" fill="#7C88A8" font-size="10" font-family="JetBrains Mono">Now</text>
+    <text x="${W-pad}" y="${H-8}" fill="#7C88A8" font-size="10" font-family="JetBrains Mono" text-anchor="end">Month 12</text>
+  </svg>`;
+}
+function heatmap(m){
+  // lead-loss intensity by day/time band. Higher outside hours & peak call times.
+  const days=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+  const bands=["Early","AM peak","Midday","PM peak","Evening","Night"];
+  const openFrac=m.inp.hours; // 0.30..1
+  function intensity(di,bi){
+    let base=0.3;
+    if(bi===1||bi===3)base+=0.35; // peak call times
+    if(bi===4)base+=0.25; // evening after close
+    if(bi===5)base+=0.4;  // night fully missed
+    if(di>=5)base+=0.3;   // weekend
+    if(bi<=3 && di<5 && openFrac>=0.42)base-=0.25; // extended hours cover weekday daytime
+    if(openFrac>=1)base=Math.min(base,0.25); // 24/7 catches most
+    return clamp(base + (m.missedCalls>20?0.1:0),0,1);
+  }
+  function col(v){
+    // interpolate along dark->blue->purple->red
+    if(v<0.33){const t=v/0.33;return mix([18,32,58],[59,130,246],t);}
+    if(v<0.66){const t=(v-0.33)/0.33;return mix([59,130,246],[124,58,237],t);}
+    const t=(v-0.66)/0.34;return mix([124,58,237],[240,77,106],t);
+  }
+  function mix(a,b,t){return `rgb(${a.map((x,i)=>Math.round(x+(b[i]-x)*t)).join(",")})`;}
+  let html='<div class="heat"><div></div>';
+  bands.forEach(b=>html+=`<div class="hh">${b}</div>`);
+  days.forEach((d,di)=>{
+    html+=`<div class="hr">${d}</div>`;
+    bands.forEach((b,bi)=>{const v=intensity(di,bi);html+=`<div class="hc" style="background:${col(v)}" title="${d} ${b}: ${v>0.6?'high':v>0.35?'medium':'low'} lead-loss risk"></div>`;});
+  });
+  html+='</div><div class="heat-legend">Lower loss <span class="scale"></span> Higher loss</div>';
+  return html;
+}
+
+function render(){
+  const m=buildModel();
+  lastModel=m;
+  const emps=recommendEmployees(m);
+  const si=salesInsights(m);
+  const rec=PKG[m.pkgKey];
+
+  const el=$("#results");
+  el.innerHTML=`
+  <!-- HEAD + SCENARIO -->
+  <div class="report-head">
+    <div class="rh-l">
+      <h2>${m.inp.name?esc(m.inp.name):"Revenue Opportunity Report"}</h2>
+      <div class="sub"><b>${esc(m.ind)}</b> · avg job ${gbp(m.jobValue)} · ${Math.round(m.enquiries)} enquiries/mo · ${pct(m.R.closeRate.v)} close rate</div>
+    </div>
+    <div class="scen noprint" id="scenBar">
+      <button data-s="conservative" class="${scenario==='conservative'?'on':''}">Conservative</button>
+      <button data-s="expected" class="${scenario==='expected'?'on':''}">Expected</button>
+      <button data-s="optimistic" class="${scenario==='optimistic'?'on':''}">Optimistic</button>
+    </div>
+  </div>
+
+  <!-- KPI CARDS -->
+  <div class="kpis">
+    <div class="kpi kpi-lg good"><div class="k">Potential Monthly Revenue Recovered</div>
+      <div class="v"><span data-count="${m.monthlyRecovered}" data-money="1">£0</span></div>
+      <div class="s up">▲ ${pct(m.revIncreasePct)} vs current revenue</div></div>
+    <div class="kpi kpi-lg good"><div class="k">Potential Annual Revenue Increase</div>
+      <div class="v">+<span data-count="${m.annualRecovered}" data-money="1">£0</span></div>
+      <div class="s up">Over the next 12 months</div></div>
+    <div class="kpi"><div class="k">Extra Jobs Recovered / mo</div>
+      <div class="v"><span data-count="${Math.round(m.jobsRecovered)}">0</span></div>
+      <div class="s">incl. ~${Math.round(m.additionalQuotesWon)} quotes won · from ${Math.round(m.lostLeads)} lost leads</div></div>
+    <div class="kpi"><div class="k">Admin Hours Saved / mo</div>
+      <div class="v"><span data-count="${m.adminHoursSaved}">0</span><span class="u">hrs</span></div>
+      <div class="s">≈ ${(m.adminHoursSaved/8).toFixed(1)} working days</div></div>
+    <div class="kpi"><div class="k">Lead Response Rate</div>
+      <div class="v">Instant</div><div class="s up">from ~${m.respH<1?Math.round(m.respH*60)+' min':m.respH+' hrs'}</div></div>
+    <div class="kpi"><div class="k">Calls & Follow-ups Automated</div>
+      <div class="v"><span data-count="${m.phoneCallsAutomated+m.followUpsAutomated}">0</span></div>
+      <div class="s">${m.phoneCallsAutomated} calls · ${m.followUpsAutomated} follow-ups / mo</div></div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="glass sc">
+    <div class="sc-h"><h3><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 0-4 12.7V17a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2.3A7 7 0 0 0 12 2z"/><path d="M9 21h6"/></svg></span>Business Insights</h3></div>
+    <div class="summary">${buildSummary(m)}</div>
+  </div>
+
+  <!-- REVENUE BREAKDOWN CHARTS -->
+  <div class="glass sc">
+    <div class="sc-h"><h3><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><rect x="7" y="10" width="3" height="8"/><rect x="12" y="6" width="3" height="12"/><rect x="17" y="13" width="3" height="5"/></svg></span>Revenue Breakdown</h3>
+      <span class="sc-sub">${SCEN[scenario].label} scenario</span></div>
+    <div class="chart-grid">
+      <div class="chartbox">
+        <div class="ch-t"><span>Monthly comparison</span><span>${gbpK(m.potentialMonthly)} potential</span></div>
+        <div class="bars">
+          <div class="bar-row"><div class="bl"><span class="bn">Current revenue</span><span class="bv">${gbp(m.currentMonthlyRevenue)}</span></div>
+            <div class="bar-track"><div class="bar-fill" data-w="${clamp(m.currentMonthlyRevenue/m.potentialMonthly*100,2,100)}" style="background:linear-gradient(90deg,#5b6684,#7c88a8)"></div></div></div>
+          <div class="bar-row"><div class="bl"><span class="bn">Recovered opportunity</span><span class="bv" style="color:#7ee2a8">+${gbp(m.monthlyRecovered)}</span></div>
+            <div class="bar-track"><div class="bar-fill" data-w="${clamp(m.monthlyRecovered/m.potentialMonthly*100,2,100)}" style="background:var(--grad-good)"></div></div></div>
+          <div class="bar-row"><div class="bl"><span class="bn">Potential revenue</span><span class="bv" style="color:#8fd3ff">${gbp(m.potentialMonthly)}</span></div>
+            <div class="bar-track"><div class="bar-fill" data-w="100" style="background:var(--grad)"></div></div></div>
+        </div>
+        <div class="legend">
+          <div class="lg"><span class="sw2" style="background:#7c88a8"></span>Today</div>
+          <div class="lg"><span class="sw2" style="background:#22C55E"></span>Recovered with LeadaLine</div>
+          <div class="lg"><span class="sw2" style="background:#3B82F6"></span>Potential</div>
+        </div>
+      </div>
+      <div class="chartbox">
+        <div class="ch-t"><span>Lost vs recovered opportunity</span></div>
+        <div class="donut-wrap">${donut(m.monthlyRecovered,m.currentMonthlyRevenue)}
+          <div style="font-size:12px;color:var(--muted);line-height:1.7">
+            <div><b style="color:#7ee2a8;font-family:'Space Grotesk';font-size:15px">${gbp(m.monthlyRecovered)}</b><br>recoverable / month</div>
+            <div style="margin-top:8px;color:var(--faint)">of ${gbp(m.potentialMonthly)} total potential</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="chartbox" style="margin-top:16px">
+      <div class="ch-t"><span>Annual projection — cumulative revenue</span><span style="color:#8fd3ff">+${gbp(m.annualRecovered)} / yr</span></div>
+      ${annualChart(m)}
+      <div class="legend"><div class="lg"><span class="sw2" style="background:#5b6684"></span>Current trajectory</div><div class="lg"><span class="sw2" style="background:#7C3AED"></span>With LeadaLine</div></div>
+    </div>
+  </div>
+
+  <!-- LEADALINE IMPACT -->
+  <div class="glass sc">
+    <div class="sc-h"><h3><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h9l-1 8 10-12h-9z"/></svg></span>LeadaLine Impact</h3>
+      <span class="sc-sub">Before → after installing the AI Office Team</span></div>
+    <div class="impact">
+      ${impactRow('Average response time', (m.respH<1?Math.round(m.respH*60)+' min':m.respH+' hrs'), 'Instant', 'clock')}
+      ${impactRow('Lead follow-up', pct(m.R.leadFollow.v), pct(m.newLeadFollow), 'refresh')}
+      ${impactRow('Missed calls', Math.round(m.missedCalls)+'/mo', Math.round(m.recoveredCallsShown)+' recovered', 'phone')}
+      ${impactRow('Quote follow-up', m.R.quoteFollow.v<50?'Manual / patchy':pct(m.R.quoteFollow.v), 'Automatic', 'check')}
+      ${impactRow('Web enquiries answered', pct(clamp(100-(m.missedWeb/(m.enquiries||1)*100),20,95)), '100% instant', 'globe')}
+      ${impactRow('Cover', coverLabel(m.inp.hours), '24 / 7 / 365', 'shield')}
+    </div>
+  </div>
+
+  <!-- RECOMMENDED AI EMPLOYEES -->
+  <div class="glass sc">
+    <div class="sc-h"><h3><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.1a4 4 0 0 1 0 7.8M21 21v-2a4 4 0 0 0-3-3.9"/></svg></span>Recommended AI Employees</h3>
+      <span class="sc-sub">Ranked by impact for this business</span></div>
+    <div class="emps">
+      ${emps.map((e,i)=>`<div class="emp ${i===0?'top':''}">
+        <div class="eic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${e.icon}</svg></div>
+        <div class="em"><div class="stars">${stars(e.starN)}</div><b>${e.name}</b><small>${e.desc}</small></div>
+      </div>`).join("")}
+    </div>
+  </div>
+
+  <!-- RECOMMENDED PACKAGE -->
+  <div class="glass sc">
+    <div class="sc-h"><h3><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg></span>Recommended Package</h3></div>
+    <div class="pkgs">
+      ${["essential","growth","full"].map(k=>{const p=PKG[k];const on=k===m.pkgKey;return `
+        <div class="pkg ${on?'rec':''}">${on?'<span class="tag">RECOMMENDED</span>':''}
+          <h4>${p.name}</h4>
+          <div class="px">${gbp(p.price)}<span class="u">/mo</span></div>
+          <div class="pd">${p.blurb}</div>
+        </div>`;}).join("")}
+    </div>
+    <div class="pkg-why"><b>Why ${rec.name}:</b> ${pkgWhy(m)}</div>
+  </div>
+
+  <!-- BONUS: COST OF NOTHING / ROI / BREAK-EVEN -->
+  <div class="glass sc">
+    <div class="sc-h"><h3><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>Investment vs Return</h3>
+      <span class="sc-sub">At ${gbp(m.investment)}/mo</span></div>
+    <div class="trio">
+      <div class="tbox warn"><div class="tt">Cost of doing nothing</div>
+        <div class="tv">${gbp(m.annualRecovered)}</div>
+        <div class="td">Estimated revenue lost per year if nothing changes — roughly ${gbp(m.monthlyRecovered)} every month.</div></div>
+      <div class="tbox good"><div class="tt">Return multiple</div>
+        <div class="tv">${m.returnMultiple.toFixed(1)}×</div>
+        <div class="td">For every £1 invested, an estimated £${m.returnMultiple.toFixed(1)} recovered. ROI ≈ ${pct(m.roiPct)} / month.</div></div>
+      <div class="tbox"><div class="tt">Break-even</div>
+        <div class="tv">${m.breakEvenDays<1?'<1 day':Math.round(m.breakEvenDays)+(m.breakEvenDays<2?' day':' days')}</div>
+        <div class="td">Just ${m.breakEvenJobs<1?'a fraction of one job':'~'+Math.ceil(m.breakEvenJobs)+' recovered job'+(Math.ceil(m.breakEvenJobs)>1?'s':'')} covers the monthly cost.</div></div>
+    </div>
+    <!-- ROI TIMELINE -->
+    <div style="margin-top:20px">
+      <div class="ch-t" style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:4px">ROI timeline — cumulative net return</div>
+      <div class="timeline">
+        ${[1,3,6,9,12].map(mo=>{const net=(m.monthlyRecovered-m.investment)*mo;const on=net>0;return `
+          <div class="tl ${on?'on':''}"><div class="dot"></div><div class="tm">Month ${mo}</div><div class="ta">${net>=0?'+':''}${gbpK(net)}</div></div>`;}).join("")}
+      </div>
+    </div>
+  </div>
+
+  <!-- LEAD LOSS HEATMAP -->
+  <div class="glass sc">
+    <div class="sc-h"><h3><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg></span>Lead Loss Heatmap</h3>
+      <span class="sc-sub">When enquiries are most at risk</span></div>
+    ${heatmap(m)}
+  </div>
+
+  <!-- INTERACTIVE SLIDERS -->
+  <div class="glass sc noprint">
+    <div class="sc-h"><h3><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><circle cx="4" cy="12" r="2"/><circle cx="12" cy="10" r="2"/><circle cx="20" cy="14" r="2"/></svg></span>What-if sliders</h3>
+      <span class="sc-sub">Drag to see the numbers move live</span></div>
+    <div class="sliders">
+      ${slider('sl_job','Average job value','£'+fmt0(m.jobValue),Math.round(m.jobValue*0.3),Math.round(m.jobValue*2.5),Math.round(m.jobValue))}
+      ${slider('sl_enq','Monthly enquiries',Math.round(m.enquiries),Math.max(5,Math.round(m.enquiries*0.3)),Math.round(m.enquiries*2.5),Math.round(m.enquiries))}
+      ${slider('sl_close','Close rate',Math.round(m.R.closeRate.v)+'%',10,90,Math.round(m.R.closeRate.v))}
+      ${slider('sl_miss','Missed calls / mo',Math.round(m.missedCalls),0,Math.max(10,Math.round(m.missedCalls*2.5)),Math.round(m.missedCalls))}
+    </div>
+  </div>
+
+  <!-- SALES INSIGHTS (PRIVATE) -->
+  <div class="private noprint" id="privateBlock">
+    <div class="private-h" id="privToggle">
+      <h3><span class="lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>Sales Insights</h3>
+      <span class="private-tag">LEADALINE ONLY · NOT IN CUSTOMER REPORT</span>
+    </div>
+    <div class="private-body" id="privBody">
+      <div class="pi"><div class="pil">Biggest pain point</div><div class="piv"><b style="color:#f4a0b0">${si.pain.k}</b> — worth ~${gbp(si.pain.v)}/mo. Lead the whole conversation here.</div></div>
+      <div class="pi"><div class="pil">Suggested closing angle</div><div class="piv">${si.angle}</div></div>
+      <div class="pi"><div class="pil">Likely objections</div><div class="piv"><ul>${si.objections.map(o=>`<li>${o}</li>`).join("")}</ul></div></div>
+      <div class="pi"><div class="pil">Questions to ask</div><div class="piv"><ul>${si.questions.map(q=>`<li>${q}</li>`).join("")}</ul></div></div>
+      <div class="pi"><div class="pil">Upsell opportunities</div><div class="piv"><ul>${si.upsells.map(u=>`<li>${u}</li>`).join("")}</ul></div></div>
+      <div class="pi"><div class="pil">Buying motivation & confidence</div>
+        <div class="piv" style="margin-bottom:6px">Estimated buying motivation — <b>${si.motivation}%</b></div>
+        <div class="meter good"><span style="width:${si.motivation}%"></span></div>
+        <div class="piv" style="margin:10px 0 6px">Decision confidence — <b>${si.decisionConf}%</b></div>
+        <div class="meter"><span style="width:${si.decisionConf}%"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPORTS -->
+  <div class="glass sc noprint">
+    <div class="sc-h"><h3><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg></span>Export &amp; share</h3></div>
+    <div class="exportbar">
+      <span class="lbl">EXPORT:</span>
+      <button class="btn btn-grad" id="ex_pdf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>Professional PDF</button>
+      <button class="btn" id="ex_customer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg>Customer report (no sales notes)</button>
+      <button class="btn" id="ex_proposal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Proposal insert</button>
+      <button class="btn" id="ex_ppt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>PowerPoint slide</button>
+      <button class="btn" id="ex_screenshot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>Screenshot tips</button>
+      <button class="btn" id="ex_link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1.5-1.5"/></svg>Shareable web report</button>
+    </div>
+  </div>
+  `;
+
+  // wire up
+  wireResults(m);
+  animateCounters();
+  requestAnimationFrame(()=>{
+    document.querySelectorAll(".bar-fill").forEach(b=>b.style.width=(b.dataset.w||0)+"%");
+    document.querySelectorAll("[data-off]").forEach(c=>c.style.strokeDashoffset=c.dataset.off);
+  });
+  $("#emptyState")&&$("#emptyState").remove();
+  el.scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+function coverLabel(h){return h>=1?'24/7 already':h>=0.55?'6 days/week':h>=0.42?'Extended weekdays':'9–5 weekdays';}
+function impactRow(label,cur,nw,icon){
+  const ICON={
+    clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    refresh:'<path d="M3 12a9 9 0 1 0 9-9 9.7 9.7 0 0 0-6.7 2.7L3 8"/><path d="M3 3v5h5"/>',
+    phone:'<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.4-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/>',
+    check:'<path d="M20 6 9 17l-5-5"/>',
+    globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/>',
+    shield:'<path d="M12 2 4 5v6c0 5 3.5 8.5 8 11 4.5-2.5 8-6 8-11V5z"/>',
+  };
+  return `<div class="imp">
+    <div class="il"><div class="lab">${label}</div>
+      <div class="vals"><span class="cur">${cur}</span><span class="arr">→</span><span class="new">${nw}</span></div></div>
+    <div class="picon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICON[icon]}</svg></div>
+  </div>`;
+}
+function slider(id,label,val,min,max,cur){
+  return `<div class="sl"><label>${label}<b id="${id}_v">${val}</b></label>
+    <input type="range" id="${id}" min="${min}" max="${max}" value="${cur}" step="${max>1000?50:1}"></div>`;
+}
+function pkgWhy(m){
+  if(m.pkgKey==="essential")
+    return `With ${Math.round(m.enquiries)} enquiries and ~${Math.round(m.missedCalls)} missed calls a month, the fastest win is simply capturing calls you already miss. The AI Receptionist alone recovers an estimated ${gbp(m.monthlyRecovered)}/mo — paying for itself many times over before adding more.`;
+  if(m.pkgKey==="growth")
+    return `This business loses across two fronts — missed calls <i>and</i> weak follow-up (currently ${pct(m.R.leadFollow.v)} lead / ${m.R.quoteFollow.v<50?'manual':pct(m.R.quoteFollow.v)} quote). Growth pairs the Receptionist with Sales &amp; Follow-Up assistants to both capture and convert, unlocking the full ${gbp(m.monthlyRecovered)}/mo opportunity.`;
+  return `At ${Math.round(m.enquiries)} enquiries/mo, ${gbp(m.currentMonthlyRevenue)} current revenue and a sizeable team, the volume justifies a complete AI Office Team. Booking automation removes scheduling admin on top of capture and follow-up — protecting an estimated ${gbp(m.annualRecovered)}/yr and freeing ~${Math.round(m.adminHoursSaved)} hrs/mo of staff time.`;
+}
+
+/* ---------- COUNTERS ---------- */
+function animateCounters(){
+  document.querySelectorAll("[data-count]").forEach(elm=>{
+    const target=parseFloat(elm.dataset.count)||0;
+    const money=elm.dataset.money==="1";
+    const dur=900, start=performance.now();
+    function step(t){
+      const p=clamp((t-start)/dur,0,1);
+      const e=1-Math.pow(1-p,3);
+      const val=target*e;
+      elm.textContent = money?("£"+fmt0(val)):(target%1!==0&&target<100?val.toFixed(1):fmt0(val));
+      if(p<1)requestAnimationFrame(step);
+      else elm.textContent = money?("£"+fmt0(target)):(target%1!==0&&target<100?target.toFixed(1):fmt0(target));
+    }
+    requestAnimationFrame(step);
+  });
+}
+
+/* ---------- WIRE RESULTS ---------- */
+function wireResults(m){
+  $("#scenBar")&&$("#scenBar").querySelectorAll("button").forEach(b=>b.onclick=()=>{scenario=b.dataset.s;render();});
+  const priv=$("#privToggle");
+  if(priv)priv.onclick=()=>$("#privBody").classList.toggle("hide");
+  // sliders -> recompute a lightweight live model
+  const ids=["sl_job","sl_enq","sl_close","sl_miss"];
+  ids.forEach(id=>{const s=$("#"+id);if(!s)return;s.oninput=()=>updateFromSliders(m);});
+  // exports
+  $("#ex_pdf").onclick=()=>{document.body.classList.remove("customer-report");window.print();};
+  $("#ex_customer").onclick=()=>{document.body.classList.add("customer-report");toast("Sales notes hidden — printing customer report");setTimeout(()=>window.print(),350);};
+  $("#ex_proposal").onclick=()=>exportText(proposalInsert(lastModel),"Proposal insert copied — paste into your proposal");
+  $("#ex_ppt").onclick=()=>exportText(pptSlide(lastModel),"Slide content copied — paste into PowerPoint");
+  $("#ex_screenshot").onclick=()=>toast("Tip: press ⌘/Ctrl+Shift+4 (Mac) or Win+Shift+S to snip any card");
+  $("#ex_link").onclick=()=>{const u=shareLink();copy(u);toast("Shareable report link copied");};
+}
+function updateFromSliders(base){
+  const job=+$("#sl_job").value, enq=+$("#sl_enq").value, close=+$("#sl_close").value/100, miss=+$("#sl_miss").value;
+  $("#sl_job_v").textContent="£"+fmt0(job);
+  $("#sl_enq_v").textContent=fmt0(enq);
+  $("#sl_close_v").textContent=Math.round(close*100)+"%";
+  $("#sl_miss_v").textContent=fmt0(miss);
+  const S=SCEN[scenario];
+  const jobsFromCalls=miss*S.recCall*close;
+  const jobsFromWeb=base.missedWeb*S.recWeb*close;
+  const extraLeadFollow=Math.max(0,0.95-base.leadFollow)*enq;
+  const jobsFromFollow=extraLeadFollow*close*0.55*S.k;
+  const extraQuoteFollow=Math.max(0,1-base.quoteFollow)*(enq*close);
+  const jobsFromQuotes=extraQuoteFollow*0.22*S.k;
+  const speedPenalty=clamp((base.respH-0.08)/24,0,0.7);
+  const jobsFromSpeed=enq*close*speedPenalty*0.30*S.k;
+  const jobsRec=jobsFromCalls+jobsFromWeb+jobsFromFollow+jobsFromQuotes+jobsFromSpeed;
+  const curRev=enq*close*job;
+  const monthlyRec=jobsRec*job;
+  // live update the two hero KPIs + jobs
+  const kpis=document.querySelectorAll(".kpi .v [data-count]");
+  const setK=(i,val,money)=>{if(kpis[i])kpis[i].textContent=money?"£"+fmt0(val):(val<100&&val%1!==0?val.toFixed(1):fmt0(val));};
+  setK(0,monthlyRec,true);
+  setK(1,monthlyRec*12,true);
+  setK(2,Math.round(jobsRec),false);
+}
+
+/* ---------- EXPORT CONTENT ---------- */
+function proposalInsert(m){
+  return `ADDITIONAL REVENUE OPPORTUNITY — ${m.inp.name||m.ind}
+${"=".repeat(52)}
+Prepared by LeadaLine · ${m.ind} · ${SCEN[scenario].label} estimate
+
+CURRENT POSITION
+• Estimated jobs won per month:         ${Math.round(m.currentLeadsWon)}
+• Estimated current monthly revenue:    ${gbp(m.currentMonthlyRevenue)}
+
+THE OPPORTUNITY
+• Potential monthly revenue recovered:  ${gbp(m.monthlyRecovered)}
+• Potential annual revenue increase:    +${gbp(m.annualRecovered)}
+• Estimated revenue uplift:             ${pct(m.revIncreasePct)}
+• Extra jobs recovered per month:       ${Math.round(m.jobsRecovered)}
+• Additional quotes won per month:      ${Math.round(m.additionalQuotesWon)}
+• Admin hours saved per month:          ${Math.round(m.adminHoursSaved)} hrs
+
+WHERE THE REVENUE COMES FROM
+• Missed calls captured:      ~${Math.round(m.recoveredCallsShown)}/mo
+• Instant response to enquiries (from ${m.respH<1?Math.round(m.respH*60)+' min':m.respH+'h'} → instant)
+• Consistent follow-up (from ${pct(m.R.leadFollow.v)} → 95%)
+• Automatic quote chasing (from ${m.R.quoteFollow.v<50?'manual':pct(m.R.quoteFollow.v)} → automatic)
+
+RECOMMENDED PACKAGE: ${PKG[m.pkgKey].name} (${gbp(m.investment)}/mo)
+Return multiple: ${m.returnMultiple.toFixed(1)}×  ·  Break-even: ~${m.breakEvenDays<1?'under a day':Math.round(m.breakEvenDays)+' days'}
+
+These figures are estimates based on the information provided and industry
+benchmarks. Actual performance will depend on enquiry volume, conversion
+rates and operational processes.`;
+}
+function pptSlide(m){
+  return `[SLIDE TITLE]  ${(m.inp.name||m.ind)}: The Revenue Opportunity
+
+[HEADLINE]  +${gbp(m.annualRecovered)} additional revenue per year
+
+[KPI ROW]
+  ${gbp(m.monthlyRecovered)}  —  Potential monthly revenue
+  ${pct(m.revIncreasePct)}  —  Revenue uplift
+  ${Math.round(m.jobsRecovered)}  —  Extra jobs / month
+  ${Math.round(m.adminHoursSaved)} hrs  —  Admin saved / month
+  Instant  —  Response time (was ${m.respH<1?Math.round(m.respH*60)+' min':m.respH+'h'})
+  ${m.returnMultiple.toFixed(1)}×  —  Return on investment
+
+[SUBTITLE]  Recovered through instant response, automated qualification and
+consistent follow-up with the LeadaLine AI Office Team.
+
+[FOOTNOTE]  Estimates based on information provided and industry benchmarks.`;
+}
+function shareLink(){
+  const i=readInputs();
+  const data=btoa(unescape(encodeURIComponent(JSON.stringify({i,scenario,a:$("#assistSw").classList.contains("on")?1:0}))));
+  return location.origin+location.pathname+"#r="+data;
+}
+function loadFromHash(){
+  if(!location.hash.startsWith("#r="))return false;
+  try{
+    const d=JSON.parse(decodeURIComponent(escape(atob(location.hash.slice(3)))));
+    const i=d.i;
+    const set=(id,v)=>{if(v!==null&&v!==undefined&&v!=="")$(id).value=v;};
+    $("#i_name").value=i.name||"";$("#i_industry").value=i.industry||"Electrician";
+    set("#i_employees",i.employees);set("#i_jobValue",i.jobValue);set("#i_enquiries",i.enquiries);
+    set("#i_closeRate",i.closeRate);set("#i_monthlyRev",i.monthlyRev);set("#i_missedCalls",i.missedCalls);
+    set("#i_missedWeb",i.missedWeb);set("#i_leadFollow",i.leadFollow);set("#i_quoteFollow",i.quoteFollow);
+    set("#i_visits",i.visits);set("#i_convRate",i.convRate);set("#i_invest",i.invest);
+    if(i.response!==null&&i.response!==undefined)$("#i_response").value=i.response;
+    $("#i_hours").value=i.hours||0.30;
+    scenario=d.scenario||"expected";
+    $("#assistSw").classList.toggle("on",d.a!==0);
+    refreshHints();render();
+    return true;
+  }catch(e){return false;}
+}
+
+/* ---------- UTIL: toast / copy ---------- */
+function toast(msg){$("#toastMsg").textContent=msg;$("#toast").classList.add("show");clearTimeout(window._tt);window._tt=setTimeout(()=>$("#toast").classList.remove("show"),2600);}
+function copy(t){navigator.clipboard&&navigator.clipboard.writeText(t).catch(()=>{});}
+function exportText(t,msg){copy(t);toast(msg);}
+
+/* ---------- SMART-ASSIST HINTS on inputs ---------- */
+function refreshHints(){
+  const ind=$("#i_industry").value;
+  const assist=$("#assistSw").classList.contains("on");
+  const map={jobValue:["#i_jobValue","jobValue"],enquiries:["#i_enquiries","enquiries"],closeRate:["#i_closeRate","closeRate"],
+    missedCalls:["#i_missedCalls","missedCalls"],missedWeb:["#i_missedWeb","missedWeb"],leadFollow:["#i_leadFollow","leadFollow"],
+    quoteFollow:["#i_quoteFollow","quoteFollow"],employees:["#i_employees","employees"],response:["#i_response","response"]};
+  document.querySelectorAll(".hint-est").forEach(h=>{
+    const key=h.dataset.for; if(!map[key]){h.innerHTML="";return;}
+    const [sel,bk]=map[key]; const inputEl=$(sel);
+    const b=IND[ind][bk];
+    const hasVal = inputEl.value!=="" && inputEl.value!=null;
+    inputEl.classList.toggle("est", assist && !hasVal && !!b);
+    if(assist && !hasVal && b){
+      const disp = bk==="jobValue"?gbp(b[0]) : bk==="response"?(b[0]<1?Math.round(b[0]*60)+' min':b[0]+' hrs') :
+        (["closeRate","leadFollow","quoteFollow"].includes(bk)?b[0]+"%":b[0]);
+      const cc=b[1]==="high"?"high":b[1]==="med"?"med":"low";
+      const cl=b[1]==="high"?"High":b[1]==="med"?"Medium":"Low";
+      h.innerHTML=`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>Est. ${disp} <span class="cc ${cc}">${cl}</span> <span style="color:var(--faint);font-weight:400">${esc(b[2]||"")}</span>`;
+    } else h.innerHTML="";
+  });
+}
+
+/* ---------- EVENTS ---------- */
+$("#assistSw").onclick=()=>{$("#assistSw").classList.toggle("on");$("#assistSw").setAttribute("aria-checked",$("#assistSw").classList.contains("on"));refreshHints();if(lastModel)render();};
+$("#assistSw").onkeydown=e=>{if(e.key===" "||e.key==="Enter"){e.preventDefault();$("#assistSw").click();}};
+$("#i_industry").onchange=()=>{refreshHints();if(lastModel)render();};
+["#i_jobValue","#i_enquiries","#i_closeRate","#i_missedCalls","#i_missedWeb","#i_leadFollow","#i_quoteFollow","#i_employees","#i_response"].forEach(s=>{$(s).addEventListener("input",refreshHints);$(s).addEventListener("change",refreshHints);});
+$("#genBtn").onclick=render;
+$("#resetBtn").onclick=()=>{document.querySelectorAll(".panel input").forEach(i=>i.value="");$("#i_industry").value="Electrician";$("#i_response").value="";$("#i_hours").value="0.30";scenario="expected";lastModel=null;refreshHints();
+  $("#results").innerHTML='';location.hash="";location.reload();};
+$("#demoBtn").onclick=()=>{
+  $("#i_name").value="Bright Spark Electrical";$("#i_industry").value="Electrician";
+  $("#i_jobValue").value=520;$("#i_enquiries").value=46;$("#i_closeRate").value=44;
+  $("#i_missedCalls").value=19;$("#i_missedWeb").value=11;$("#i_response").value="4";
+  $("#i_hours").value="0.42";$("#i_leadFollow").value=48;$("#i_quoteFollow").value=35;$("#i_employees").value=5;
+  refreshHints();render();
+};
+
+/* Enter key generates */
+document.querySelectorAll(".panel input").forEach(i=>i.addEventListener("keydown",e=>{if(e.key==="Enter")render();}));
+
+/* init */
+refreshHints();
+if(!loadFromHash()){/* wait for user */}
+</script>
+</body>
+</html>
