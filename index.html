@@ -627,6 +627,7 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
           <button class="btn" id="btn-export"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>Export CSV</button>
           <button class="btn-grad btn" id="btn-add"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Add lead</button>
         </div>
+        <button class="btn-grad btn" id="btn-dashboard" style="display:none;margin-left:auto"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Return to Dashboard</button>
       </div>
       <div class="scroll" id="view"><div class="spin"></div></div>
     </div>
@@ -969,10 +970,11 @@ function render(){
   $("#t-title").textContent=TITLES[TAB][0]; $("#t-sub").textContent=TITLES[TAB][1];
   const isTool = TAB==="demo" || TAB==="calculator";
   const listActions = TAB!=="overview" && !isTool;
-  const be=$("#btn-export"), ba=$("#btn-add"), sb=$("#segbar");
+  const be=$("#btn-export"), ba=$("#btn-add"), sb=$("#segbar"), bd=$("#btn-dashboard");
   if(be) be.style.display=listActions?"":"none";
   if(ba) ba.style.display=listActions?"":"none";
   if(sb) sb.style.display=isTool?"none":"";           // operator switch is irrelevant to the tool
+  if(bd) bd.style.display=isTool?"":"none";           // explicit way back out of a full-bleed tool
   $("#view").classList.toggle("view-demo", isTool);   // full-bleed embed, no padding
   if(TAB==="overview") renderOverview();
   else if(TAB==="pipeline") renderPipeline();
@@ -1908,6 +1910,7 @@ document.querySelectorAll("#login-who .whocard").forEach(b=> b.onclick=()=>pickL
 document.querySelectorAll("#who-pane .whocard").forEach(b=>b.onclick=()=>pickDesk(b.dataset.me));
 document.querySelectorAll("#nav button,#mtabs button").forEach(b=>b.onclick=()=>{TAB=b.dataset.tab;FILTER="all";render();});
 document.querySelectorAll("#segbar button").forEach(b=>b.onclick=()=>{ VIEW=b.dataset.view; render(); });
+$("#btn-dashboard").onclick=()=>{ TAB="overview"; FILTER="all"; render(); };
 $("#btn-refresh").onclick=boot;
 $("#btn-undo").onclick=undoLast;
 $("#btn-export").onclick=exportCSV;
