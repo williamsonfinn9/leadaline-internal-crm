@@ -60,6 +60,9 @@ a{color:inherit}
 .appbar .ab-btn.on{background:rgba(59,130,246,.14);border-color:rgba(59,130,246,.4);color:#fff}
 .appbar .ab-btn svg{width:15px;height:15px}
 .ab-btn.primary{background:var(--grad);border:none;color:#fff}
+.appbar a.ab-btn{text-decoration:none}
+.ab-btn.back{background:transparent;border-color:var(--line2)}
+.ab-btn.back:hover{background:rgba(59,130,246,.12);border-color:rgba(59,130,246,.4);color:#fff}
 
 /* ============ START SCREEN ============ */
 .wrap{max-width:1180px;margin:0 auto;padding:34px 26px 90px}
@@ -405,6 +408,10 @@ section.blk{margin-bottom:30px;scroll-margin-top:120px}
 
 <!-- ============ TOP BAR ============ -->
 <header class="appbar">
+  <a class="ab-btn back" href="index.html" title="Return to the LeadaLine dashboard">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Dashboard
+  </a>
   <a class="brand" href="#" onclick="goHome();return false">
     <img src="https://icshqgpsehddcqwydjxc.supabase.co/functions/v1/logo" alt="LeadaLine"
       onerror="this.replaceWith(Object.assign(document.createElement('b'),{textContent:'LeadaLine',style:'font-family:Space Grotesk;font-size:17px'}))">
