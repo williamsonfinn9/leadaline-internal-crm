@@ -685,6 +685,22 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
   </div>
 </div>
 
+<!-- PERSONAL MESSAGE (pre-demo overview) -->
+<div class="modal-scrim" id="pmmodal">
+  <div class="modal">
+    <h2>Personal message</h2>
+    <span class="eyebrow" id="pm-who">Pre-demo overview · tailor it, then send</span>
+    <div class="frow"><div class="fitem" style="flex:1"><label>Subject</label><input class="dinput" id="pm-subject"></div></div>
+    <div class="fitem"><label>Message</label>
+      <textarea class="darea" id="pm-msg" style="min-height:240px"></textarea>
+      <small style="color:var(--faint);font-size:11px;display:block;margin-top:5px">Anywhere it shows X, swap in the real name or company. Sent inside the LeadaLine letterhead with your signature (Cam or Finn) added automatically.</small></div>
+    <div class="modal-foot">
+      <button class="btn ghost" id="pm-cancel">Cancel</button>
+      <button class="btn-grad btn" id="pm-send">Send message</button>
+    </div>
+  </div>
+</div>
+
 <!-- CONFIRM SEND -->
 <div class="confirm-scrim" id="confirmmodal">
   <div class="confirm">
@@ -726,6 +742,7 @@ const CFG = {
   MEETING_WEBHOOK: "https://hook.eu1.make.com/ee00mpx09pngw8ffmvb4y96vnexvsj2a",  // fires the booking email + calendar invite
   DEMO_WEBHOOK: "https://hook.eu1.make.com/j2hh25bl8giikgcjb2tx8ypaz53kamgt",      // fires the personalised demo email
   FOLLOWUP_WEBHOOK: "https://hook.eu1.make.com/gssv98nahnf5eg59ku4cfxfw7023u3a7",   // fires the follow-up email (editable in CRM)
+  PERSONAL_WEBHOOK: "",   // fires the personal pre-demo overview email — paste the Make webhook URL here once that scenario is live
   SCOUT_WEBHOOK: "https://hook.eu1.make.com/svzjy7umupen1p18arpdb24tjc46wk4q"       // AI Lead Scout: finds + Fable-filters fresh prospects into the call sheet
 };
 const REST = CFG.SUPABASE_URL + "/rest/v1/" + CFG.TABLE;
@@ -1682,7 +1699,13 @@ function renderDrawerActions(l, ovr){
   } else {
     wrap.innerHTML="";
   }
+  /* Personal pre-demo overview email — always available, sits next to the send buttons. */
+  const sendsAs=(l.owner||ME)==="cam"?"Cam":"Finn";
+  wrap.innerHTML += `<div class="dact"><span class="eyebrow">Personal message</span>
+    <button class="send-btn" data-personal="1" style="background:var(--panel2);color:var(--ink);border:1px solid var(--line2)">✉ Edit personal message</button>
+    <div class="send-hint">The pre-demo overview email. Tailor the wording, then send. Signed off as ${sendsAs}.</div></div>`;
   wrap.querySelectorAll("[data-send]").forEach(b=> b.onclick=()=> confirmSend(b.dataset.send, l.id));
+  wrap.querySelectorAll("[data-personal]").forEach(b=> b.onclick=()=> openPersonal(l.id));
 }
 
 let CONFIRM_CTX=null;
@@ -1743,13 +1766,19 @@ async function doConfirmedSend(){
       if(stOf(l)!=="meeting") patch.status="meeting";
     } else if(stOf(l)!=="demo_sent"){ patch.status="demo_sent"; }
     if(Object.keys(patch).length) await saveLead(id, patch);
+    /* The greeting is driven ONLY by the "Name for the greeting" field, so the
+       email always opens with exactly what was typed. We send it straight to
+       Make as greeting_name instead of letting Make guess a name column. */
+    const greetSrc=(contactEl && contactEl.value.trim()) || l.contact_name || l.name || "there";
+    const greeting_name=greetSrc.split(" ")[0];
     if(kind==="demo"){
       await fetch(CFG.DEMO_WEBHOOK,{method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({lead_id:id}),keepalive:true});
+        body:JSON.stringify({lead_id:id, greeting_name, email, company_name:l.company_name||null}),keepalive:true});
       logEvent(id, l.owner, "demo_sent", null);
       toast("Demo on its way to "+nameOf(l),"ok");
     } else {
-      const body={lead_id:id};
+      const body={lead_id:id, greeting_name, email, company_name:l.company_name||null};
+      body.meeting_at = $("#c-meet") ? new Date($("#c-meet").value).toISOString() : (l.meeting_at||null);
       const intro=$("#c-intro"); if(intro && intro.value.trim()) body.intro=intro.value.trim();
       await fetch(CFG.MEETING_WEBHOOK,{method:"POST",headers:{"Content-Type":"application/json"},
         body:JSON.stringify(body),keepalive:true});
@@ -1823,6 +1852,52 @@ $("#fu-send").onclick=async()=>{
     closeFollowUp();
   }catch(e){ toast("Couldn't send - check connection and try again.","err"); }
   btn.disabled=false; btn.textContent="Send follow-up";
+};
+
+/* ============ PERSONAL MESSAGE (pre-demo overview) ============ */
+let PM_LEAD=null;
+function pmDraft(l){
+  const first=((l.contact_name||l.name||"").trim().split(" ")[0])||"X";
+  const co=(l.company_name||"").replace(/[,\s]+(ltd\.?|limited|llp|plc)\.?\s*$/i,"").trim()||"X";
+  return {
+    subject:"A quick overview before our demo, "+first,
+    msg:"Hi "+first+",\n\n"+
+      "Good speaking with you earlier.\n\n"+
+      "Before our demo, here is a quick overview of what we actually do, so it makes sense when we jump on.\n\n"+
+      "LeadaLine gives an electrical firm an AI office team. In plain terms, it answers every call, qualifies the job, books it in, and chases every quote via phone, text and web. So the work gets captured while you and the lads are on the tools, not missed because nobody could get to the phone.\n\n"+
+      "You pick what you need. Most firms start with the call answering and lead capture, then add follow up and reviews as they see it working. Nothing is locked in, and nothing is a big IT project.\n\n"+
+      "On the demo I will walk you through how it would run for "+co+", using a live example so you can hear it rather than just take my word for it. About 15 minutes.\n\n"+
+      "If you want a look before then, everything is on leadaline.com"
+  };
+}
+function openPersonal(id){
+  const l=LEADS.find(x=>x.id===id); if(!l) return;
+  if(!l.email){ toast("Add an email in the record and Save first.","err"); const ef=$("#d-email"); if(ef) ef.focus(); return; }
+  PM_LEAD=l;
+  const d=pmDraft(l);
+  $("#pm-subject").value=d.subject;
+  $("#pm-msg").value=d.msg;
+  $("#pm-who").textContent="To "+l.email+" · sends as "+((l.owner||ME)==="cam"?"Cam":"Finn");
+  $("#pmmodal").classList.add("open");
+  $("#pm-msg").focus();
+}
+function closePersonal(){ $("#pmmodal").classList.remove("open"); PM_LEAD=null; }
+$("#pm-cancel").onclick=closePersonal;
+$("#pmmodal").addEventListener("click",e=>{ if(e.target.id==="pmmodal") closePersonal(); });
+$("#pm-send").onclick=async()=>{
+  if(!PM_LEAD) return;
+  const subject=$("#pm-subject").value.trim(), msg=$("#pm-msg").value.trim();
+  if(!subject||!msg){ toast("Add a subject and a message.","err"); return; }
+  if(!CFG.PERSONAL_WEBHOOK){ toast("Personal message isn't wired to Make yet - we'll switch it on next.","err"); return; }
+  const btn=$("#pm-send"); btn.disabled=true; btn.textContent="Sending…";
+  try{
+    await fetch(CFG.PERSONAL_WEBHOOK,{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({lead_id:PM_LEAD.id, subject:subject, message:msg, owner:PM_LEAD.owner||ME})});
+    toast("Message on its way to "+nameOf(PM_LEAD),"ok");
+    logEvent(PM_LEAD.id, PM_LEAD.owner, "personal_message", null);
+    closePersonal();
+  }catch(e){ toast("Couldn't send - check connection and try again.","err"); }
+  btn.disabled=false; btn.textContent="Send message";
 };
 
 /* ============ ADD MODAL ============ */
@@ -1899,7 +1974,7 @@ $("#c-editbtn").onclick=()=>{ const ctx=CONFIRM_CTX; closeConfirm(); if(!ctx) re
 $("#confirmmodal").addEventListener("click",e=>{ if(e.target.id==="confirmmodal") closeConfirm(); });
 $("#switch-op").onclick=()=>{ setMe(ME==="finn"?"cam":"finn"); VIEW=ME; updateWho(); render(); toast("Now at "+PNAME[ME]+"'s desk","info"); };
 $("#signout").onclick=()=>{ SS.removeItem("ll_auth"); SS.removeItem("ll_me"); location.reload(); };
-document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ tryCloseDrawer(); closeModal(); closeFollowUp(); closeConfirm(); closeExpand(); }});
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ tryCloseDrawer(); closeModal(); closeFollowUp(); closePersonal(); closeConfirm(); closeExpand(); }});
 
 /* auto-resume session (front-end gate only) */
 (function(){ const me=SS.getItem("ll_me");
