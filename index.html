@@ -662,7 +662,13 @@ tbody tr:hover{background:rgba(59,130,246,.05)}
     </div></div>
     <div class="frow"><div class="fitem"><label>Owner</label><select class="sel" id="m-owner">
         <option value="finn">Finn</option><option value="cam">Cam</option></select></div>
-      <div class="fitem"><label>Hook / note</label><input class="dinput" id="m-note" placeholder="Why they're a fit"></div></div>
+      <div class="fitem"><label>Where from</label><input class="dinput" id="m-source" list="m-source-list" placeholder="e.g. Referral, Google, cold call">
+        <datalist id="m-source-list">
+          <option value="Cold call"></option><option value="Referral"></option><option value="Google"></option>
+          <option value="Instagram"></option><option value="Facebook"></option><option value="Website"></option>
+          <option value="WhatsApp"></option><option value="Networking"></option><option value="Walk-in / job site"></option>
+        </datalist></div></div>
+    <div class="fitem" style="margin-bottom:8px"><label>Hook / note</label><input class="dinput" id="m-note" placeholder="Why they're a fit"></div>
     <div class="modal-foot">
       <button class="btn ghost" id="m-cancel">Cancel</button>
       <button class="btn-grad btn" id="m-save">Add to pipeline</button>
@@ -904,21 +910,27 @@ function vsRowHTML(label,f,c,unit){
       <div class="vs-bar"><div class="vs-fill-f" style="width:${pf}%"></div><div class="vs-fill-c" style="width:${100-pf}%"></div></div></div>
     <div class="fn-label" style="justify-content:flex-end;color:#c4a6ff">${c}${unit||""}</div></div>`;
 }
-/* Real call counts from the activity log (every outcome tap logs one). Cached per visit. */
-let VS_CALLS=null;
+/* Real activity counts from the log (every outcome tap / demo / booking logs one).
+   Cached per visit. Rendered as three separate rows: calls, demos, meetings. */
+let VS_ACT=null;
+function actCount(rows,type,owner){ return rows.filter(e=>e.event_type===type&&e.owner===owner).length; }
 async function loadVsCalls(){
   const box=$("#vs-extra"); if(!box) return;
   try{
-    if(!VS_CALLS){
+    if(!VS_ACT){
       const r=await fetch(REST_EVENTS+"?select=owner,event_type",{headers:headers()});
       const rows=r.ok? await r.json():[];
-      VS_CALLS={
-        f: rows.filter(e=>e.event_type==="call"&&e.owner==="finn").length,
-        c: rows.filter(e=>e.event_type==="call"&&e.owner==="cam").length
+      VS_ACT={
+        callsF:actCount(rows,"call","finn"), callsC:actCount(rows,"call","cam"),
+        demosF:actCount(rows,"demo_sent","finn"), demosC:actCount(rows,"demo_sent","cam"),
+        meetF:actCount(rows,"meeting_booked","finn"), meetC:actCount(rows,"meeting_booked","cam")
       };
     }
-    box.innerHTML=vsRowHTML("Calls made",VS_CALLS.f,VS_CALLS.c);
-  }catch(e){ box.innerHTML='<div class="feed-empty" style="padding:4px 0">Couldn\'t load call counts.</div>'; }
+    box.innerHTML =
+      vsRowHTML("Calls made",VS_ACT.callsF,VS_ACT.callsC) +
+      vsRowHTML("Demos sent",VS_ACT.demosF,VS_ACT.demosC) +
+      vsRowHTML("Meetings",VS_ACT.meetF,VS_ACT.meetC);
+  }catch(e){ box.innerHTML='<div class="feed-empty" style="padding:4px 0">Couldn\'t load activity counts.</div>'; }
 }
 
 /* ============ AUTH ============ */
@@ -1059,7 +1071,7 @@ async function renderOverview(){
   S.forEach(l=>{ const s=l.source||"other"; srcMap[s]=(srcMap[s]||0)+1; });
   const sources=Object.entries(srcMap).sort((a,b)=>b[1]-a[1]).slice(0,5);
   const maxSrc=Math.max(1,...sources.map(s=>s[1]));
-  const SRC_LABEL={call_sheet:"Call sheet",electrical_prospecting:"Prospecting",website_booking:"Website",adzuna_scraper:"Adzuna",other:"Other"};
+  const SRC_LABEL={call_sheet:"Call sheet",electrical_prospecting:"Prospecting",website_booking:"Website",adzuna_scraper:"Adzuna",ai_scout:"AI Scout",manual:"Added by hand",other:"Other"};
 
   // finn vs cam head-to-head (team view only)
   const camL=LEADS.filter(l=>l.owner==="cam"), finnL=LEADS.filter(l=>l.owner==="finn");
@@ -1184,8 +1196,7 @@ async function renderOverview(){
       <div class="ovp-h"><h3>Finn vs Cam</h3><span class="ovp-sub"><span style="color:#9ec2ff;font-weight:700">Finn</span> left · <span style="color:#c4a6ff;font-weight:700">Cam</span> right · totals since launch</span></div>
       <div class="fnl">
         ${vsRowHTML("Leads worked",finnN,camN)}
-        <div id="vs-extra"><div class="feed-empty" style="padding:4px 0">Counting calls…</div></div>
-        ${vsRowHTML("Demos + meetings",finnDeals,camDeals)}
+        <div id="vs-extra"><div class="feed-empty" style="padding:4px 0">Counting activity…</div></div>
         ${vsRowHTML("Won",finnWon,camWon)}
         ${vsRowHTML("Conversion",convF,convC,"%")}
       </div>
@@ -1966,7 +1977,7 @@ $("#pm-send").onclick=async()=>{
 
 /* ============ ADD MODAL ============ */
 function openModal(){ $("#m-owner").value=ME; $("#modal").classList.add("open"); $("#m-name").focus(); }
-function closeModal(){ $("#modal").classList.remove("open"); ["m-name","m-company","m-phone","m-email","m-loc","m-val","m-note"].forEach(i=>$("#"+i).value=""); }
+function closeModal(){ $("#modal").classList.remove("open"); ["m-name","m-company","m-phone","m-email","m-loc","m-val","m-note","m-source"].forEach(i=>$("#"+i).value=""); }
 async function addLead(){
   const name=$("#m-name").value.trim(), company=$("#m-company").value.trim(), phone=$("#m-phone").value.trim();
   if(!name && !company){ toast("Give it a name or company","err"); return; }
@@ -1975,7 +1986,7 @@ async function addLead(){
     email: $("#m-email").value.trim()||null, location: $("#m-loc").value.trim()||null,
     estimated_value: parseInt($("#m-val").value||"0",10),
     recommended_next_action: $("#m-note").value.trim()||null,
-    status:"new", source:"call_sheet", owner: ($("#m-owner").value||ME), assigned_employee:"Human outreach"
+    status:"new", source:($("#m-source").value.trim()||"manual"), owner: ($("#m-owner").value||ME), assigned_employee:"Human outreach"
   };
   const btn=$("#m-save"); btn.disabled=true;
   try{
